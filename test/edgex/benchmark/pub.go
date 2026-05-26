@@ -18,16 +18,12 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"sync"
 	"time"
 
-	v4 "github.com/edgexfoundry/go-mod-core-contracts/v4/common"
-	"github.com/edgexfoundry/go-mod-core-contracts/v4/dtos"
 	"github.com/edgexfoundry/go-mod-messaging/v4/messaging"
 	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
 )
@@ -59,47 +55,9 @@ var mockup = []data{
 	{temperature: 55, humidity: 60},
 }
 
-func pubEvent(count int, wg *sync.WaitGroup) {
-	defer wg.Done()
-	if msgClient, err := messaging.NewMessageClient(msgConfig1); err != nil {
-		log.Fatal(err)
-	} else {
-		if ec := msgClient.Connect(); ec != nil {
-			log.Fatal(ec)
-		} else {
-			index := 0
-			for i := 0; i < count; i++ {
-				if i%10 == 0 {
-					index = 0
-				}
+func pubEvent(count int, wg *sync.WaitGroup) { _ = "STUB: not implemented"; return }
 
-				testEvent := dtos.NewEvent("demoProfile", "demo", "demoSource")
-				err := testEvent.AddSimpleReading("Temperature", v4.ValueTypeInt32, int32(mockup[index].temperature))
-				if err != nil {
-					fmt.Errorf("Add reading error for Temperature: %v\n", int32(mockup[index].temperature))
-				}
-				testEvent.Readings[0].DeviceName = "Temperature device"
-
-				err = testEvent.AddSimpleReading("Humidity", v4.ValueTypeInt32, int32(mockup[index].humidity))
-				if err != nil {
-					fmt.Errorf("Add reading error for Humidity: %v\n", int32(mockup[index].temperature))
-				}
-				testEvent.Readings[1].DeviceName = "Humidity device"
-				index++
-
-				env := types.NewMessageEnvelope(testEvent, context.Background())
-				env.ContentType = "application/json"
-
-				if e := msgClient.Publish(env, "events"); e != nil {
-					log.Fatal(e)
-				} else {
-					// fmt.Printf("%d - %s\n", index, string(data))
-				}
-				time.Sleep(100 * time.Nanosecond)
-			}
-		}
-	}
-}
+// fmt.Printf("%d - %s\n", index, string(data))
 
 func main() {
 	start := time.Now()

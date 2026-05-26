@@ -14,16 +14,4 @@
 
 package encoding
 
-import (
-	"bytes"
-	"encoding/gob"
-)
-
-func Encode(value interface{}) ([]byte, error) {
-	var buff bytes.Buffer
-	enc := gob.NewEncoder(&buff)
-	if err := enc.Encode(value); err != nil {
-		return nil, err
-	}
-	return buff.Bytes(), nil
-}
+func Encode(value interface{}) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }

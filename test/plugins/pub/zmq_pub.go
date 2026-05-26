@@ -29,46 +29,11 @@ type zmqPub struct {
 	topic     string
 }
 
-func (m *zmqPub) Open() (err error) {
-	m.publisher, err = zmq.NewSocket(zmq.PUB)
-	if err != nil {
-		return fmt.Errorf("zmq sink fails to create socket: %v", err)
-	}
-	err = m.publisher.Bind(m.srv)
-	if err != nil {
-		return fmt.Errorf("zmq sink fails to bind to %s: %v", m.srv, err)
-	}
-	fmt.Println("zmq sink open")
-	return nil
-}
+func (m *zmqPub) Open() (err error) { _ = "STUB: not implemented"; return nil }
 
-func (m *zmqPub) Send(item interface{}) (err error) {
-	if v, ok := item.([]byte); ok {
-		fmt.Printf("To pub: %s \n", item)
-		if m.topic == "" {
-			_, err = m.publisher.Send(string(v), 0)
-		} else {
-			msgs := []string{
-				m.topic,
-				string(v),
-			}
-			_, err = m.publisher.SendMessage(msgs)
-		}
-	} else {
-		fmt.Printf("zmq sink receive non byte data %v \n", item)
-	}
-	if err != nil {
-		fmt.Printf("send to zmq error %v \n", err)
-	}
-	return
-}
+func (m *zmqPub) Send(item interface{}) (err error) { _ = "STUB: not implemented"; return nil }
 
-func (m *zmqPub) Close() error {
-	if m.publisher != nil {
-		return m.publisher.Close()
-	}
-	return nil
-}
+func (m *zmqPub) Close() error { _ = "STUB: not implemented"; return nil }
 
 type data struct {
 	Temperature int `json:"temperature"`

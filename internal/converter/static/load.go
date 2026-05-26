@@ -15,33 +15,10 @@
 package static
 
 import (
-	"fmt"
-	"plugin"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
 func LoadStaticConverter(soFile string, messageName string) (message.Converter, error) {
-	sp, err := plugin.Open(soFile)
-	if err != nil {
-		conf.Log.Errorf("custom schema file %s open error: %v", soFile, err)
-		return nil, fmt.Errorf("cannot open %s: %v", soFile, err)
-	}
-	nf, err := sp.Lookup("Get" + messageName)
-	if err != nil {
-		conf.Log.Warnf("cannot find schemaId %s, please check if it is exported: Get%v", messageName, err)
-		return nil, nil
-	}
-	nff, ok := nf.(func() interface{})
-	if !ok {
-		conf.Log.Errorf("exported symbol Get%s is not func to return interface{}", messageName)
-		return nil, fmt.Errorf("load static converter %s, message %s error", soFile, messageName)
-	}
-	mc, ok := nff().(message.Converter)
-	if ok {
-		return mc, nil
-	} else {
-		return nil, fmt.Errorf("get schema converter failed, exported symbol %s is not type of message.Converter", messageName)
-	}
+	_ = "STUB: not implemented"
+	return *new(message.Converter), nil
 }

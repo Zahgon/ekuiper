@@ -15,22 +15,9 @@
 package validate
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
 )
 
 var idRegex = regexp.MustCompile(`^[a-zA-Z0-9_\-]+$`)
 
-func ValidateID(id string) error {
-	if id == "" {
-		return fmt.Errorf("id cannot be empty")
-	}
-	if id != strings.TrimSpace(id) {
-		return fmt.Errorf("id '%s' contains leading or trailing whitespace", id)
-	}
-	if !idRegex.MatchString(id) {
-		return fmt.Errorf("id '%s' contains invalid characters: only alphanumeric, hyphens and underscores are allowed", id)
-	}
-	return nil
-}
+func ValidateID(id string) error { _ = "STUB: not implemented"; return nil }

@@ -15,15 +15,6 @@
 package pebble
 
 import (
-	"bytes"
-	"encoding/gob"
-	"errors"
-	"fmt"
-
-	"github.com/cockroachdb/pebble"
-
-	kvEncoding "github.com/lf-edge/ekuiper/v2/internal/pkg/store/encoding"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
 )
 
@@ -33,207 +24,51 @@ type pebbleKvStore struct {
 }
 
 func createPebbleKvStore(database KVDatabase, table string) (kv.KeyValue, error) {
-	return &pebbleKvStore{
-		database: database,
-		table:    table,
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(kv.KeyValue), nil
 }
 
-func (p *pebbleKvStore) key(k string) []byte {
-	return []byte(fmt.Sprintf("%s:%s", p.table, k))
-}
+func (p *pebbleKvStore) key(k string) []byte { _ = "STUB: not implemented"; return nil }
 
 func (p *pebbleKvStore) Setnx(key string, value interface{}) error {
-	return p.database.Apply(func(db *pebble.DB) error {
-		k := p.key(key)
-		_, closer, err := db.Get(k)
-		if err == nil {
-			closer.Close()
-			return fmt.Errorf("item %s already exists", key)
-		} else if !errors.Is(err, pebble.ErrNotFound) {
-			return err
-		}
-
-		b, err := kvEncoding.Encode(value)
-		if err != nil {
-			return err
-		}
-
-		return db.Set(k, b, pebble.Sync)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *pebbleKvStore) Set(key string, value interface{}) error {
-	return p.database.Apply(func(db *pebble.DB) error {
-		b, err := kvEncoding.Encode(value)
-		if err != nil {
-			return err
-		}
-
-		return db.Set(p.key(key), b, pebble.Sync)
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *pebbleKvStore) Get(key string, value interface{}) (bool, error) {
-	var found bool
-	err := p.database.Apply(func(db *pebble.DB) error {
-		k := p.key(key)
-		data, closer, err := db.Get(k)
-		if err != nil {
-			if errors.Is(err, pebble.ErrNotFound) {
-				found = false
-				return nil
-			}
-
-			return err
-		}
-		defer closer.Close()
-
-		dec := gob.NewDecoder(bytes.NewReader(data))
-		if err = dec.Decode(value); err != nil {
-			return err
-		}
-
-		found = true
-		return nil
-	})
-
-	return found, err
+	_ = "STUB: not implemented"
+	return false, nil
 }
 
 func (p *pebbleKvStore) GetKeyedState(key string) (interface{}, error) {
-	var val string
-	found, err := p.Get(key, &val)
-	if err != nil {
-		return nil, err
-	}
-
-	if !found {
-		return nil, fmt.Errorf("key not found")
-	}
-
-	return val, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *pebbleKvStore) SetKeyedState(key string, value interface{}) error {
-	return p.Set(key, value)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (p *pebbleKvStore) Delete(key string) error {
-	return p.database.Apply(func(db *pebble.DB) error {
-		k := p.key(key)
-		_, closer, err := db.Get(k)
-		if err != nil {
-			return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("%s is not found", key))
-		}
-		closer.Close()
-		return db.Delete(k, pebble.Sync)
-	})
-}
+func (p *pebbleKvStore) Delete(key string) error { _ = "STUB: not implemented"; return nil }
 
-func (p *pebbleKvStore) Keys() ([]string, error) {
-	var keys []string
-	err := p.database.Apply(func(db *pebble.DB) error {
-		iter, err := db.NewIter(nil)
-		if err != nil {
-			return err
-		}
-		defer iter.Close()
-
-		prefix := []byte(p.table + ":")
-		for iter.First(); iter.Valid(); iter.Next() {
-			k := iter.Key()
-			if !bytes.HasPrefix(k, prefix) {
-				continue
-			}
-
-			keys = append(keys, string(k[len(prefix):]))
-		}
-
-		return nil
-	})
-
-	return keys, err
-}
+func (p *pebbleKvStore) Keys() ([]string, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func (p *pebbleKvStore) All() (map[string]string, error) {
-	all := make(map[string]string)
-	err := p.database.Apply(func(db *pebble.DB) error {
-		iter, err := db.NewIter(nil)
-		if err != nil {
-			return err
-		}
-		defer iter.Close()
-
-		prefix := []byte(p.table + ":")
-		for iter.First(); iter.Valid(); iter.Next() {
-			k := iter.Key()
-			v := iter.Value()
-			if !bytes.HasPrefix(k, prefix) {
-				continue
-			}
-
-			var val string
-			if err = gob.NewDecoder(bytes.NewReader(v)).Decode(&val); err != nil {
-				return err
-			}
-
-			all[string(k[len(prefix):])] = val
-		}
-
-		return nil
-	})
-
-	return all, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (p *pebbleKvStore) Clean() error {
-	return p.Drop()
-}
+func (p *pebbleKvStore) Clean() error { _ = "STUB: not implemented"; return nil }
 
-func (p *pebbleKvStore) Drop() error {
-	return p.database.Apply(func(db *pebble.DB) error {
-		iter, err := db.NewIter(nil)
-		if err != nil {
-			return err
-		}
-		defer iter.Close()
-
-		batch := db.NewBatch()
-		prefix := []byte(p.table + ":")
-		for iter.First(); iter.Valid(); iter.Next() {
-			k := iter.Key()
-			if bytes.HasPrefix(k, prefix) {
-				batch.Delete(k, pebble.Sync)
-			}
-		}
-
-		return db.Apply(batch, pebble.Sync)
-	})
-}
+func (p *pebbleKvStore) Drop() error { _ = "STUB: not implemented"; return nil }
 
 func (p *pebbleKvStore) GetByPrefix(prefix string) (map[string][]byte, error) {
-	results := make(map[string][]byte)
-	err := p.database.Apply(func(db *pebble.DB) error {
-		iter, err := db.NewIter(nil)
-		if err != nil {
-			return err
-		}
-		defer iter.Close()
-
-		fullPrefix := []byte(fmt.Sprintf("%s:%s", p.table, prefix))
-		for iter.SeekGE(fullPrefix); iter.Valid(); iter.Next() {
-			k := iter.Key()
-			if !bytes.HasPrefix(k, fullPrefix) {
-				break
-			}
-			v := iter.Value()
-			keyWithoutTable := string(k[len(p.table)+1:])
-			results[keyWithoutTable] = append([]byte{}, v...)
-		}
-
-		return nil
-	})
-
-	return results, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }

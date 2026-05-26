@@ -31,14 +31,13 @@ type RollHookProvider func() RollHook
 var fileRollHooks = map[string]RollHookProvider{}
 
 func RegisterFileRollHook(name string, provider RollHookProvider) {
-	fileRollHooks[name] = provider
+	_ = "STUB: not implemented"
+	return
 }
 
 func GetFileRollHook(name string) (RollHook, bool) {
-	if p, ok := fileRollHooks[name]; ok {
-		return p(), ok
-	}
-	return nil, false
+	_ = "STUB: not implemented"
+	return *new(RollHook), false
 }
 
 // FileStreamReader reads a type of file line by line. Avoid to load the full file
@@ -60,18 +59,15 @@ type FileStreamReaderProvider func(ctx api.StreamContext) FileStreamReader
 var fileStreamReaders = map[string]FileStreamReaderProvider{}
 
 func RegisterFileStreamReader(name string, provider FileStreamReaderProvider) {
-	fileStreamReaders[name] = provider
+	_ = "STUB: not implemented"
+	return
 }
 
-func RegisterFileStreamReaderAlias(alias string, ref string) {
-	fileStreamReaders[alias] = fileStreamReaders[ref]
-}
+func RegisterFileStreamReaderAlias(alias string, ref string) { _ = "STUB: not implemented"; return }
 
 func GetFileStreamReader(ctx api.StreamContext, name string) (FileStreamReader, bool) {
-	if p, ok := fileStreamReaders[name]; ok {
-		return p(ctx), true
-	}
-	return nil, false
+	_ = "STUB: not implemented"
+	return *new(FileStreamReader), false
 }
 
 type FileStreamDecorator interface {
@@ -89,12 +85,11 @@ type FileStreamDecoratorProvider func(ctx api.StreamContext) FileStreamDecorator
 var fileStreamDecorators = map[string]FileStreamDecoratorProvider{}
 
 func RegisterFileStreamDecorator(name string, provider FileStreamDecoratorProvider) {
-	fileStreamDecorators[name] = provider
+	_ = "STUB: not implemented"
+	return
 }
 
 func GetFileStreamDecorator(ctx api.StreamContext, name string) (FileStreamDecorator, bool) {
-	if p, ok := fileStreamDecorators[name]; ok {
-		return p(ctx), true
-	}
-	return nil, false
+	_ = "STUB: not implemented"
+	return *new(FileStreamDecorator), false
 }

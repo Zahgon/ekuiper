@@ -20,20 +20,8 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/store/definition"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
-func NewRedisFromConf(c definition.Config) *redis.Client {
-	conf := c.Redis
-	return redis.NewClient(&redis.Options{
-		Addr:        cast.JoinHostPortInt(conf.Host, conf.Port),
-		Password:    conf.Password,
-		DialTimeout: conf.Timeout,
-	})
-}
+func NewRedisFromConf(c definition.Config) *redis.Client { _ = "STUB: not implemented"; return nil }
 
-func NewRedis(host string, port int) *redis.Client {
-	return redis.NewClient(&redis.Options{
-		Addr: cast.JoinHostPortInt(host, port),
-	})
-}
+func NewRedis(host string, port int) *redis.Client { _ = "STUB: not implemented"; return nil }

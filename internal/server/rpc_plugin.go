@@ -17,103 +17,30 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/model"
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/validate"
 )
 
 func (t *Server) CreatePlugin(arg *model.PluginDesc, reply *string) error {
-	pt := plugin.PluginType(arg.Type)
-	p, err := getPluginByJson(arg, pt)
-	if err != nil {
-		return fmt.Errorf("Create plugin error: %s", err)
-	}
-	if err := validate.ValidateID(p.GetName()); err != nil {
-		return err
-	}
-	if p.GetFile() == "" {
-		return fmt.Errorf("Create plugin error: Missing plugin file url.")
-	}
-	// define according to the build tag
-	err = t.doRegister(pt, p)
-	if err != nil {
-		return fmt.Errorf("Create plugin error: %s", err)
-	} else {
-		*reply = fmt.Sprintf("Plugin %s is created.", p.GetName())
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (t *Server) DropPlugin(arg *model.PluginDesc, reply *string) error {
-	pt := plugin.PluginType(arg.Type)
-	p, err := getPluginByJson(arg, pt)
-	if err != nil {
-		return fmt.Errorf("Drop plugin error: %s", err)
-	}
-	if err := validate.ValidateID(p.GetName()); err != nil {
-		return err
-	}
-	err = t.doDelete(pt, p.GetName(), arg.Stop)
-	if err != nil {
-		return fmt.Errorf("Drop plugin error: %s", err)
-	} else {
-		if pt == plugin.PORTABLE {
-			*reply = fmt.Sprintf("Plugin %s is dropped .", p.GetName())
-		} else {
-			if arg.Stop {
-				*reply = fmt.Sprintf("Plugin %s is dropped and Kuiper will be stopped.", p.GetName())
-			} else {
-				*reply = fmt.Sprintf("Plugin %s is dropped and Kuiper must restart for the change to take effect.", p.GetName())
-			}
-		}
-	}
+// define according to the build tag
 
+func (t *Server) DropPlugin(arg *model.PluginDesc, reply *string) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (t *Server) DescPlugin(arg *model.PluginDesc, reply *string) error {
-	pt := plugin.PluginType(arg.Type)
-	p, err := getPluginByJson(arg, pt)
-	if err != nil {
-		return fmt.Errorf("Describe plugin error: %s", err)
-	}
-	if err := validate.ValidateID(p.GetName()); err != nil {
-		return err
-	}
-	m, err := t.doDesc(pt, p.GetName())
-	if err != nil {
-		return fmt.Errorf("Describe plugin error: %s", err)
-	} else {
-		r, err := marshalDesc(m)
-		if err != nil {
-			return fmt.Errorf("Describe plugin error: %v", err)
-		}
-		*reply = r
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (t *Server) ShowPlugins(arg int, reply *string) error {
-	pt := plugin.PluginType(arg)
-	l, err := t.doShow(pt)
-	if err != nil {
-		return fmt.Errorf("Show plugin error: %s", err)
-	}
-	*reply = l
-	return nil
-}
+func (t *Server) ShowPlugins(arg int, reply *string) error { _ = "STUB: not implemented"; return nil }
 
 func getPluginByJson(arg *model.PluginDesc, pt plugin.PluginType) (plugin.Plugin, error) {
-	p := plugin.NewPluginByType(pt)
-	if arg.Json != "" {
-		if err := json.Unmarshal(cast.StringToBytes(arg.Json), p); err != nil {
-			return nil, fmt.Errorf("Parse plugin %s error : %s.", arg.Json, err)
-		}
-	}
-	p.SetName(arg.Name)
-	return p, nil
+	_ = "STUB: not implemented"
+	return *new(plugin.Plugin), nil
 }

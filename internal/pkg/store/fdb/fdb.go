@@ -25,30 +25,6 @@ import (
 const defaultAPIVersion int = 710
 
 func NewFdbFromConf(c definition.Config) (*fdb.Database, error) {
-	conf := c.Fdb
-	var err error
-	if conf.APIVersion > 0 {
-		err = fdb.APIVersion(conf.APIVersion)
-	} else {
-		err = fdb.APIVersion(defaultAPIVersion)
-	}
-	if err != nil {
-		return nil, err
-	}
-	var db fdb.Database
-	if conf.Path == "" {
-		db, err = fdb.OpenDefault()
-	} else {
-		db, err = fdb.OpenDatabase(conf.Path)
-	}
-	if err != nil {
-		return nil, err
-	}
-	if conf.Timeout > 0 && conf.APIVersion >= 610 {
-		err = db.Options().SetTransactionTimeout(conf.Timeout)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &db, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

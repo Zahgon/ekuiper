@@ -21,12 +21,11 @@ type WatermarkTuple struct {
 }
 
 func (t *WatermarkTuple) GetTimestamp() time.Time {
-	return t.Timestamp
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
-func (t *WatermarkTuple) IsWatermark() bool {
-	return true
-}
+func (t *WatermarkTuple) IsWatermark() bool { _ = "STUB: not implemented"; return false }
 
 type (
 	EOFTuple      string

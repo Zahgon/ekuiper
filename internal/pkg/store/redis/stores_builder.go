@@ -21,8 +21,6 @@ import (
 )
 
 func BuildStores(c definition.Config, _ string) (definition.StoreBuilder, definition.TsBuilder, error) {
-	d := NewRedisFromConf(c)
-	kvBuilder := NewStoreBuilder(d)
-	tsBuilder := NewTsBuilder(d)
-	return kvBuilder, tsBuilder, nil
+	_ = "STUB: not implemented"
+	return *new(definition.StoreBuilder), *new(definition.TsBuilder), nil
 }

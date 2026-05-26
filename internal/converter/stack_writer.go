@@ -29,29 +29,18 @@ type StackWriter struct {
 }
 
 func NewStackWriter(_ api.StreamContext, converter message.Converter) (message.ConvertWriter, error) {
-	return &StackWriter{
-		converter: converter,
-		buffer:    bytes.NewBuffer(nil),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(message.ConvertWriter), nil
 }
 
-func (w *StackWriter) New(ctx api.StreamContext) error {
-	ctx.GetLogger().Debugf("new stack writer")
-	w.buffer.Reset()
-	return nil
-}
+func (w *StackWriter) New(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (w *StackWriter) Write(ctx api.StreamContext, d any) error {
-	ctx.GetLogger().Debugf("stack writer write")
-	result, err := w.converter.Encode(ctx, d)
-	if err != nil {
-		return err
-	}
-	w.buffer.Write(result)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (w *StackWriter) Flush(ctx api.StreamContext) ([]byte, error) {
-	ctx.GetLogger().Debugf("stack writer flush")
-	return w.buffer.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

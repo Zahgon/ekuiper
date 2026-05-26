@@ -16,7 +16,6 @@ package sql
 
 import (
 	"database/sql"
-	"regexp"
 )
 
 type Database interface {
@@ -25,20 +24,16 @@ type Database interface {
 
 // isValidTableName checks if the given string is a valid database table name.
 func isValidTableName(tableName string) bool {
+	_ = "STUB: not implemented"
 	// Check if the table name is empty
-	if tableName == "" {
-		return false
-	}
-
-	// Regular expression to match valid table names
-	// ^[a-zA-Z_][a-zA-Z0-9_]*$
-	// ^[a-zA-Z_] ensures the name starts with a letter or underscore
-	// [a-zA-Z0-9_]*$ ensures the rest of the name consists of letters, digits, or underscores
-	validTableNamePattern := `^[a-zA-Z_][a-zA-Z0-9/_]*$`
-
-	// Compile the regular expression
-	re := regexp.MustCompile(validTableNamePattern)
-
-	// Check if the table name matches the pattern
-	return re.MatchString(tableName)
+	return false
 }
+
+// Regular expression to match valid table names
+// ^[a-zA-Z_][a-zA-Z0-9_]*$
+// ^[a-zA-Z_] ensures the name starts with a letter or underscore
+// [a-zA-Z0-9_]*$ ensures the rest of the name consists of letters, digits, or underscores
+
+// Compile the regular expression
+
+// Check if the table name matches the pattern

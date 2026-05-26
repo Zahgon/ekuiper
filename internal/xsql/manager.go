@@ -15,9 +15,6 @@
 package xsql
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -33,30 +30,14 @@ type ParseTree struct {
 }
 
 func (pt *ParseTree) Handle(lit string, fn func(*Parser) (ast.Statement, error)) {
+	_ = "STUB: not implemented"
 	// Verify that there is no conflict for this token in this parse tree.
-	if _, conflict := pt.Tokens[lit]; conflict {
-		panic(fmt.Sprintf("conflict for token %s", lit))
-	}
-
-	if _, conflict := pt.Handlers[lit]; conflict {
-		panic(fmt.Sprintf("conflict for token %s", lit))
-	}
-
-	if pt.Handlers == nil {
-		pt.Handlers = make(map[string]func(*Parser) (ast.Statement, error))
-	}
-	pt.Handlers[lit] = fn
-	pt.Keys = append(pt.Keys, lit)
+	return
 }
 
 func (pt *ParseTree) Parse(p *Parser) (ast.Statement, error) {
-	_, lit := p.scanIgnoreWhitespace()
-	lit = strings.ToUpper(lit)
-	p.unscan()
-	if f, ok := pt.Handlers[lit]; ok {
-		return f(p)
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(ast.Statement), nil
 }
 
 func init() {

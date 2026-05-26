@@ -15,25 +15,16 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 )
 
 type echo struct{}
 
-func (f *echo) Validate(args []interface{}) error {
-	if len(args) != 1 {
-		return fmt.Errorf("echo function only supports 1 parameter but got %d", len(args))
-	}
-	return nil
-}
+func (f *echo) Validate(args []interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func (f *echo) Exec(args []interface{}, _ api.FunctionContext) (interface{}, bool) {
-	result := args[0]
-	return result, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (f *echo) IsAggregate() bool {
-	return false
-}
+func (f *echo) IsAggregate() bool { _ = "STUB: not implemented"; return false }

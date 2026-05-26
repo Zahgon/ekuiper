@@ -16,7 +16,6 @@ package runtime
 
 import (
 	context2 "context"
-	"fmt"
 
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 	"github.com/lf-edge/ekuiper/sdk/go/connection"
@@ -34,64 +33,19 @@ type sourceRuntime struct {
 }
 
 func setupSourceRuntime(con *Control, s api.Source) (*sourceRuntime, error) {
+	_ = "STUB: not implemented"
 	// init context with args
-	ctx, err := parseContext(con)
-	// TODO check cmd error handling or using health check
-	if err != nil {
-		return nil, err
-	}
-	// init config with args and call source config
-	err = s.Configure(con.DataSource, con.Config)
-	if err != nil {
-		return nil, err
-	}
-	// connect to mq server
-	ch, err := connection.CreateSourceChannel(ctx)
-	if err != nil {
-		return nil, err
-	}
-	ctx.GetLogger().Info("Setup message pipeline, start sending")
-	ctx, cancel := ctx.WithCancel()
-	return &sourceRuntime{
-		s:      s,
-		ch:     ch,
-		ctx:    ctx,
-		cancel: cancel,
-		key:    fmt.Sprintf("%s_%s_%d_%s", con.Meta.RuleId, con.Meta.OpId, con.Meta.InstanceId, con.SymbolName),
-	}, nil
+	return nil, nil
 }
 
-func (s *sourceRuntime) run() {
-	errCh := make(chan error)
-	consumer := make(chan api.SourceTuple)
-	go s.s.Open(s.ctx, consumer, errCh)
-	for {
-		select {
-		case err := <-errCh:
-			s.ctx.GetLogger().Errorf("%v", err)
-			broadcast(s.ctx, s.ch, err)
-			s.stop()
-		case data := <-consumer:
-			s.ctx.GetLogger().Debugf("broadcast data %v", data)
-			broadcast(s.ctx, s.ch, data)
-		case <-s.ctx.Done():
-			s.s.Close(s.ctx)
-			return
-		}
-	}
-}
+// TODO check cmd error handling or using health check
 
-func (s *sourceRuntime) stop() error {
-	s.cancel()
-	err := s.ch.Close()
-	if err != nil {
-		s.ctx.GetLogger().Info(err)
-	}
-	s.ctx.GetLogger().Info("closed source data channel")
-	reg.Delete(s.key)
-	return nil
-}
+// init config with args and call source config
 
-func (s *sourceRuntime) isRunning() bool {
-	return s.ctx.Err() == nil
-}
+// connect to mq server
+
+func (s *sourceRuntime) run() { _ = "STUB: not implemented"; return }
+
+func (s *sourceRuntime) stop() error { _ = "STUB: not implemented"; return nil }
+
+func (s *sourceRuntime) isRunning() bool { _ = "STUB: not implemented"; return false }

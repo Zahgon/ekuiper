@@ -25,14 +25,7 @@ var (
 	mutex              syncx.RWMutex
 )
 
-func GetPrometheusMetrics() *PrometheusMetrics {
-	mutex.Lock()
-	if prometheuseMetrics == nil {
-		prometheuseMetrics = newPrometheusMetrics()
-	}
-	mutex.Unlock()
-	return prometheuseMetrics
-}
+func GetPrometheusMetrics() *PrometheusMetrics { _ = "STUB: not implemented"; return nil }
 
 type MetricGroup struct {
 	TotalRecordsIn         *prometheus.CounterVec
@@ -49,75 +42,13 @@ type PrometheusMetrics struct {
 	vecs []*MetricGroup
 }
 
-func newPrometheusMetrics() *PrometheusMetrics {
-	var (
-		labelNames = []string{"rule", "type", "op", "op_instance"}
-		prefixes   = []string{"kuiper_source", "kuiper_op", "kuiper_sink"}
-	)
-	var vecs []*MetricGroup
-	for _, prefix := range prefixes {
-		// prometheus initialization
-		totalRecordsIn := prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: prefix + "_" + RecordsInTotal,
-			Help: "Total number of messages received by the operation of " + prefix,
-		}, labelNames)
-		totalRecordsOut := prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: prefix + "_" + RecordsOutTotal,
-			Help: "Total number of messages published by the operation of " + prefix,
-		}, labelNames)
-		totalMessagesProcessed := prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: prefix + "_" + MessagesProcessedTotal,
-			Help: "Total number of messages published by the operation of " + prefix,
-		}, labelNames)
-		totalExceptions := prometheus.NewCounterVec(prometheus.CounterOpts{
-			Name: prefix + "_" + ExceptionsTotal,
-			Help: "Total number of user exceptions of " + prefix,
-		}, labelNames)
-		processLatency := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Name: prefix + "_" + ProcessLatencyUs,
-			Help: "Process latency in millisecond of " + prefix,
-		}, labelNames)
-		processLatencyHist := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-			Name:    prefix + "_" + ProcessLatencyUsHist,
-			Help:    "Histograms of process latency in millisecond of " + prefix,
-			Buckets: prometheus.ExponentialBuckets(10, 2, 20), // 10us ~ 5s
-		}, labelNames)
-		bufferLength := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-			Name: prefix + "_" + BufferLength,
-			Help: "The length of the plan buffer which is shared by all instances of " + prefix,
-		}, labelNames)
-		prometheus.MustRegister(totalRecordsIn, totalRecordsOut, totalMessagesProcessed, totalExceptions, processLatency, processLatencyHist, bufferLength)
-		mg := &MetricGroup{
-			TotalRecordsIn:         totalRecordsIn,
-			TotalRecordsOut:        totalRecordsOut,
-			TotalMessagesProcessed: totalMessagesProcessed,
-			TotalExceptions:        totalExceptions,
-			ProcessLatency:         processLatency,
-			ProcessLatencyHist:     processLatencyHist,
-			BufferLength:           bufferLength,
-		}
-		if prefix != "kuiper_op" {
-			connectionStatus := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-				Name: prefix + "_" + ConnectionStatus,
-				Help: "The connection status of the operator. Only meaningful for source/sink nodes. 0 means connecting, 1 means connected and -1 means disconnected " + prefix,
-			}, labelNames)
-			_ = prometheus.Register(connectionStatus)
-			mg.ConnectionStatus = connectionStatus
-		}
-		vecs = append(vecs, mg)
+func newPrometheusMetrics() *PrometheusMetrics { _ = "STUB: not implemented"; return nil }
 
-	}
-	return &PrometheusMetrics{vecs: vecs}
-}
+// prometheus initialization
+
+// 10us ~ 5s
 
 func (m *PrometheusMetrics) GetMetricsGroup(opType string) *MetricGroup {
-	switch opType {
-	case "source":
-		return m.vecs[0]
-	case "op":
-		return m.vecs[1]
-	case "sink":
-		return m.vecs[2]
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

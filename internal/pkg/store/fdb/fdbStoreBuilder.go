@@ -30,12 +30,11 @@ type StoreBuilder struct {
 }
 
 func NewStoreBuilder(fdb *fdb.Database) StoreBuilder {
-	return StoreBuilder{
-		database:  fdb,
-		namespace: KVNamespace,
-	}
+	_ = "STUB: not implemented"
+	return *new(StoreBuilder)
 }
 
 func (b StoreBuilder) CreateStore(table string) (kv.KeyValue, error) {
-	return createFdbKvStore(b.database, b.namespace, table)
+	_ = "STUB: not implemented"
+	return *new(kv.KeyValue), nil
 }

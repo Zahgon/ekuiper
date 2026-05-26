@@ -11,15 +11,7 @@ var (
 	conf        *model.KuiperConf
 )
 
-func SetAppConf(cfg *model.KuiperConf) {
-	conf = cfg
-	initialized.Store(true)
-}
+func SetAppConf(cfg *model.KuiperConf) { _ = "STUB: not implemented"; return }
 
 // GetAppConf foreign module can get app conf from this
-func GetAppConf() *model.KuiperConf {
-	if !initialized.Load() {
-		panic("FATAL: appconfig.Get() called before initialization")
-	}
-	return conf
-}
+func GetAppConf() *model.KuiperConf { _ = "STUB: not implemented"; return nil }

@@ -24,46 +24,17 @@ type AnalyticFuncsPlan struct {
 	fieldFuncs []*ast.Call
 }
 
-func (p AnalyticFuncsPlan) Init() *AnalyticFuncsPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(ANALYTICFUNCS)
-	return &p
-}
+func (p AnalyticFuncsPlan) Init() *AnalyticFuncsPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *AnalyticFuncsPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.funcs) != 0 {
-		info += "Funcs:[ "
-		for i, v := range p.funcs {
-			info += v.String()
-			if i != len(p.funcs)-1 {
-				info += ", "
-			}
-		}
-		info += " ], "
-	}
-	if len(p.fieldFuncs) != 0 {
-		info += "FieldFuncs:[ "
-		for i, v := range p.fieldFuncs {
-			info += v.String()
-			if i != len(p.fieldFuncs)-1 {
-				info += ", "
-			}
-		}
-		info += " ]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *AnalyticFuncsPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 // PushDownPredicate this op must run before any filters
 func (p *AnalyticFuncsPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
-	return condition, p
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(LogicalPlan)
 }
 
 func (p *AnalyticFuncsPlan) PruneColumns(fields []ast.Expr) error {
-	for _, f := range p.funcs {
-		ff := getFields(f)
-		fields = append(fields, ff...)
-	}
-	return p.baseLogicalPlan.PruneColumns(fields)
+	_ = "STUB: not implemented"
+	return nil
 }

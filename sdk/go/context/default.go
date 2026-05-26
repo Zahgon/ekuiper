@@ -18,8 +18,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 )
 
@@ -34,84 +32,50 @@ type DefaultContext struct {
 	logger api.Logger
 }
 
-func Background() *DefaultContext {
-	c := &DefaultContext{
-		ctx: context.Background(),
-	}
-	return c
-}
+func Background() *DefaultContext { _ = "STUB: not implemented"; return nil }
 
 func WithValue(parent *DefaultContext, key, val interface{}) *DefaultContext {
-	parent.ctx = context.WithValue(parent.ctx, key, val)
-	return parent
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Deadline Implement context interface
 func (c *DefaultContext) Deadline() (deadline time.Time, ok bool) {
-	return c.ctx.Deadline()
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (c *DefaultContext) Done() <-chan struct{} {
-	return c.ctx.Done()
-}
+func (c *DefaultContext) Done() <-chan struct{} { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) Err() error {
-	return c.ctx.Err()
-}
+func (c *DefaultContext) Err() error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) Value(key interface{}) interface{} {
-	return c.ctx.Value(key)
-}
+func (c *DefaultContext) Value(key interface{}) interface{} { _ = "STUB: not implemented"; return nil }
 
 // Stream metas
 func (c *DefaultContext) GetContext() context.Context {
-	return c.ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func (c *DefaultContext) GetLogger() api.Logger {
-	l, ok := c.ctx.Value(LoggerKey).(*logrus.Entry)
-	if l != nil && ok {
-		return l
-	}
-	return LogEntry("rule", c.ruleId)
-}
+func (c *DefaultContext) GetLogger() api.Logger { _ = "STUB: not implemented"; return *new(api.Logger) }
 
-func (c *DefaultContext) GetRuleId() string {
-	return c.ruleId
-}
+func (c *DefaultContext) GetRuleId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *DefaultContext) GetOpId() string {
-	return c.opId
-}
+func (c *DefaultContext) GetOpId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *DefaultContext) GetInstanceId() int {
-	return c.instanceId
-}
+func (c *DefaultContext) GetInstanceId() int { _ = "STUB: not implemented"; return 0 }
 
 func (c *DefaultContext) WithMeta(ruleId string, opId string) api.StreamContext {
-	return &DefaultContext{
-		ruleId:     ruleId,
-		opId:       opId,
-		instanceId: 0,
-		ctx:        c.ctx,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithInstance(instanceId int) api.StreamContext {
-	return &DefaultContext{
-		instanceId: instanceId,
-		ruleId:     c.ruleId,
-		opId:       c.opId,
-		ctx:        c.ctx,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithCancel() (api.StreamContext, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(c.ctx)
-	return &DefaultContext{
-		ruleId:     c.ruleId,
-		opId:       c.opId,
-		instanceId: c.instanceId,
-		ctx:        ctx,
-	}, cancel
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext), *new(context.CancelFunc)
 }

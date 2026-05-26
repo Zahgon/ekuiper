@@ -15,8 +15,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 	"github.com/mmcloughlin/geohash"
 )
@@ -61,235 +59,92 @@ var (
 	}
 )
 
-func (r *geohashEncode) IsAggregate() bool {
-	return false
-}
+func (r *geohashEncode) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashEncodeInt) IsAggregate() bool {
-	return false
-}
+func (r *geohashEncodeInt) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashDecode) IsAggregate() bool {
-	return false
-}
+func (r *geohashDecode) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashDecodeInt) IsAggregate() bool {
-	return false
-}
+func (r *geohashDecodeInt) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashBoundingBox) IsAggregate() bool {
-	return false
-}
+func (r *geohashBoundingBox) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashBoundingBoxInt) IsAggregate() bool {
-	return false
-}
+func (r *geohashBoundingBoxInt) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashNeighbor) IsAggregate() bool {
-	return false
-}
+func (r *geohashNeighbor) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashNeighborInt) IsAggregate() bool {
-	return false
-}
+func (r *geohashNeighborInt) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashNeighbors) IsAggregate() bool {
-	return false
-}
+func (r *geohashNeighbors) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashNeighborsInt) IsAggregate() bool {
-	return false
-}
+func (r *geohashNeighborsInt) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (r *geohashEncode) Validate(args []any) error {
-	if len(args) != 2 {
-		return fmt.Errorf("The geohashEncode function supports 2 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashEncode) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashEncodeInt) Validate(args []any) error {
-	if len(args) != 2 {
-		return fmt.Errorf("The geohashEncodeInt function supports 2 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashEncodeInt) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashDecode) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashDecode function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashDecode) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashDecodeInt) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashDecodeInt function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashDecodeInt) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashBoundingBox) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashBoundingBox function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashBoundingBox) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashBoundingBoxInt) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashBoundingBoxInt function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashBoundingBoxInt) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashNeighbor) Validate(args []any) error {
-	if len(args) != 2 {
-		return fmt.Errorf("The geohashNeighbor function supports 2 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashNeighbor) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashNeighborInt) Validate(args []any) error {
-	if len(args) != 2 {
-		return fmt.Errorf("The geohashNeighborInt function supports 2 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashNeighborInt) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashNeighbors) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashNeighbors function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashNeighbors) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
-func (r *geohashNeighborsInt) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("The geohashNeighborsInt function supports 1 parameters, but got %d", len(args))
-	}
-	return nil
-}
+func (r *geohashNeighborsInt) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
 func (r *geohashEncode) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	la, ok := args[0].(float64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a float, got %v", args[0]), false
-	}
-	lo, ok := args[1].(float64)
-	if !ok {
-		return fmt.Errorf("arg[1] is not a float, got %v", args[1]), false
-	}
-	return geohash.Encode(la, lo), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashEncodeInt) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	la, ok := args[0].(float64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a float, got %v", args[0]), false
-	}
-	lo, ok := args[1].(float64)
-	if !ok {
-		return fmt.Errorf("arg[1] is not a float, got %v", args[1]), false
-	}
-	return geohash.EncodeInt(la, lo), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashDecode) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(string)
-	if !ok || len(hash) == 0 {
-		return fmt.Errorf("arg[0] is not a string, got %v", args[0]), false
-	}
-	if err := geohash.Validate(hash); nil != err {
-		return err, false
-	}
-	la, lo := geohash.Decode(hash)
-	return position{Longitude: lo, Latitude: la}, true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashDecodeInt) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(uint64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a bigint, got %v", args[0]), false
-	}
-	la, lo := geohash.DecodeInt(hash)
-	return position{Longitude: lo, Latitude: la}, true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashBoundingBox) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(string)
-	if !ok || len(hash) == 0 {
-		return fmt.Errorf("arg[0] is not a string, got %v", args[0]), false
-	}
-	if err := geohash.Validate(hash); nil != err {
-		return err, false
-	}
-	return geohash.BoundingBox(hash), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashBoundingBoxInt) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(uint64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a bigint, got %v", args[0]), false
-	}
-	return geohash.BoundingBoxInt(hash), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashNeighbor) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(string)
-	if !ok || len(hash) == 0 {
-		return fmt.Errorf("arg[0] is not a string, got %v", args[0]), false
-	}
-	if err := geohash.Validate(hash); nil != err {
-		return err, false
-	}
-	var directionCode geohash.Direction
-	direction, ok := args[1].(string)
-	if !ok || len(direction) == 0 {
-		return fmt.Errorf("arg[1] is not a string, got %v", args[1]), false
-	} else {
-		directionCode, ok = g_direction[direction]
-		if !ok {
-			return fmt.Errorf("arg[1] is valid, got %v", args[1]), false
-		}
-
-	}
-	return geohash.Neighbor(hash, directionCode), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashNeighborInt) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(uint64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a bigint, got %v", args[0]), false
-	}
-	var directionCode geohash.Direction
-	direction, ok := args[1].(string)
-	if !ok || len(direction) == 0 {
-		return fmt.Errorf("arg[1] is not a string, got %v", args[1]), false
-	} else {
-		directionCode, ok = g_direction[direction]
-		if !ok {
-			return fmt.Errorf("arg[1] is valid, got %v", args[1]), false
-		}
-	}
-	return geohash.NeighborInt(hash, directionCode), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashNeighbors) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(string)
-	if !ok || len(hash) == 0 {
-		return fmt.Errorf("arg[0] is not a string, got %v", args[0]), false
-	}
-	if err := geohash.Validate(hash); nil != err {
-		return err, false
-	}
-	return geohash.Neighbors(hash), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (r *geohashNeighborsInt) Exec(args []any, _ api.FunctionContext) (any, bool) {
-	hash, ok := args[0].(uint64)
-	if !ok {
-		return fmt.Errorf("arg[0] is not a bigint, got %v", args[0]), false
-	}
-	return geohash.NeighborsInt(hash), true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }

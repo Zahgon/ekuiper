@@ -18,8 +18,6 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-
-	"github.com/lf-edge/ekuiper/v2/internal/topo/transform"
 )
 
 func init() {
@@ -28,10 +26,10 @@ func init() {
 
 type tplComp struct{}
 
-func (t tplComp) register() {
-	transform.RegisterAdditionalFuncs()
-}
+func (t tplComp) register() { _ = "STUB: not implemented"; return }
 
 func (t tplComp) rest(_ *mux.Router) {
+	_ = "STUB: not implemented"
 	// do nothing
+	return
 }

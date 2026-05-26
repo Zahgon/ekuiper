@@ -15,282 +15,56 @@
 package httpx
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
-	"fmt"
 	"io"
-	"mime/multipart"
 	"net"
 	"net/http"
-	"net/url"
-	"os"
-	"path/filepath"
-	"strconv"
-	"strings"
-	"syscall"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 var BodyTypeMap = map[string]string{"none": "", "text": "text/plain", "json": "application/json", "html": "text/html", "xml": "application/xml", "javascript": "application/javascript", "form": "application/x-www-form-urlencoded;param=value"}
 
 // Send v must be a []byte or map
 func Send(logger api.Logger, client *http.Client, bodyType string, method string, u string, headers map[string]string, v any) (*http.Response, error) {
-	return SendWithFormData(logger, client, bodyType, method, u, headers, nil, "", v)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func SendWithFormData(logger api.Logger, client *http.Client, bodyType string, method string, u string, headers map[string]string, formData map[string]string, formFieldName string, v any) (*http.Response, error) {
-	var req *http.Request
-	var err error
-	switch bodyType {
-	case "none":
-		req, err = http.NewRequest(method, u, nil)
-		if err != nil {
-			return nil, fmt.Errorf("fail to create request: %v", err)
-		}
-	case "json", "text", "javascript", "html", "xml", "form", "binary":
-		var body io.Reader
-		switch t := v.(type) {
-		case []byte:
-			if bodyType == "binary" {
-				body = bytes.NewBuffer(t)
-			} else {
-				body = strings.NewReader(string(t))
-			}
-		case string:
-			if bodyType == "binary" {
-				body = bytes.NewBuffer([]byte(t))
-			} else {
-				body = strings.NewReader(t)
-			}
-		default:
-			return nil, fmt.Errorf("http send only supports bytes but receive invalid content: %v", v)
-		}
-		req, err = http.NewRequest(method, u, body)
-		if err != nil {
-			return nil, fmt.Errorf("fail to create request: %v", err)
-		}
-		if req.Header.Get("Content-Type") == "" {
-			req.Header.Set("Content-Type", BodyTypeMap[bodyType])
-		}
-	case "formdata":
-		var requestBody bytes.Buffer
-		writer := multipart.NewWriter(&requestBody)
-		fileField, err := writer.CreateFormFile(formFieldName, strconv.FormatInt(timex.GetNowInMilli(), 10))
-		if err != nil {
-			return nil, fmt.Errorf("fail to create file field: %v", err)
-		}
-		var payload io.Reader
-		switch t := v.(type) {
-		case []byte:
-			payload = bytes.NewBuffer(t)
-		case string:
-			payload = bytes.NewBufferString(t)
-		default:
-			return nil, fmt.Errorf("http send only supports bytes but receive invalid content: %v", v)
-		}
-		_, err = io.Copy(fileField, payload)
-		if err != nil {
-			return nil, fmt.Errorf("fail to copy payload to file field: %v", err)
-		}
-		for k, v := range formData {
-			err := writer.WriteField(k, v)
-			if err != nil {
-				logger.Errorf("fail write form data field %s: %v", k, err)
-			}
-		}
-		err = writer.Close()
-		if err != nil {
-			logger.Errorf("fail to close writer: %v", err)
-		}
-		req, err = http.NewRequest(method, u, &requestBody)
-		if err != nil {
-			return nil, fmt.Errorf("fail to create request: %v", err)
-		}
-		req.Header.Set("Content-Type", writer.FormDataContentType())
-	default:
-		return nil, fmt.Errorf("unsupported body type %s", bodyType)
-	}
-
-	if len(headers) > 0 {
-		for k, v := range headers {
-			req.Header.Set(k, v)
-		}
-	}
-	logger.Debugf("do request: %#v", req)
-	return client.Do(req)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func IsValidUrl(uri string) bool {
-	pu, err := url.ParseRequestURI(uri)
-	if err != nil {
-		return false
-	}
-
-	switch pu.Scheme {
-	case "http", "https":
-		u, err := url.Parse(uri)
-		if err != nil || u.Scheme == "" || u.Host == "" {
-			return false
-		}
-	case "file":
-		if pu.Host != "" || pu.Path == "" {
-			return false
-		}
-	default:
-		return false
-	}
-	return true
-}
+func IsValidUrl(uri string) bool { _ = "STUB: not implemented"; return false }
 
 // ReadFile Need to close the return reader
 func ReadFile(uri string) (io.ReadCloser, error) {
-	conf.Log.Infof("Start to download file %s\n", uri)
-	u, err := url.ParseRequestURI(uri)
-	if err != nil {
-		return nil, err
-	}
-	var src io.ReadCloser
-	switch u.Scheme {
-	case "file":
-		// deal with windows path
-		if strings.Index(u.Path, ":") == 2 {
-			u.Path = u.Path[1:]
-		}
-		conf.Log.Debug(u.Path)
-		// When external file access is not allowed, restrict to data/uploads dir
-		if conf.Config == nil || !conf.Config.Basic.AllowExternalFileAccess {
-			dataDir, err := conf.GetDataLoc()
-			if err != nil {
-				return nil, fmt.Errorf("failed to get data directory: %w", err)
-			}
-			uploadsDir := filepath.Join(dataDir, "uploads")
-			// Check if path is under uploads directory
-			absPath, err := filepath.Abs(u.Path)
-			if err != nil {
-				return nil, fmt.Errorf("failed to resolve path: %w", err)
-			}
-			absUploadsDir, err := filepath.Abs(uploadsDir)
-			if err != nil {
-				return nil, fmt.Errorf("failed to resolve uploads directory: %w", err)
-			}
-			relPath, err := filepath.Rel(absUploadsDir, absPath)
-			if err != nil || strings.HasPrefix(relPath, "..") {
-				return nil, fmt.Errorf("file access denied: path must be under %s", uploadsDir)
-			}
-			// Use OpenRoot for sandboxed file access
-			root, err := os.OpenRoot(absUploadsDir)
-			if err != nil {
-				return nil, fmt.Errorf("failed to open uploads directory: %w", err)
-			}
-			defer root.Close()
-			srcFile, err := root.Open(relPath)
-			if err != nil {
-				return nil, err
-			}
-			src = srcFile
-		} else {
-			sourceFileStat, err := os.Stat(u.Path)
-			if err != nil {
-				return nil, err
-			}
-
-			if !sourceFileStat.Mode().IsRegular() {
-				return nil, fmt.Errorf("%s is not a regular file", u.Path)
-			}
-			srcFile, err := os.Open(u.Path)
-			if err != nil {
-				return nil, err
-			}
-			src = srcFile
-		}
-	case "http", "https":
-		// Get the data
-		timeout := 5 * time.Minute
-		client := &http.Client{
-			Timeout: timeout,
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-				DialContext:     GetSSRFDialContext(timeout),
-			},
-		}
-		resp, err := client.Get(uri)
-		if err != nil {
-			return nil, err
-		}
-		if resp.StatusCode != http.StatusOK {
-			return nil, fmt.Errorf("cannot download the file with status: %s", resp.Status)
-		}
-		src = resp.Body
-	default:
-		return nil, fmt.Errorf("unsupported url scheme %s", u.Scheme)
-	}
-	return src, nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }
 
+// deal with windows path
+
+// When external file access is not allowed, restrict to data/uploads dir
+
+// Check if path is under uploads directory
+
+// Use OpenRoot for sandboxed file access
+
+// Get the data
+
 func GetSSRFDialContext(timeout time.Duration) func(ctx context.Context, network, addr string) (net.Conn, error) {
-	return func(ctx context.Context, network, addr string) (net.Conn, error) {
-		d := net.Dialer{
-			Timeout: timeout,
-			Control: func(network, address string, c syscall.RawConn) error {
-				if conf.Config != nil && conf.Config.Basic.EnablePrivateNet {
-					return nil
-				}
-				host, _, err := net.SplitHostPort(address)
-				if err != nil {
-					return err
-				}
-				ip := net.ParseIP(host)
-				if ip != nil && (ip.IsLoopback() || ip.IsPrivate() || ip.IsUnspecified() || ip.IsMulticast() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast()) {
-					return fmt.Errorf("ip %s is in internal network", ip.String())
-				}
-				return nil
-			},
-		}
-		return d.DialContext(ctx, network, addr)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func DownloadFile(folder string, name string, uri string) (string, error) {
-	src, err := ReadFile(uri)
-	if err != nil {
-		return "", err
-	}
-	defer src.Close()
-	root, err := os.OpenRoot(folder)
-	if err != nil {
-		return "", err
-	}
-	defer root.Close()
-	out, err := root.Create(name)
-	if err != nil {
-		return "", err
-	}
-	defer out.Close()
-	// Write the body to file
-	_, err = io.Copy(out, src)
-	if err != nil {
-		_ = os.Remove(out.Name())
-		return "", err
-	}
-	return out.Name(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func IsHttpUrl(str string) error {
-	url, err := url.ParseRequestURI(str)
-	if err != nil {
-		return err
-	}
-	if url.Scheme != "http" && url.Scheme != "https" {
-		return fmt.Errorf("Invalid scheme %s", url.Scheme)
-	}
-	if url.Host == "" {
-		return fmt.Errorf("Invalid url, host not found")
-	}
-	return nil
-}
+// Write the body to file
+
+func IsHttpUrl(str string) error { _ = "STUB: not implemented"; return nil }

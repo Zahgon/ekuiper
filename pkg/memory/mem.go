@@ -43,6 +43,4 @@ func init() {
 	}
 }
 
-func GetMemoryTotal() uint64 {
-	return MemoryTotal
-}
+func GetMemoryTotal() uint64 { _ = "STUB: not implemented"; return 0 }

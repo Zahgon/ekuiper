@@ -15,15 +15,10 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
 // Preprocessor only planned when
@@ -42,19 +37,8 @@ type Preprocessor struct {
 }
 
 func NewPreprocessor(isSchemaless bool, fields map[string]*ast.JsonStreamField, _ bool, _ []string, iet bool, timestampField string, timestampFormat string, isBinary bool, strictValidation bool) (*Preprocessor, error) {
-	p := &Preprocessor{
-		isEventTime: iet, timestampField: timestampField, isBinary: isBinary,
-	}
-	p.defaultFieldProcessor = defaultFieldProcessor{
-		timestampFormat: timestampFormat,
-	}
-	conf.Log.Infof("preprocessor isSchemaless %v, strictValidation %v, isBinary %v", isSchemaless, strictValidation, strictValidation)
-	if !isSchemaless && (strictValidation || isBinary) {
-		p.checkSchema = true
-		conf.Log.Infof("preprocessor check schema")
-		p.defaultFieldProcessor.streamFields = fields
-	}
-	return p, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Apply the preprocessor to the tuple
@@ -62,48 +46,17 @@ func NewPreprocessor(isSchemaless bool, fields map[string]*ast.JsonStreamField, 
  *	output: *xsql.Tuple
  */
 func (p *Preprocessor) Apply(ctx api.StreamContext, data interface{}, _ *xsql.FunctionValuer, _ *xsql.AggregateFunctionValuer) interface{} {
-	log := ctx.GetLogger()
-	tuple, ok := data.(*xsql.Tuple)
-	if !ok {
-		return fmt.Errorf("expect tuple data type")
-	}
-
-	log.Debugf("preprocessor receive %s", tuple.Message)
-	if p.checkSchema {
-		if !p.isBinary {
-			err := p.validateAndConvert(tuple)
-			if err != nil {
-				return fmt.Errorf("error in preprocessor: %s", err)
-			}
-		} else {
-			for name := range p.streamFields {
-				tuple.Message[name] = tuple.Message[message.DefaultField]
-				delete(tuple.Message, message.DefaultField)
-				break
-			}
-		}
-	}
-	if p.isEventTime {
-		if t, ok := tuple.Message[p.timestampField]; ok {
-			if ts, err := cast.InterfaceToTime(t, p.timestampFormat); err != nil {
-				return fmt.Errorf("cannot convert timestamp field %s to timestamp with error %v", p.timestampField, err)
-			} else {
-				tuple.Timestamp = ts
-				log.Debugf("preprocessor calculate timestamp %d", tuple.Timestamp.UnixMilli())
-			}
-		} else {
-			return fmt.Errorf("cannot find timestamp field %s in tuple %v", p.timestampField, tuple.Message)
-		}
-	}
-	// No need to reconstruct meta as the memory has been allocated earlier
-	//if !p.allMeta && p.metaFields != nil && len(p.metaFields) > 0 {
-	//	newMeta := make(xsql.Metadata)
-	//	for _, f := range p.metaFields {
-	//		if m, ok := tuple.Metadata.Value(f, ""); ok {
-	//			newMeta[f] = m
-	//		}
-	//	}
-	//	tuple.Metadata = newMeta
-	//}
-	return tuple
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// No need to reconstruct meta as the memory has been allocated earlier
+//if !p.allMeta && p.metaFields != nil && len(p.metaFields) > 0 {
+//	newMeta := make(xsql.Metadata)
+//	for _, f := range p.metaFields {
+//		if m, ok := tuple.Metadata.Value(f, ""); ok {
+//			newMeta[f] = m
+//		}
+//	}
+//	tuple.Metadata = newMeta
+//}

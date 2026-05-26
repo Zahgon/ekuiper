@@ -15,13 +15,8 @@
 package def
 
 import (
-	"time"
-
-	"github.com/robfig/cron/v3"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/schedule"
 	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 type RuleOption struct {
@@ -65,28 +60,13 @@ type WindowOption struct {
 	WindowVersion                string `json:"windowVersion,omitempty" yaml:"windowVersion,omitempty"`
 }
 
-func (p *PlanOptimizeStrategy) GetWindowVersion() string {
-	if p == nil {
-		return ""
-	}
-	if p.WindowOption == nil {
-		return ""
-	}
-	return p.WindowOption.WindowVersion
-}
+func (p *PlanOptimizeStrategy) GetWindowVersion() string { _ = "STUB: not implemented"; return "" }
 
-func (p *PlanOptimizeStrategy) IsAliasRefCalEnable() bool {
-	if p == nil {
-		return true
-	}
-	return !p.DisableAliasRefCal
-}
+func (p *PlanOptimizeStrategy) IsAliasRefCalEnable() bool { _ = "STUB: not implemented"; return false }
 
 func (p *PlanOptimizeStrategy) IsOptimizeEnabled(name string) bool {
-	if p == nil {
-		return true
-	}
-	return p.OptimizeControl.IsOptimizeEnabled(name)
+	_ = "STUB: not implemented"
+	return false
 }
 
 type OptimizeControl struct {
@@ -94,25 +74,13 @@ type OptimizeControl struct {
 }
 
 func (oc *OptimizeControl) IsOptimizeEnabled(name string) bool {
-	if oc == nil {
-		return true
-	}
-	for _, disableRules := range oc.DisableOptimizeRules {
-		if disableRules == name {
-			return false
-		}
-	}
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (p *PlanOptimizeStrategy) IsSlidingWindowSendTwiceEnable() bool {
-	if p == nil {
-		return false
-	}
-	if p.WindowOption == nil {
-		return false
-	}
-	return p.WindowOption.EnableSendSlidingWindowTwice
+	_ = "STUB: not implemented"
+	return false
 }
 
 type RestartStrategy struct {
@@ -159,80 +127,15 @@ type Rule struct {
 	Tags      []string                 `json:"tags,omitempty" yaml:"tags,omitempty"`
 }
 
-func (r *Rule) IsTagsMatch(tags []string) bool {
-	if len(r.Tags) < len(tags) {
-		return false
-	}
-	mTags := make(map[string]struct{})
-	for _, tag := range r.Tags {
-		mTags[tag] = struct{}{}
-	}
-	for _, tag := range tags {
-		_, ok := mTags[tag]
-		if !ok {
-			return false
-		}
-	}
-	return true
-}
+func (r *Rule) IsTagsMatch(tags []string) bool { _ = "STUB: not implemented"; return false }
 
-func (r *Rule) IsDurationRule() bool {
-	if r.Options == nil {
-		return false
-	}
-	if len(r.Options.Duration) > 0 {
-		return true
-	}
-	return false
-}
+func (r *Rule) IsDurationRule() bool { _ = "STUB: not implemented"; return false }
 
-func (r *Rule) IsScheduleRule() bool {
-	if r.Options == nil {
-		return false
-	}
-	if len(r.Options.CronDatetimeRange) > 0 {
-		return true
-	}
-	if len(r.Options.Cron) > 0 && len(r.Options.Duration) > 0 {
-		return true
-	}
-	return false
-}
+func (r *Rule) IsScheduleRule() bool { _ = "STUB: not implemented"; return false }
 
-func (r *Rule) GetNextScheduleStartTime() int64 {
-	if r.IsScheduleRule() && len(r.Options.Cron) > 0 {
-		isIn, err := schedule.IsInScheduleRanges(timex.GetNow(), r.Options.CronDatetimeRange)
-		if err == nil && isIn {
-			s, err := cron.ParseStandard(r.Options.Cron)
-			if err == nil {
-				return s.Next(timex.GetNow()).UnixMilli()
-			}
-		}
-	}
-	return 0
-}
+func (r *Rule) GetNextScheduleStartTime() int64 { _ = "STUB: not implemented"; return 0 }
 
-func GetDefaultRule(name, sql string) *Rule {
-	return &Rule{
-		Id:  name,
-		Sql: sql,
-		Options: &RuleOption{
-			LateTol:            cast.DurationConf(time.Second),
-			IsEventTime:        false,
-			Concurrency:        1,
-			BufferLength:       1024,
-			SendMetaToSink:     false,
-			SendError:          false,
-			Qos:                AtMostOnce,
-			CheckpointInterval: cast.DurationConf(5 * time.Minute),
-			RestartStrategy: &RestartStrategy{
-				Attempts: 0,
-			},
-			PlanOptimizeStrategy: &PlanOptimizeStrategy{},
-			Experiment:           &ExpOpts{UseSliceTuple: false},
-		},
-	}
-}
+func GetDefaultRule(name, sql string) *Rule { _ = "STUB: not implemented"; return nil }
 
 const (
 	AtMostOnce Qos = iota

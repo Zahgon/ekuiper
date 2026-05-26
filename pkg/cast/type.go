@@ -15,62 +15,28 @@
 package cast
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 )
 
 type DurationConf time.Duration
 
-func (dp *DurationConf) UnmarshalJSON(data []byte) error {
-	var duration any
-	if err := json.Unmarshal(data, &duration); err != nil {
-		return err
-	}
-	dd, err := ConvertDuration(duration)
-	if err != nil {
-		return err
-	}
-	*dp = DurationConf(dd)
-	return nil
-}
+func (dp *DurationConf) UnmarshalJSON(data []byte) error { _ = "STUB: not implemented"; return nil }
 
-func (d DurationConf) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, time.Duration(d).String())), nil
-}
+func (d DurationConf) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func (dp *DurationConf) UnmarshalYAML(unmarshal func(any) error) error {
-	var duration any
-	if err := unmarshal(&duration); err != nil {
-		return err
-	}
-	dd, err := ConvertDuration(duration)
-	if err != nil {
-		return err
-	}
-	*dp = DurationConf(dd)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (d DurationConf) MarshalYAML() (any, error) {
-	return time.Duration(d).String(), nil
-}
+func (d DurationConf) MarshalYAML() (any, error) { _ = "STUB: not implemented"; return *new(any), nil }
 
 func ConvertDuration(s any) (time.Duration, error) {
-	switch x := s.(type) {
-	case string:
-		return time.ParseDuration(x)
-	case int:
-		return time.Duration(x) * time.Millisecond, nil
-	case float64: // from json
-		d, err := ToInt64(x, STRICT)
-		if err != nil {
-			return 0, fmt.Errorf("duration %v is not an integer", x)
-		}
-		return time.Duration(d) * time.Millisecond, nil
-	}
-	return 0, fmt.Errorf("unsupported type:%t", s)
+	_ = "STUB: not implemented"
+	return *new(time.Duration), nil
 }
+
+// from json
 
 type TypedNil struct{}
 

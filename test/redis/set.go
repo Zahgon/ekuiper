@@ -1,43 +1,18 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"os"
-
-	"github.com/redis/go-redis/v9"
 )
 
-func getClient(host, key string) {
-	ctx := context.Background()
-	add := fmt.Sprintf("%s:6379", host)
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     add,
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+func getClient(host, key string) { _ = "STUB: not implemented"; return }
 
-	val, err := rdb.Get(ctx, key).Result()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s\n", val)
-}
+// no password set
+// use default DB
 
-func setClient(host, key string) {
-	ctx := context.Background()
-	add := fmt.Sprintf("%s:6379", host)
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     add,
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+func setClient(host, key string) { _ = "STUB: not implemented"; return }
 
-	err := rdb.Set(ctx, key, "value", 0).Err()
-	if err != nil {
-		panic(err)
-	}
-}
+// no password set
+// use default DB
 
 func main() {
 	if len(os.Args) == 4 {

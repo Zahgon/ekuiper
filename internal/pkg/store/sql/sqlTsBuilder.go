@@ -22,12 +22,9 @@ type TsBuilder struct {
 	database Database
 }
 
-func NewTsBuilder(d Database) TsBuilder {
-	return TsBuilder{
-		database: d,
-	}
-}
+func NewTsBuilder(d Database) TsBuilder { _ = "STUB: not implemented"; return *new(TsBuilder) }
 
 func (b TsBuilder) CreateTs(table string) (kv.Tskv, error) {
-	return createSqlTs(b.database, table)
+	_ = "STUB: not implemented"
+	return *new(kv.Tskv), nil
 }

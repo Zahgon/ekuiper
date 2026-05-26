@@ -15,17 +15,9 @@
 package random
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
 const dedupStateKey = "input"
@@ -45,102 +37,34 @@ type randomSource struct {
 }
 
 func (s *randomSource) Provision(ctx api.StreamContext, props map[string]any) error {
-	cfg := &randomSourceConfig{
-		Format: "json",
-	}
-	err := cast.MapToStruct(props, cfg)
-	if err != nil {
-		return fmt.Errorf("read properties %v fail with error: %v", props, err)
-	}
-	if cfg.Pattern == nil {
-		return fmt.Errorf("source `random` property `pattern` is required")
-	}
-	if cfg.Seed <= 0 {
-		return fmt.Errorf("source `random` property `seed` must be a positive integer but got %d", cfg.Seed)
-	}
-	if !strings.EqualFold(cfg.Format, message.FormatJson) {
-		return fmt.Errorf("random source only supports `json` format")
-	}
-	s.conf = cfg
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *randomSource) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	logger := ctx.GetLogger()
-	logger.Debugf("open random source with deduplicate %d", s.conf.Deduplicate)
-	if s.conf.Deduplicate != 0 {
-		list, err := ctx.GetState(dedupStateKey)
-		if err != nil {
-			return err
-		}
-		if list == nil {
-			list = make([][]byte, 0)
-		} else {
-			if l, ok := list.([][]byte); ok {
-				logger.Debugf("restore list %v", l)
-				s.list = l
-			} else {
-				s.list = make([][]byte, 0)
-				logger.Warnf("random source gets invalid state, ignore it")
-			}
-		}
-	}
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *randomSource) Pull(ctx api.StreamContext, trigger time.Time, ingest api.TupleIngest, ingestError api.ErrorIngest) {
-	next := randomize(s.conf.Pattern, s.conf.Seed)
-	if s.conf.Deduplicate != 0 && s.isDup(ctx, next) {
-		ctx.GetLogger().Debugf("find duplicate")
-		return
-	}
-	ctx.GetLogger().Debugf("Send out data %v", next)
-	ingest(ctx, next, nil, trigger)
+	_ = "STUB: not implemented"
+	return
 }
 
 func randomize(p map[string]interface{}, seed int) map[string]interface{} {
-	r := make(map[string]interface{})
-	for k, v := range p {
-		// TODO other data types
-		vi, err := cast.ToInt(v, cast.STRICT)
-		if err != nil {
-			break
-		}
-		r[k] = vi + rand.Intn(seed)
-	}
-	return r
-}
-
-func (s *randomSource) isDup(ctx api.StreamContext, next map[string]interface{}) bool {
-	logger := ctx.GetLogger()
-
-	ns, err := json.Marshal(next)
-	if err != nil {
-		logger.Warnf("invalid input data %v", next)
-		return true
-	}
-	for _, ps := range s.list {
-		if bytes.Equal(ns, ps) {
-			logger.Debugf("got duplicate %s", ns)
-			return true
-		}
-	}
-	logger.Debugf("no duplicate %s", ns)
-	if s.conf.Deduplicate > 0 && len(s.list) >= s.conf.Deduplicate {
-		s.list = s.list[1:]
-	}
-	s.list = append(s.list, ns)
-	_ = ctx.PutState(dedupStateKey, s.list)
-	return false
-}
-
-func (s *randomSource) Close(_ api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func GetSource() api.Source {
-	return &randomSource{}
+// TODO other data types
+
+func (s *randomSource) isDup(ctx api.StreamContext, next map[string]interface{}) bool {
+	_ = "STUB: not implemented"
+	return false
 }
+
+func (s *randomSource) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
+
+func GetSource() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }
 
 var _ api.PullTupleSource = &randomSource{}

@@ -14,8 +14,6 @@
 
 package graph
 
-import "fmt"
-
 type (
 	IoInputType      uint8
 	IoRowType        uint8
@@ -74,48 +72,11 @@ type IOType struct {
 }
 
 // NewIOType creates a new IOType
-func NewIOType() *IOType {
-	return &IOType{
-		Type:           IOINPUT_TYPE_ANY,
-		RowType:        IOROW_TYPE_ANY,
-		CollectionType: IOCOLLECTION_TYPE_ANY,
-	}
-}
+func NewIOType() *IOType { _ = "STUB: not implemented"; return nil }
 
-func Fit(value, condition *IOType) (bool, error) {
-	if value.Type&condition.Type == 0 {
-		return false, fmt.Errorf("input type mismatch, expect %s, got %s", inputTypes[condition.Type], inputTypes[value.Type])
-	}
-	if value.RowType&condition.RowType == 0 {
-		return false, fmt.Errorf("row type mismatch, expect %s, got %s", rowTypes[condition.RowType], rowTypes[value.RowType])
-	}
-	if value.CollectionType&condition.CollectionType == 0 {
-		return false, fmt.Errorf("collection type mismatch, expect %s, got %s", collectionsTypes[condition.CollectionType], collectionsTypes[value.CollectionType])
-	}
-	return true, nil
-}
+func Fit(value, condition *IOType) (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
-func MapOut(previous, origin *IOType) (result *IOType) {
-	result = NewIOType()
-	if origin.Type == IOINPUT_TYPE_SAME {
-		result.Type = previous.Type
-		result.RowType = previous.RowType
-		result.CollectionType = previous.CollectionType
-	} else {
-		result.Type = origin.Type
-		if origin.RowType == IOROW_TYPE_SAME {
-			result.RowType = previous.RowType
-		} else {
-			result.RowType = origin.RowType
-		}
-		if origin.CollectionType == IOCOLLECTION_TYPE_SAME {
-			result.CollectionType = previous.CollectionType
-		} else {
-			result.CollectionType = origin.CollectionType
-		}
-	}
-	return
-}
+func MapOut(previous, origin *IOType) (result *IOType) { _ = "STUB: not implemented"; return nil }
 
 // OpIO The io constraints for a node
 var OpIO = map[string][]*IOType{

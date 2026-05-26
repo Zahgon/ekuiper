@@ -15,8 +15,6 @@
 package context
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 )
 
@@ -26,16 +24,10 @@ type DefaultFuncContext struct {
 }
 
 func NewDefaultFuncContext(ctx api.StreamContext, id int) *DefaultFuncContext {
-	return &DefaultFuncContext{
-		StreamContext: ctx,
-		funcId:        id,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *DefaultFuncContext) GetFuncId() int {
-	return c.funcId
-}
+func (c *DefaultFuncContext) GetFuncId() int { _ = "STUB: not implemented"; return 0 }
 
-func (c *DefaultFuncContext) convertKey(key string) string {
-	return fmt.Sprintf("$$func%d_%s", c.funcId, key)
-}
+func (c *DefaultFuncContext) convertKey(key string) string { _ = "STUB: not implemented"; return "" }

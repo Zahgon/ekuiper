@@ -15,26 +15,10 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"io"
-	"log"
-	"math/rand"
 	"net/http"
 )
 
-func alert(w http.ResponseWriter, req *http.Request) {
-	buf, bodyErr := io.ReadAll(req.Body)
-	if bodyErr != nil {
-		log.Print("bodyErr ", bodyErr.Error())
-		http.Error(w, bodyErr.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	rdr1 := io.NopCloser(bytes.NewBuffer(buf))
-	log.Printf("BODY: %q", rdr1)
-}
+func alert(w http.ResponseWriter, req *http.Request) { _ = "STUB: not implemented"; return }
 
 var count = 0
 
@@ -45,32 +29,7 @@ type Sensor struct {
 
 var s = &Sensor{}
 
-func pullSrv(w http.ResponseWriter, req *http.Request) {
-	buf, bodyErr := io.ReadAll(req.Body)
-	if bodyErr != nil {
-		log.Print("bodyErr ", bodyErr.Error())
-		http.Error(w, bodyErr.Error(), http.StatusInternalServerError)
-		return
-	} else {
-		fmt.Println(string(buf))
-	}
-
-	if count%2 == 0 {
-		s.Temperature = rand.Intn(100)
-		s.Humidity = rand.Intn(100)
-	}
-	fmt.Printf("%v\n", s)
-	count++
-	sd, err := json.Marshal(s)
-	if err != nil {
-		fmt.Println(err)
-		return
-	} else {
-		if _, e := fmt.Fprintf(w, "%s", sd); e != nil {
-			fmt.Println(e)
-		}
-	}
-}
+func pullSrv(w http.ResponseWriter, req *http.Request) { _ = "STUB: not implemented"; return }
 
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("web")))

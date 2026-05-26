@@ -38,63 +38,30 @@ func init() {
 	InitClock()
 }
 
-func InitClock() {
-	if IsTesting {
-		Clock = clock.NewMock()
-	} else {
-		Clock = clock.New()
-	}
-}
+func InitClock() { _ = "STUB: not implemented"; return }
 
 // GetTicker Time related. For Mock
-func GetTicker(duration time.Duration) *clock.Ticker {
-	return Clock.Ticker(duration)
-}
+func GetTicker(duration time.Duration) *clock.Ticker { _ = "STUB: not implemented"; return nil }
 
-func After(duration time.Duration) <-chan time.Time {
-	return Clock.After(duration)
-}
+func After(duration time.Duration) <-chan time.Time { _ = "STUB: not implemented"; return nil }
 
-func GetTimer(duration time.Duration) *clock.Timer {
-	return Clock.Timer(duration)
-}
+func GetTimer(duration time.Duration) *clock.Timer { _ = "STUB: not implemented"; return nil }
 
-func Sleep(duration time.Duration) {
-	Clock.Sleep(duration)
-}
+func Sleep(duration time.Duration) { _ = "STUB: not implemented"; return }
 
-func GetTimerByTime(t time.Time) *clock.Timer {
-	if IsTesting {
-		return Clock.Timer(t.Sub(GetNow()))
-	} else {
-		return Clock.Timer(time.Until(t))
-	}
-}
+func GetTimerByTime(t time.Time) *clock.Timer { _ = "STUB: not implemented"; return nil }
 
-func GetNowInMilli() int64 {
-	return Clock.Now().UnixMilli()
-}
+func GetNowInMilli() int64 { _ = "STUB: not implemented"; return 0 }
 
 func GetNow() time.Time {
-	return Clock.Now()
+	_ = "STUB: not implemented"
+
+	// Mock time, only use in test
+	return *new(time.Time)
 }
 
-// Mock time, only use in test
+func Set(t int64) { _ = "STUB: not implemented"; return }
 
-func Set(t int64) {
-	if IsTesting {
-		Clock.(*clock.Mock).Set(time.UnixMilli(t))
-	}
-}
+func SetNow(t time.Time) { _ = "STUB: not implemented"; return }
 
-func SetNow(t time.Time) {
-	if IsTesting {
-		Clock.(*clock.Mock).Set(t)
-	}
-}
-
-func Add(d time.Duration) {
-	if IsTesting {
-		Clock.(*clock.Mock).Add(d)
-	}
-}
+func Add(d time.Duration) { _ = "STUB: not implemented"; return }

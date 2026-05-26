@@ -16,24 +16,16 @@ package kafka
 
 import (
 	"crypto/tls"
-	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	"github.com/pingcap/failpoint"
 	kafkago "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
 
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/util"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/node/metric"
-	"github.com/lf-edge/ekuiper/v2/metrics"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cert"
 	"github.com/lf-edge/ekuiper/v2/pkg/connection"
 	"github.com/lf-edge/ekuiper/v2/pkg/model"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 const (
@@ -72,22 +64,9 @@ type KafkaSink struct {
 	sch            api.StatusChangeHandler
 }
 
-func (k *KafkaSink) setStatManager(ctx api.StreamContext) {
-	m := ctx.Value("$statManager")
-	if m != nil {
-		sm, ok := m.(metric.StatManager)
-		if ok {
-			k.statManager = sm
-		}
-	}
-}
+func (k *KafkaSink) setStatManager(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
-func (k *KafkaSink) Info() model.SinkInfo {
-	return model.SinkInfo{
-		HasCompress: true,
-		HasBatch:    true,
-	}
-}
+func (k *KafkaSink) Info() model.SinkInfo { _ = "STUB: not implemented"; return *new(model.SinkInfo) }
 
 type KafkaCollectStats struct {
 	TotalBuildMsgDuration     time.Duration
@@ -116,414 +95,87 @@ type kafkaWriterConf struct {
 	BatchBytes   int64         `json:"batchBytes"`
 }
 
-func (c *kafkaConf) validate() error {
-	if c.Topic == "" {
-		return fmt.Errorf("topic can not be empty")
-	}
-	if len(c.Brokers) < 1 {
-		return fmt.Errorf("brokers can not be empty")
-	}
-	return nil
-}
+func (c *kafkaConf) validate() error { _ = "STUB: not implemented"; return nil }
 
 func (k *KafkaSink) Provision(ctx api.StreamContext, configs map[string]any) error {
-	k.props = configs
-	c := getDefaultKafkaConf()
-	err := c.configure(configs)
-	failpoint.Inject("kafkaErr", func(val failpoint.Value) {
-		err = mockKakfaSourceErr(val.(int), castConfErr)
-	})
-	if err != nil {
-		return err
-	}
-	err = c.validate()
-	if err != nil {
-		return err
-	}
-	sc, err := getSaslConf(configs)
-	failpoint.Inject("kafkaErr", func(val failpoint.Value) {
-		err = mockKakfaSourceErr(val.(int), saslConfErr)
-	})
-	if err != nil {
-		return err
-	}
-	if err := sc.Validate(); err != nil {
-		return err
-	}
-	k.saslConf = sc
-	tlsConfig, err := cert.GenTLSConfig(ctx, configs)
-	if err != nil {
-		return err
-	}
-	mechanism, err := k.saslConf.GetMechanism()
-	failpoint.Inject("kafkaErr", func(val failpoint.Value) {
-		err = mockKakfaSourceErr(val.(int), mechanismErr)
-	})
-	if err != nil {
-		return err
-	}
-	k.mechanism = mechanism
-	k.tlsConfig = tlsConfig
-	k.kc = c
-	err = k.setHeaders()
-	if err != nil {
-		return err
-	}
-	if k.kc.BatchSize == 0 && k.kc.LingerInterval == 0 {
-		k.kc.BatchSize = 1
-	}
-	k.msgQ = make(chan *kafkago.Message, 2*k.kc.BatchSize)
-	// run batch
-	switch {
-	case k.kc.BatchSize > 0 && k.kc.LingerInterval > 0:
-		k.runWithTickerAndBatchSize(ctx)
-	case k.kc.BatchSize > 0 && k.kc.LingerInterval == 0:
-		k.runWithBatchSize(ctx)
-	case k.kc.BatchSize == 0 && k.kc.LingerInterval > 0:
-		k.runWithTicker(ctx)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// run batch
+
 func (k *KafkaSink) Ping(ctx api.StreamContext, props map[string]any) error {
-	conf, err := newKafkaConnectionConf(ctx, props)
-	if err != nil {
-		return err
-	}
-	hasBroker := false
-	for _, broker := range strings.Split(conf.Brokers, ",") {
-		broker = strings.TrimSpace(broker)
-		if broker == "" {
-			continue
-		}
-		hasBroker = true
-		if err := conf.pingBrokerRaw(broker); err != nil {
-			return err
-		}
-	}
-	if !hasBroker {
-		return fmt.Errorf("brokers can not be empty")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *kafkaConnectionConf) pingBrokerRaw(address string) error {
-	d := &kafkago.Dialer{
-		TLS:           c.tlsConfig,
-		SASLMechanism: c.mechanism,
-	}
-	conn, err := d.Dial("tcp", address)
-	if err != nil {
-		return err
-	}
-	return conn.Close()
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (k *KafkaSink) buildKafkaWriter(ctx api.StreamContext) {
-	brokers := strings.Split(k.kc.Brokers, ",")
-	transport := &kafkago.Transport{
-		SASL: k.mechanism,
-		TLS:  k.tlsConfig,
-	}
-	k.transport = transport
-	w := &kafkago.Writer{
-		Addr: kafkago.TCP(brokers...),
-		// kafka java-client default balancer
-		Balancer:               &kafkago.Murmur2Balancer{},
-		Async:                  false,
-		AllowAutoTopicCreation: true,
-		MaxAttempts:            k.kc.MaxAttempts,
-		RequiredAcks:           kafkago.RequiredAcks(k.kc.RequiredACKs),
-		BatchSize:              k.kc.BatchSize,
-		BatchBytes:             k.kc.BatchBytes,
-		BatchTimeout:           k.kc.BatchTimeout,
-		Transport:              transport,
-		Compression:            toCompression(k.kc.Compression),
-		RuleID:                 ctx.GetRuleId(),
-		OpID:                   ctx.GetOpId(),
-	}
-	k.writer = w
-}
+func (k *KafkaSink) buildKafkaWriter(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
-func (k *KafkaSink) Close(ctx api.StreamContext) error {
-	var err error
-	if k.writer != nil {
-		err = k.writer.Close()
-	}
-	if k.transport != nil {
-		k.transport.CloseIdleConnections()
-		k.transport = nil
-	}
-	if k.cw != nil {
-		if detachErr := connection.DetachConnection(ctx, k.cw.ID); detachErr != nil && err == nil {
-			err = detachErr
-		}
-		k.cw = nil
-	}
-	return err
-}
+// kafka java-client default balancer
+
+func (k *KafkaSink) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (k *KafkaSink) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	k.ruleID = ctx.GetRuleId()
-	k.opID = ctx.GetOpId()
-	if k.kc.SelId != "" {
-		refID := fmt.Sprintf("%s_%s_%d", ctx.GetRuleId(), ctx.GetOpId(), ctx.GetInstanceId())
-		cw, err := connection.FetchConnection(ctx, refID, "kafka", k.props, sch)
-		if err != nil {
-			return err
-		}
-		k.cw = cw
-		ctx.GetLogger().Infof("action=use_shared_kafka_connection role=sink connId=%s connectionKey=%s rule=%s topic=%s", k.cw.ID, k.kc.SelId, ctx.GetRuleId(), k.kc.Topic)
-	}
-	k.buildKafkaWriter(ctx)
-	k.connected = true
-	sch(api.ConnectionConnected, "")
-	k.sch = sch
-	k.setStatManager(ctx)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (k *KafkaSink) runWithTickerAndBatchSize(ctx api.StreamContext) {
-	ctx.GetLogger().Infof("kafka sink batch run with batchSize %d, batchInterval %v", k.kc.BatchSize, k.kc.LingerInterval)
-	ticker := timex.GetTicker(k.kc.LingerInterval)
-	go func() {
-		defer func() {
-			ticker.Stop()
-		}()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case d := <-k.msgQ:
-				k.ingest(ctx, d, true)
-			case <-ticker.C:
-				k.send(ctx)
-			}
-		}
-	}()
+	_ = "STUB: not implemented"
+	return
 }
 
-func (k *KafkaSink) runWithBatchSize(ctx api.StreamContext) {
-	ctx.GetLogger().Infof("kafka sink batch run with batchSize only %d, batchInterval %v", k.kc.BatchSize, k.kc.LingerInterval)
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case d := <-k.msgQ:
-				k.ingest(ctx, d, true)
-			}
-		}
-	}()
-}
+func (k *KafkaSink) runWithBatchSize(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
-func (k *KafkaSink) runWithTicker(ctx api.StreamContext) {
-	ctx.GetLogger().Infof("kafka sink batch run with batchSize %d, batchInterval only %v", k.kc.BatchSize, k.kc.LingerInterval)
-	ticker := timex.GetTicker(k.kc.LingerInterval)
-	go func() {
-		defer func() {
-			ticker.Stop()
-		}()
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case d := <-k.msgQ:
-				k.ingest(ctx, d, false)
-			case <-ticker.C:
-				k.send(ctx)
-			}
-		}
-	}()
-}
+func (k *KafkaSink) runWithTicker(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 func (k *KafkaSink) ingest(ctx api.StreamContext, d *kafkago.Message, checkSize bool) {
-	KafkaSinkCounter.WithLabelValues(LblIngest, LblMsg, k.ruleID, k.opID).Inc()
-	k.messages = append(k.messages, *d)
-	k.currIndex++
-	if checkSize && k.currIndex >= k.kc.BatchSize {
-		k.send(ctx)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (k *KafkaSink) send(ctx api.StreamContext) {
-	if len(k.messages) < 1 {
-		return
-	}
-	KafkaSinkCounter.WithLabelValues(LblSend, LblReq, k.ruleID, k.opID).Inc()
-	start := time.Now()
-	defer func() {
-		metrics.IODurationHist.WithLabelValues(LblKafka, metrics.LblSinkIO, k.ruleID, k.opID).Observe(float64(time.Since(start).Microseconds()))
-	}()
-	err := k.writer.WriteMessages(ctx, k.messages...)
-	k.handleConnectedSch(err)
-	k.handleErrMsgs(ctx, err, len(k.messages))
-	k.messages = make([]kafkago.Message, 0, k.kc.BatchSize/4)
-	k.currIndex = 0
-}
+func (k *KafkaSink) send(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 func (k *KafkaSink) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	return k.collect(ctx, item)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (k *KafkaSink) collect(ctx api.StreamContext, item api.RawTuple) error {
-	msg, err := k.buildMsg(ctx, item)
-	if err != nil {
-		return err
-	}
-	KafkaSinkCounter.WithLabelValues(LblCollect, LblMsg, k.ruleID, k.opID).Inc()
-	select {
-	case <-ctx.Done():
-	case k.msgQ <- &msg:
-		KafkaSinkCounter.WithLabelValues(LblQueueIn, LblMsg, k.ruleID, k.opID).Inc()
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (k *KafkaSink) buildMsg(ctx api.StreamContext, item api.RawTuple) (kafkago.Message, error) {
-	msg := kafkago.Message{Value: item.Raw()}
-	msgTopic := k.kc.Topic
-	if dp, ok := item.(api.HasDynamicProps); ok {
-		dynTopic, ok := dp.DynamicProps(k.kc.Topic)
-		if ok {
-			msgTopic = dynTopic
-		}
-	}
-	msg.Topic = msgTopic
-	if len(k.kc.Key) > 0 {
-		newKey := k.kc.Key
-		if dp, ok := item.(api.HasDynamicProps); ok {
-			key, ok := dp.DynamicProps(k.kc.Key)
-			if ok {
-				newKey = key
-			}
-		}
-		msg.Key = []byte(newKey)
-	}
-	headers, err := k.parseHeaders(ctx, item)
-	if err != nil {
-		return kafkago.Message{}, fmt.Errorf("parse kafka headers error: %v", err)
-	}
-	msg.Headers = headers
-	return msg, nil
+	_ = "STUB: not implemented"
+	return *new(kafkago.Message), nil
 }
 
-func (k *KafkaSink) setHeaders() error {
-	if k.kc.Headers == nil {
-		return nil
-	}
-	switch h := k.kc.Headers.(type) {
-	case map[string]interface{}:
-		kafkaHeaders := make(map[string]string)
-		for key, value := range h {
-			if sv, ok := value.(string); ok {
-				kafkaHeaders[key] = sv
-			}
-		}
-		k.headersMap = kafkaHeaders
-		return nil
-	case string:
-		k.headerTemplate = h
-		return nil
-	default:
-		return fmt.Errorf("kafka headers must be a map[string]string or a string")
-	}
-}
+func (k *KafkaSink) setHeaders() error { _ = "STUB: not implemented"; return nil }
 
 func (k *KafkaSink) parseHeaders(ctx api.StreamContext, item api.RawTuple) ([]kafkago.Header, error) {
-	if len(k.headersMap) > 0 {
-		var kafkaHeaders []kafkago.Header
-		for k, v := range k.headersMap {
-			value := v
-			dp, ok := item.(api.HasDynamicProps)
-			if ok {
-				nv, ok := dp.DynamicProps(v)
-				if ok {
-					value = nv
-				}
-			}
-			kafkaHeaders = append(kafkaHeaders, kafkago.Header{
-				Key:   k,
-				Value: []byte(value),
-			})
-		}
-		return kafkaHeaders, nil
-	} else if len(k.headerTemplate) > 0 {
-		raw := k.headerTemplate
-		dp, ok := item.(api.HasDynamicProps)
-		if ok {
-			nv, ok := dp.DynamicProps(k.headerTemplate)
-			if ok {
-				raw = nv
-			}
-		}
-		headers := make(map[string]string)
-		if err := json.Unmarshal([]byte(raw), &headers); err != nil {
-			return nil, err
-		}
-		var kafkaHeaders []kafkago.Header
-		for key, value := range headers {
-			kafkaHeaders = append(kafkaHeaders, kafkago.Header{
-				Key:   key,
-				Value: []byte(value),
-			})
-		}
-		return kafkaHeaders, nil
-	}
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
 func (k *KafkaSink) handleErrMsgs(ctx api.StreamContext, err error, count int) {
-	if err == nil {
-		KafkaSinkCounter.WithLabelValues(metrics.LblSuccess, LblReq, k.ruleID, k.opID).Inc()
-		KafkaSinkCounter.WithLabelValues(metrics.LblSuccess, LblMsg, k.ruleID, k.opID).Add(float64(count))
-		return
-	}
-	errorCount := 0
-	KafkaSinkCounter.WithLabelValues(metrics.LblException, LblReq, k.ruleID, k.opID).Inc()
-	switch wErrors := err.(type) {
-	case kafkago.WriteErrors:
-		errorCount = wErrors.Count()
-		KafkaSinkCounter.WithLabelValues(metrics.LblException, LblMsg, k.ruleID, k.opID).Add(float64(wErrors.Count()))
-		KafkaSinkCounter.WithLabelValues(metrics.LblSuccess, LblMsg, k.ruleID, k.opID).Add(float64(count - wErrors.Count()))
-	default:
-		errorCount = count
-		KafkaSinkCounter.WithLabelValues(metrics.LblException, LblMsg, k.ruleID, k.opID).Add(float64(count))
-	}
-	if errorCount > 0 && k.statManager != nil {
-		for i := 0; i < count; i++ {
-			k.statManager.IncTotalExceptions(err.Error())
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (k *KafkaSink) handleConnectedSch(err error) {
-	if k.connected && err != nil {
-		k.connected = false
-		k.sch(api.ConnectionDisconnected, err.Error())
-	} else if !k.connected && err == nil {
-		k.connected = true
-		k.sch(api.ConnectionConnected, "")
-	}
-}
+func (k *KafkaSink) handleConnectedSch(err error) { _ = "STUB: not implemented"; return }
 
 func toCompression(c string) kafkago.Compression {
-	switch strings.ToLower(c) {
-	case "gzip":
-		return kafkago.Gzip
-	case "snappy":
-		return kafkago.Snappy
-	case "lz4":
-		return kafkago.Lz4
-	case "zstd":
-		return kafkago.Zstd
-	}
-	return 0
+	_ = "STUB: not implemented"
+	return *new(kafkago.Compression)
 }
 
-func GetSink() api.Sink {
-	return &KafkaSink{}
-}
+func GetSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 var (
 	_ api.BytesCollector = &KafkaSink{}
@@ -531,25 +183,11 @@ var (
 	_ model.SinkInfoNode = &KafkaSink{}
 )
 
-func getDefaultKafkaConf() *kafkaConf {
-	c := &kafkaConf{
-		RequiredACKs: 1,
-		MaxAttempts:  3,
-	}
-	c.kafkaWriterConf = kafkaWriterConf{
-		BatchSize:    1,
-		BatchTimeout: time.Microsecond,
-		BatchBytes:   1048576, // 1MB
-	}
-	return c
-}
+func getDefaultKafkaConf() *kafkaConf { _ = "STUB: not implemented"; return nil }
+
+// 1MB
 
 func (kc *kafkaConf) configure(props map[string]interface{}) error {
-	if err := cast.MapToStruct(props, kc); err != nil {
-		return err
-	}
-	if err := cast.MapToStruct(props, &kc.kafkaWriterConf); err != nil {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -15,15 +15,10 @@
 package topo
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/node"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/schema"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -33,51 +28,19 @@ var (
 )
 
 func GetOrCreateSubTopo(ctx api.StreamContext, name string, isSliceMode bool, init func(*SrcSubTopo) error) (*SrcSubTopo, error) {
-	lock.Lock()
-	defer lock.Unlock()
-	ac, ok := subTopoPool[name]
-	if !ok {
-		ac = &SrcSubTopo{
-			name: name,
-			topo: &def.PrintableTopo{
-				Sources: make([]string, 0),
-				Edges:   make(map[string][]any),
-			},
-			schemaLayer: schema.GetStream(name).(*schema.SharedLayer),
-			refRules:    make(map[string]map[int]chan<- error),
-			isSliceMode: isSliceMode,
-		}
-		if init != nil {
-			// init runs under the pool lock so a new subtopo is not visible before
-			// it is usable. Keep init lightweight; node Provision must not perform
-			// time-consuming work. TODO: revisit if any source init becomes slow.
-			if err := init(ac); err != nil {
-				return nil, fmt.Errorf("init subtopo %s with slice mode %t: %w", name, isSliceMode, err)
-			}
-		}
-		subTopoPool[name] = ac
-		ctx.GetLogger().Infof("Create SubTopo %s", name)
-	} else {
-		ctx.GetLogger().Infof("Load SubTopo %s", name)
-	}
-	ac.Init(ctx)
-	return ac, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func RemoveSubTopo(name string) {
-	lock.Lock()
-	defer lock.Unlock()
-	delete(subTopoPool, name)
-	conf.Log.Infof("Delete SubTopo %s", name)
-}
+// init runs under the pool lock so a new subtopo is not visible before
+// it is usable. Keep init lightweight; node Provision must not perform
+// time-consuming work. TODO: revisit if any source init becomes slow.
+
+func RemoveSubTopo(name string) { _ = "STUB: not implemented"; return }
 
 // GetSubTopoPoolSize returns the number of entries in the subtopo pool.
 // It is intended for use in tests to verify cleanup after planning errors.
-func GetSubTopoPoolSize() int {
-	lock.Lock()
-	defer lock.Unlock()
-	return len(subTopoPool)
-}
+func GetSubTopoPoolSize() int { _ = "STUB: not implemented"; return 0 }
 
 // CloseSubTopo decrements the reference count for ctx's rule on s and, when
 // the last reference is removed, atomically cancels the subtopo and evicts it
@@ -85,116 +48,39 @@ func GetSubTopoPoolSize() int {
 // operation, so the destroy decision and the pool delete are one atomic step —
 // no zombie window is possible. This mirrors GetOrCreateSubTopo: the pool file
 // is the sole owner of all mutations to lock and subTopoPool.
-func CloseSubTopo(ctx api.StreamContext, s *SrcSubTopo) {
-	lock.Lock()
-	s.Lock()
+func CloseSubTopo(ctx api.StreamContext, s *SrcSubTopo) { _ = "STUB: not implemented"; return }
 
-	isStop, isDestroy := s.removeRef(ctx)
-	// Always detach the rule from the schema layer, even if the sub-topology is being destroyed.
-	// This ensures RemoveRuleSchema is called for the global registry.
-	err := s.schemaLayer.Detach(ctx, isStop)
-	if err != nil {
-		ctx.GetLogger().Warnf("subtopo %s detach schema layer failed: %s", s.name, err)
-	} else if !isDestroy {
-		// Only update surviving rules' operators if the sub-topology isn't being destroyed.
-		ctx.GetLogger().Infof("subtopo %s update schema for rule %s change", s.name, ctx.GetRuleId())
-		for _, op := range s.ops {
-			if so, ok := op.(node.SchemaNode); ok {
-				so.ResetSchema(ctx, s.schemaLayer.GetSchema())
-			}
-		}
-	}
+// Always detach the rule from the schema layer, even if the sub-topology is being destroyed.
+// This ensures RemoveRuleSchema is called for the global registry.
 
-	if isDestroy {
-		if s.cancel != nil {
-			s.cancel()
-		}
-		delete(subTopoPool, s.name)
-		conf.Log.Infof("Delete SubTopo %s", s.name)
-	}
-	_ = s.RemoveOutput(fmt.Sprintf("%s.%d", ctx.GetRuleId(), ctx.GetRunId()))
+// Only update surviving rules' operators if the sub-topology isn't being destroyed.
 
-	// Capture chained source subtopo pointer before releasing locks.
-	var ss *SrcSubTopo
-	if isDestroy {
-		if sourceSub, ok := s.source.(*SrcSubTopo); ok {
-			ss = sourceSub
-		}
-	}
+// Capture chained source subtopo pointer before releasing locks.
 
-	s.Unlock()
-	lock.Unlock()
-
-	// If the destroyed subtopo's source was itself a subtopo (chained connection),
-	// close it now — after releasing all locks to avoid any nesting issue.
-	if isDestroy && ss != nil {
-		if dctx, ok := ctx.(*kctx.DefaultContext); ok {
-			subCtx := dctx.WithRuleId(fmt.Sprintf("$$subtopo_%s", s.name)).WithRun(0)
-			CloseSubTopo(subCtx, ss)
-		} else {
-			ctx.GetLogger().Warnf("subtopo %s chained close failed: context is not DefaultContext", s.name)
-		}
-	}
-}
+// If the destroyed subtopo's source was itself a subtopo (chained connection),
+// close it now — after releasing all locks to avoid any nesting issue.
 
 func (s *SrcSubTopo) AddSrc(src node.DataSourceNode) *SrcSubTopo {
-	s.source = src
-	switch rt := src.(type) {
-	case node.MergeableTopo:
-		rt.MergeSrc(s.topo)
-	default:
-		s.topo.Sources = append(s.topo.Sources, fmt.Sprintf("source_%s", src.GetName()))
-	}
-	s.tail = src
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddOperator adds an internal operator to the subtopo.
 func (s *SrcSubTopo) AddOperator(inputs []node.Emitter, operator node.OperatorNode) *SrcSubTopo {
-	for _, input := range inputs {
-		input.AddOutput(operator.GetInput())
-		operator.AddInputCount()
-		switch rt := input.(type) {
-		case node.MergeableTopo:
-			rt.LinkTopo(s.topo, s.name+"_"+operator.GetName())
-		case node.TopNode:
-			s.addEdge(rt, operator, "op")
-		}
-	}
-	s.ops = append(s.ops, operator)
-	s.tail = operator
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *SrcSubTopo) addEdge(from node.TopNode, to node.TopNode, toType string) {
-	var f string
-	switch from.(type) {
-	case node.DataSourceNode:
-		f = fmt.Sprintf("source_%s", from.GetName())
-	default:
-		f = fmt.Sprintf("op_%s_%s", s.name, from.GetName())
-	}
-	t := fmt.Sprintf("%s_%s_%s", toType, s.name, to.GetName())
-	e, ok := s.topo.Edges[f]
-	if !ok {
-		e = make([]interface{}, 0)
-	}
-	s.topo.Edges[f] = append(e, t)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *SrcSubTopo) MergeSrc(parentTopo *def.PrintableTopo) {
-	parentTopo.Sources = append(parentTopo.Sources, s.topo.Sources...)
-	for k, v := range s.topo.Edges {
-		parentTopo.Edges[k] = v
-	}
-}
+func (s *SrcSubTopo) MergeSrc(parentTopo *def.PrintableTopo) { _ = "STUB: not implemented"; return }
 
 func (s *SrcSubTopo) LinkTopo(parentTopo *def.PrintableTopo, parentJointName string) {
-	if _, ok := s.tail.(node.DataSourceNode); ok {
-		parentTopo.Edges[fmt.Sprintf("source_%s", s.tail.(node.TopNode).GetName())] = []any{fmt.Sprintf("op_%s", parentJointName)}
-	} else {
-		parentTopo.Edges[fmt.Sprintf("op_%s_%s", s.name, s.tail.(node.TopNode).GetName())] = []any{fmt.Sprintf("op_%s", parentJointName)}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 var _ node.MergeableTopo = &SrcSubTopo{}

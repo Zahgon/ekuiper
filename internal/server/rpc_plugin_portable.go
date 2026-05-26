@@ -17,49 +17,25 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
 )
 
 func (t *Server) doRegister(pt plugin.PluginType, p plugin.Plugin) error {
-	if pt == plugin.PORTABLE {
-		return portableManager.Register(p)
-	} else {
-		return fmt.Errorf("native plugin support is disabled")
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *Server) doDelete(pt plugin.PluginType, name string, stopRun bool) error {
-	if pt == plugin.PORTABLE {
-		return portableManager.Delete(name)
-	} else {
-		return fmt.Errorf("native plugin support is disabled")
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *Server) doDesc(pt plugin.PluginType, name string) (interface{}, error) {
-	if pt == plugin.PORTABLE {
-		r, ok := portableManager.GetPluginInfo(name)
-		if !ok {
-			return nil, fmt.Errorf("not found")
-		}
-		return r, nil
-	} else {
-		return nil, fmt.Errorf("native plugin support is disabled")
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (t *Server) doShow(pt plugin.PluginType) (string, error) {
-	if pt == plugin.PORTABLE {
-		l := portableManager.List()
-		jb, err := json.Marshal(l)
-		if err != nil {
-			return "", err
-		}
-		return string(jb), nil
-	} else {
-		return "", fmt.Errorf("native plugin support is disabled")
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }

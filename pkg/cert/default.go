@@ -16,7 +16,6 @@ package cert
 
 import (
 	"crypto/tls"
-	"errors"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
@@ -27,17 +26,9 @@ import (
 var conf *model.TlsConfigurationOptions
 
 // InitConf run in server start up
-func InitConf(tc *model.TlsConfigurationOptions) {
-	conf = tc
-}
+func InitConf(tc *model.TlsConfigurationOptions) { _ = "STUB: not implemented"; return }
 
 func GetDefaultTlsConf(ctx api.StreamContext) (*tls.Config, error) {
-	if conf == nil {
-		return nil, errors.New("default TLS is not configured")
-	}
-	keys, err := conf.GenKeys()
-	if err != nil {
-		return nil, err
-	}
-	return GenerateTLSForClient(ctx, conf, keys)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

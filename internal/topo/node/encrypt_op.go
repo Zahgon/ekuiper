@@ -15,14 +15,9 @@
 package node
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/modules/encryptor"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
@@ -36,42 +31,16 @@ type EncryptNode struct {
 }
 
 func NewEncryptOp(name string, rOpt *def.RuleOption, encryptMethod string, encProps map[string]any) (*EncryptNode, error) {
-	dc, err := encryptor.GetEncryptor(encryptMethod, encProps, conf.Config)
-	if err != nil {
-		return nil, fmt.Errorf("get encryptor %s fail with error: %v", encryptMethod, err)
-	}
-	return &EncryptNode{
-		defaultSinkNode: newDefaultSinkNode(name, rOpt),
-		tool:            dc,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (o *EncryptNode) Exec(ctx api.StreamContext, errCh chan<- error) {
-	o.prepareExec(ctx, errCh, "op")
-	go func() {
-		defer func() {
-			o.Close()
-		}()
-		err := infra.SafeRun(func() error {
-			runWithOrder(ctx, o.defaultSinkNode, o.concurrency, o.Worker)
-			return nil
-		})
-		if err != nil {
-			infra.DrainError(ctx, err, errCh)
-		}
-	}()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (o *EncryptNode) Worker(_ api.StreamContext, item any) []any {
-	switch d := item.(type) {
-	case api.RawTuple:
-		r, err := o.tool.Encrypt(d.Raw())
-		if err != nil {
-			return []any{err}
-		}
-		d.Replace(r)
-		return []any{d}
-	default:
-		return []any{fmt.Errorf("unsupported data received: %v", d)}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

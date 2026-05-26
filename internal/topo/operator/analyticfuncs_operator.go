@@ -15,13 +15,10 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/model"
 )
 
 type AnalyticFuncsOp struct {
@@ -31,104 +28,16 @@ type AnalyticFuncsOp struct {
 }
 
 func (p *AnalyticFuncsOp) evalTupleFunc(calls []*ast.Call, ve *xsql.ValuerEval, input xsql.Row) (xsql.Row, error) {
-	for _, call := range calls {
-		f := call
-		result := ve.Eval(f)
-		if e, ok := result.(error); ok {
-			return nil, e
-		}
-		if iv, ok := input.(model.IndexValuer); ok {
-			iv.SetTempByIndex(f.CacheIndex, result)
-		} else {
-			input.Set(f.CachedField, result)
-		}
-	}
-	return input, nil
+	_ = "STUB: not implemented"
+	return *new(xsql.Row), nil
 }
 
 func (p *AnalyticFuncsOp) evalCollectionFunc(calls []*ast.Call, fv *xsql.FunctionValuer, input xsql.Collection) (xsql.Collection, error) {
-	err := input.RangeSet(func(_ int, row xsql.Row) (bool, error) {
-		ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(row, &xsql.WindowRangeValuer{WindowRange: input.GetWindowRange()}, fv, &xsql.WildcardValuer{Data: row})}
-		for _, call := range calls {
-			f := call
-			result := ve.Eval(f)
-			if e, ok := result.(error); ok {
-				return false, e
-			}
-			if iv, ok := row.(model.IndexValuer); ok {
-				iv.SetTempByIndex(f.CacheIndex, result)
-			} else {
-				row.Set(f.CachedField, result)
-			}
-		}
-		return true, nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	return input, nil
+	_ = "STUB: not implemented"
+	return *new(xsql.Collection), nil
 }
 
 func (p *AnalyticFuncsOp) Apply(ctx api.StreamContext, data interface{}, fv *xsql.FunctionValuer, _ *xsql.AggregateFunctionValuer) (got interface{}) {
-	ctx.GetLogger().Debugf("AnalyticFuncsOp receive: %v", data)
-	if !p.transformed {
-		newF := make([]*ast.Call, len(p.Funcs))
-		for i, f := range p.Funcs {
-			newF[i] = &ast.Call{
-				Name:        f.Name,
-				FuncId:      f.FuncId,
-				FuncType:    f.FuncType,
-				Args:        f.Args,
-				CachedField: f.CachedField,
-				CacheIndex:  f.CacheIndex,
-				Partition:   f.Partition,
-				WhenExpr:    f.WhenExpr,
-			}
-		}
-		p.Funcs = newF
-		newFF := make([]*ast.Call, len(p.FieldFuncs))
-		for i, f := range p.FieldFuncs {
-			newFF[i] = &ast.Call{
-				Name:        f.Name,
-				FuncId:      f.FuncId,
-				FuncType:    f.FuncType,
-				Args:        f.Args,
-				CachedField: f.CachedField,
-				CacheIndex:  f.CacheIndex,
-				Partition:   f.Partition,
-				WhenExpr:    f.WhenExpr,
-			}
-		}
-		p.FieldFuncs = newFF
-		p.transformed = true
-	}
-	var err error
-	switch input := data.(type) {
-	case error:
-		return input
-	case xsql.Row:
-		ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(input, fv)}
-		input, err = p.evalTupleFunc(p.FieldFuncs, ve, input)
-		if err != nil {
-			return err
-		}
-		input, err = p.evalTupleFunc(p.Funcs, ve, input)
-		if err != nil {
-			return err
-		}
-		data = input
-	case xsql.Collection:
-		input, err = p.evalCollectionFunc(p.FieldFuncs, fv, input)
-		if err != nil {
-			return err
-		}
-		input, err = p.evalCollectionFunc(p.Funcs, fv, input)
-		if err != nil {
-			return err
-		}
-		data = input
-	default:
-		return fmt.Errorf("run analytic funcs op error: invalid input %[1]T(%[1]v)", input)
-	}
-	return data
+	_ = "STUB: not implemented"
+	return nil
 }

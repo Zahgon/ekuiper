@@ -15,43 +15,14 @@
 package server
 
 import (
-	"context"
-	"fmt"
 	"net"
-	"net/http"
-	"os"
-	"os/signal"
-	"path/filepath"
-	"sort"
-	"sync"
-	"syscall"
-	"time"
 
 	"github.com/sirupsen/logrus"
-	"go.uber.org/automaxprocs/maxprocs"
 
-	"github.com/lf-edge/ekuiper/v2/internal/binder/function"
-	"github.com/lf-edge/ekuiper/v2/internal/binder/io"
-	"github.com/lf-edge/ekuiper/v2/internal/binder/meta"
 	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/io/http/httpserver"
-	"github.com/lf-edge/ekuiper/v2/internal/keyedstate"
-	meta2 "github.com/lf-edge/ekuiper/v2/internal/meta"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/async"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store/definition"
-	"github.com/lf-edge/ekuiper/v2/internal/plugin/portable/runtime"
 	"github.com/lf-edge/ekuiper/v2/internal/processor"
-	"github.com/lf-edge/ekuiper/v2/internal/server/bump"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/rule"
-	"github.com/lf-edge/ekuiper/v2/metrics"
-	"github.com/lf-edge/ekuiper/v2/modules/encryptor"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cert"
-	"github.com/lf-edge/ekuiper/v2/pkg/connection"
 	"github.com/lf-edge/ekuiper/v2/pkg/model"
-	"github.com/lf-edge/ekuiper/v2/pkg/modules"
-	"github.com/lf-edge/ekuiper/v2/pkg/tracer"
 )
 
 var (
@@ -73,301 +44,60 @@ var (
 var newNetListener = newTcpListener
 
 func newTcpListener(addr string, logger *logrus.Logger) (net.Listener, error) {
-	logger.Info("using ListenMode 'http'")
-	return net.Listen("tcp", addr)
+	_ = "STUB: not implemented"
+	return *new(net.Listener), nil
 }
 
-func stopEKuiper() {
-	stopSignal <- struct{}{}
-}
+func stopEKuiper() { _ = "STUB: not implemented"; return }
 
 // Create path if mount an empty dir. For edgeX, all the folders must be created priorly
-func createPaths() {
-	dataDir, err := conf.GetDataLoc()
-	if err != nil {
-		panic(err)
-	}
-	dirs := []string{"uploads", "sources", "sinks", "functions", "services", "services/schemas", "connections"}
+func createPaths() { _ = "STUB: not implemented"; return }
 
-	for _, v := range dirs {
-		// Create dir if not exist
-		realDir := filepath.Join(dataDir, v)
-		if _, err := os.Stat(realDir); os.IsNotExist(err) {
-			if err := os.MkdirAll(realDir, os.ModePerm); err != nil {
-				fmt.Printf("Failed to create dir %s: %v", realDir, err)
-			}
-		}
-	}
+// Create dir if not exist
 
-	files := []string{"connections/connection.yaml"}
-	for _, v := range files {
-		// Create dir if not exist
-		realFile := filepath.Join(dataDir, v)
-		if _, err := os.Stat(realFile); os.IsNotExist(err) {
-			if _, err := os.Create(realFile); err != nil {
-				fmt.Printf("Failed to create file %s: %v", realFile, err)
-			}
-		}
-	}
-}
+// Create dir if not exist
 
 func getStoreConfigByKuiperConfig(c *model.KuiperConf) (*store.StoreConf, error) {
-	dataDir, err := conf.GetDataLoc()
-	if err != nil {
-		return nil, err
-	}
-	sc := &store.StoreConf{
-		Type:         c.Store.Type,
-		ExtStateType: c.Store.ExtStateType,
-		RedisConfig: definition.RedisConfig{
-			Host:     c.Store.Redis.Host,
-			Port:     c.Store.Redis.Port,
-			Password: c.Store.Redis.Password,
-			Timeout:  time.Duration(c.Store.Redis.Timeout),
-		},
-		SqliteConfig: definition.SqliteConfig{
-			Path: dataDir,
-			Name: c.Store.Sqlite.Name,
-		},
-		FdbConfig: definition.FdbConfig{
-			Path: c.Store.Fdb.Path,
-		},
-		PebbleConfig: definition.PebbleConfig{
-			Path: filepath.Join(dataDir, "pebble"),
-			Name: c.Store.Pebble.Name,
-		},
-	}
-	return sc, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func canSetupCheckpointDB() (setup bool) {
-	s, err := conf.GetDataLoc()
-	if err != nil {
-		return false
-	}
-	_, err = os.Stat(filepath.Join(s, "checkpoint.db"))
-	// checkpoint.db already exists, setup it.
-	if err == nil {
-		return true
-	}
-	_, err = os.Stat(filepath.Join(s, "sqliteKV.db"))
-	if err != nil {
-		// sqliteKV.db not exists, setup checkpoint.db.
-		if os.IsNotExist(err) {
-			return true
-		}
-		// unexpected error happened
-		return false
-	}
-	// sqliteKV.db exists/ checkpoint.db not exists, don't setup.
-	return false
-}
+func canSetupCheckpointDB() (setup bool) { _ = "STUB: not implemented"; return false }
 
-func StartUp(Version string) {
-	version = Version
-	startTimeStamp = time.Now().Unix()
-	createPaths()
-	needSetup := canSetupCheckpointDB()
-	conf.SetupEnv()
-	conf.InitConf()
-	if modules.ConfHook != nil {
-		modules.ConfHook(conf.Config)
-	}
-	if conf.Config.Security != nil {
-		if conf.Config.Security.Encryption != nil {
-			encryptor.InitConf(conf.Config.Security.Encryption, conf.Config.AesKey)
-		}
-		if conf.Config.Security.Tls != nil {
-			cert.InitConf(conf.Config.Security.Tls)
-		}
-	}
-	// Print inited modules
-	for n := range modules.Sources {
-		conf.Log.Infof("register source %s", n)
-	}
-	for n := range modules.Sinks {
-		conf.Log.Infof("register sink %s", n)
-	}
-	for n := range modules.LookupSources {
-		conf.Log.Infof("register lookup source %s", n)
-	}
-	for n := range modules.Converters {
-		conf.Log.Infof("register format %s", n)
-	}
+// checkpoint.db already exists, setup it.
 
-	serverCtx, serverCancel := context.WithCancel(context.Background())
-	if conf.Config.Basic.ResourceProfileConfig.Enable {
-		err := StartCPUProfiling(serverCtx, cpuProfiler, conf.Config.Basic.ResourceProfileConfig.Interval)
-		conf.Log.Warn(err)
-	}
+// sqliteKV.db not exists, setup checkpoint.db.
 
-	undo, _ := maxprocs.Set(maxprocs.Logger(conf.Log.Infof))
-	defer undo()
+// unexpected error happened
 
-	sc, err := getStoreConfigByKuiperConfig(conf.Config)
-	if err != nil {
-		panic(err)
-	}
-	err = store.SetupWithConfig(sc, needSetup)
-	if err != nil {
-		panic(err)
-	}
-	if err := bump.InitBumpManager(); err != nil {
-		panic(err)
-	}
-	dataDir, _ := conf.GetDataLoc()
-	if err := bump.BumpToCurrentVersion(dataDir); err != nil {
-		panic(err)
-	}
-	if err := tracer.InitTracer(); err != nil {
-		conf.Log.Warn(err)
-	} else {
-		conf.Log.Infof("tracer init successfully")
-	}
+// sqliteKV.db exists/ checkpoint.db not exists, don't setup.
 
-	keyedstate.InitKeyedStateKV()
+func StartUp(Version string) { _ = "STUB: not implemented"; return }
 
-	meta2.InitYamlConfigManager()
-	httpserver.InitGlobalServerManager(conf.Config.Source.HttpServerIp, conf.Config.Source.HttpServerPort, conf.Config.Source.HttpServerTls)
-	ruleProcessor = processor.NewRuleProcessor()
-	streamProcessor = processor.NewStreamProcessor()
-	rulesetProcessor = processor.NewRulesetProcessor(ruleProcessor, streamProcessor)
-	ruleMigrationProcessor = NewRuleMigrationProcessor(ruleProcessor, streamProcessor)
-	sysMetrics = NewMetrics()
+// Print inited modules
 
-	// register all extensions
-	for k, v := range components {
-		logger.Infof("register component %s", k)
-		v.register()
-	}
+// register all extensions
 
-	// Bind the source, function, sink
-	sort.Sort(entries)
-	err = function.Initialize(entries)
-	if err != nil {
-		panic(err)
-	}
-	err = io.Initialize(entries)
-	if err != nil {
-		panic(err)
-	}
-	meta.Bind()
-	connection.InitConnectionManager(serverCtx)
-	if err := connection.ReloadNamedConnection(); err != nil {
-		conf.Log.Warn(err)
-	}
-	initRuleset()
+// Bind the source, function, sink
 
-	registry = &RuleRegistry{internal: make(map[string]*rule.State)}
-	// Start lookup tables
-	streamProcessor.RecoverLookupTable()
-	// Start rules
-	if rules, err := ruleProcessor.GetAllRules(); err != nil {
-		logger.Infof("Start rules error: %s", err)
-	} else {
-		logger.Info("Starting rules")
-		var reply string
-		for _, name := range rules {
-			rule, err := ruleProcessor.GetRuleById(name)
-			if err != nil {
-				logger.Error(err)
-				continue
-			}
-			reply = registry.RecoverRule(rule)
-			if len(reply) != 0 {
-				logger.Info(reply)
-			}
-		}
-	}
-	go runScheduleRuleChecker(serverCtx)
-	metrics.InitMetricsDumpJob(serverCtx)
-	async.InitManager()
+// Start lookup tables
 
-	// Start rest service
-	srvRest := createRestServer(conf.Config.Basic.RestIp, conf.Config.Basic.RestPort, conf.Config.Basic.Authentication)
-	go func() {
-		var err error
-		ln, listenErr := newNetListener(srvRest.Addr, logger)
-		if listenErr != nil {
-			panic(listenErr)
-		}
-		if conf.Config.Basic.RestTls == nil {
-			err = srvRest.Serve(ln)
-		} else {
-			err = srvRest.ServeTLS(ln, conf.Config.Basic.RestTls.Certfile, conf.Config.Basic.RestTls.Keyfile)
-		}
-		if err != nil && err != http.ErrServerClosed {
-			logger.Fatal("Error serving rest service: ", err)
-		}
-	}()
+// Start rules
 
-	// Start extend services
-	for k, v := range servers {
-		logger.Infof("start service %s", k)
-		v.serve()
-	}
-	// Register conf managers
-	InitConfManagers()
+// Start rest service
 
-	// Startup message
-	restHttpType := "http"
-	if conf.Config.Basic.RestTls != nil {
-		restHttpType = "https"
-	}
-	stopSignal = make(chan struct{})
-	msg := fmt.Sprintf("Serving kuiper (version - %s) on port %d, and restful api on %s://%s.", Version, conf.Config.Basic.Port, restHttpType, cast.JoinHostPortInt(conf.Config.Basic.RestIp, conf.Config.Basic.RestPort))
-	logger.Info(msg)
-	fmt.Println(msg)
+// Start extend services
 
-	// Stop the services
-	sigint := make(chan os.Signal, 1)
-	signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
-	select {
-	case ss := <-sigint:
-		conf.Log.Infof("eKuiper stopped by %v", ss)
-	case <-stopSignal:
-		// sleep 1 sec in order to let stop request got response
-		time.Sleep(time.Second)
-		conf.Log.Info("eKuiper stopped by Stop request")
-	}
-	serverCancel()
-	// wait rule checker exit
-	time.Sleep(10 * time.Millisecond)
+// Register conf managers
 
-	ctx, cancel := context.WithTimeout(context.TODO(), time.Duration(conf.Config.Basic.GracefulShutdownTimeout))
-	defer cancel()
-	waitRuleStopCh := make(chan any)
-	go func() {
-		conf.Log.Info("start to stop rest server")
-		if err = srvRest.Shutdown(ctx); err != nil {
-			logger.Errorf("rest server shutdown error: %v", err)
-		}
-		logger.Info("rest server successfully shutdown.")
-		wg := sync.WaitGroup{}
-		wg.Add(1)
-		go func() {
-			conf.Log.Info("start to stop all rules")
-			waitAllRuleStop()
-			wg.Done()
-			conf.Log.Info("stop all rules success")
-		}()
-		wg.Wait()
-		close(waitRuleStopCh)
-	}()
-	select {
-	case <-waitRuleStopCh:
-	case <-ctx.Done():
-		conf.Log.Info("wait rule graceful stop timeout")
-	}
-	// kill all plugin process
-	runtime.GetPluginInsManager().KillAll()
+// Startup message
 
-	// close extend services
-	for k, v := range servers {
-		logger.Infof("start to close service %s", k)
-		v.close()
-		logger.Infof("close service %s successfully", k)
-	}
+// Stop the services
 
-	os.Exit(0)
-}
+// sleep 1 sec in order to let stop request got response
+
+// wait rule checker exit
+
+// kill all plugin process
+
+// close extend services

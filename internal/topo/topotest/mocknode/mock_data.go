@@ -15,7 +15,6 @@
 package mocknode
 
 import (
-	"encoding/base64"
 	"time"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
@@ -1187,8 +1186,4 @@ var TestData = map[string][]*xsql.Tuple{
 
 var Image, _ = GetImg()
 
-func GetImg() ([]byte, string) {
-	b64img := "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAA2ElEQVR4nADIADf/BC0WH5nMXfXHJV5I6UzACsst5FWwnirr5ACEv1em5DJEytIpPnKs3g91xCvGpd4hE5gDZYFg109pkvLp4R9Dxcjo8hyb1QCEiMkUArLqIWvHEgIkyCl6Iefgs/I1EOoH2ch98gLoWT0RcAjxv4G05nKc5BDoz+xuQwM3490Ax3L9MTmNm7YCUfjfuW2T7loUJy/9QMN4BK765ATI+UPcFsvYLHyEvjGaqzUIQWkIpQRpQ/Ok1bjz57qgxd7NH+xIQnMxsPgKw4QBAAD//1xYZo1yq5mgAAAAAElFTkSuQmCC"
-	image, _ := base64.StdEncoding.DecodeString(b64img)
-	return image, b64img
-}
+func GetImg() ([]byte, string) { _ = "STUB: not implemented"; return nil, "" }

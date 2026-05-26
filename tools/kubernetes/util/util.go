@@ -15,15 +15,8 @@
 package util
 
 import (
-	"encoding/json"
-	"fmt"
-	"net"
-	"net/http"
 	"os"
 	"path"
-	"strconv"
-	"strings"
-	"time"
 
 	kconf "github.com/lf-edge/ekuiper/tools/kubernetes/conf"
 )
@@ -41,35 +34,9 @@ type (
 	}
 )
 
-func (c *command) getLog() string {
-	return c.strLog
-}
+func (c *command) getLog() string { _ = "STUB: not implemented"; return "" }
 
-func (c *command) call(host string) bool {
-	var resp []byte
-	var err error
-	head := host + c.Url
-	body, _ := json.Marshal(c.Data)
-	switch strings.ToUpper(c.Method) {
-	case http.MethodPost:
-		resp, err = kconf.Post(head, string(body))
-	case http.MethodGet:
-		resp, err = kconf.Get(head)
-	case http.MethodDelete:
-		resp, err = kconf.Delete(head)
-	case http.MethodPut:
-		resp, err = kconf.Put(head, string(body))
-	default:
-		c.strLog = fmt.Sprintf("no such method : %s", c.Method)
-		return false
-	}
-	if nil == err {
-		c.strLog = fmt.Sprintf("%s:%s resp:%s", head, c.Method, string(resp))
-		return true
-	}
-	c.strLog = fmt.Sprintf("%s:%s resp:%s err:%v", head, c.Method, string(resp), err)
-	return false
-}
+func (c *command) call(host string) bool { _ = "STUB: not implemented"; return false }
 
 type (
 	historyFile struct {
@@ -84,36 +51,15 @@ type (
 	}
 )
 
-func (f *historyFile) setName(name string) {
-	f.Name = name
-}
+func (f *historyFile) setName(name string) { _ = "STUB: not implemented"; return }
 
-func (f *historyFile) setLoadTime(loadTime int64) {
-	f.LoadTime = loadTime
-}
+func (f *historyFile) setLoadTime(loadTime int64) { _ = "STUB: not implemented"; return }
 
-func (s *server) getLogs() []string {
-	return s.logs
-}
+func (s *server) getLogs() []string { _ = "STUB: not implemented"; return nil }
 
-func (s *server) printLogs() {
-	for _, v := range s.logs {
-		kconf.Log.Info(v)
-	}
-	s.logs = s.logs[:0]
-}
+func (s *server) printLogs() { _ = "STUB: not implemented"; return }
 
-func (s *server) loadHistoryFile() bool {
-	var sli []*historyFile
-	if err := kconf.LoadFileUnmarshal(s.fileHistory, &sli); nil != err {
-		kconf.Log.Info(err)
-		return false
-	}
-	for _, v := range sli {
-		s.mapHistoryFile[v.Name] = v
-	}
-	return true
-}
+func (s *server) loadHistoryFile() bool { _ = "STUB: not implemented"; return false }
 
 func (s *server) init() bool {
 	s.mapHistoryFile = make(map[string]*historyFile)
@@ -131,108 +77,14 @@ func (s *server) init() bool {
 	return s.loadHistoryFile()
 }
 
-func (s *server) saveHistoryFile() bool {
-	var sli []*historyFile
-	for _, v := range s.mapHistoryFile {
-		sli = append(sli, v)
-	}
-	err := kconf.SaveFileMarshal(s.fileHistory, sli)
-	if nil != err {
-		kconf.Log.Info(err)
-		return false
-	}
-	return true
-}
+func (s *server) saveHistoryFile() bool { _ = "STUB: not implemented"; return false }
 
-func (s *server) isUpdate(entry os.DirEntry) bool {
-	v := s.mapHistoryFile[entry.Name()]
-	if nil == v {
-		return true
-	}
+func (s *server) isUpdate(entry os.DirEntry) bool { _ = "STUB: not implemented"; return false }
 
-	info, err := entry.Info()
-	if err != nil {
-		return false
-	}
+func (s *server) processDir() bool { _ = "STUB: not implemented"; return false }
 
-	if v.LoadTime < info.ModTime().Unix() {
-		return true
-	}
-	return false
-}
+func (s *server) watchFolders() { _ = "STUB: not implemented"; return }
 
-func (s *server) processDir() bool {
-	dirEntries, err := os.ReadDir(s.dirCommand)
-	if nil != err {
-		s.logs = append(s.logs, fmt.Sprintf("read command dir:%v", err))
-		return false
-	}
-	conf := kconf.GetConf()
-	host := "http://" + joinHostPortInt(conf.GetIp(), conf.GetPort())
-	for _, entry := range dirEntries {
-		if !strings.HasSuffix(entry.Name(), ".json") {
-			continue
-		}
-		if !s.isUpdate(entry) {
-			continue
-		}
+func Process() { _ = "STUB: not implemented"; return }
 
-		hisFile := new(historyFile)
-		hisFile.setName(entry.Name())
-		hisFile.setLoadTime(time.Now().Unix())
-		s.mapHistoryFile[entry.Name()] = hisFile
-
-		filePath := path.Join(s.dirCommand, entry.Name())
-		file := new(fileData)
-		err = kconf.LoadFileUnmarshal(filePath, file)
-		if nil != err {
-			s.logs = append(s.logs, fmt.Sprintf("load command file:%v", err))
-			return false
-		}
-
-		for _, command := range file.Commands {
-			flag := command.call(host)
-			s.logs = append(s.logs, command.getLog())
-			if !flag {
-				break
-			}
-		}
-	}
-	s.saveHistoryFile()
-	return true
-}
-
-func (s *server) watchFolders() {
-	conf := kconf.GetConf()
-	s.processDir()
-	s.printLogs()
-	chTimer := time.NewTicker(time.Second * time.Duration(conf.GetIntervalTime()))
-	defer chTimer.Stop()
-	<-chTimer.C
-	s.processDir()
-	s.printLogs()
-}
-
-func Process() {
-	if len(os.Args) != 2 {
-		fmt.Println("Missing configuration file")
-		return
-	}
-
-	conf := kconf.GetConf()
-	if !conf.Init() {
-		return
-	}
-
-	se := new(server)
-	if !se.init() {
-		se.printLogs()
-		return
-	}
-	fmt.Println("Kuiper kubernetes tool is started successfully!")
-	se.watchFolders()
-}
-
-func joinHostPortInt(host string, port int) string {
-	return net.JoinHostPort(host, strconv.Itoa(port))
-}
+func joinHostPortInt(host string, port int) string { _ = "STUB: not implemented"; return "" }

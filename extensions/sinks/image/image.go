@@ -16,10 +16,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/image"
 )
 
-func Image() api.Sink {
-	return image.GetSink()
-}
+func Image() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }

@@ -14,20 +14,6 @@
 
 package meta
 
-import (
-	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/lf-edge/ekuiper/v2/internal/binder/io"
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/filex"
-	"github.com/lf-edge/ekuiper/v2/internal/plugin"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-)
-
 const (
 	sink   = `sink`
 	source = `source`
@@ -110,160 +96,33 @@ type (
 	}
 )
 
-func newLanguage(fi *fileLanguage) *language {
-	if nil == fi {
-		return nil
-	}
-	ui := new(language)
-	ui.English = fi.English
-	ui.Chinese = fi.Chinese
-	return ui
-}
+func newLanguage(fi *fileLanguage) *language { _ = "STUB: not implemented"; return nil }
 
 func newField(fis []*fileField) (uis []field, err error) {
-	for _, fi := range fis {
-		if nil == fi {
-			continue
-		}
-		ui := field{
-			Name:              fi.Name,
-			Type:              fi.Type,
-			Control:           fi.Control,
-			ConnectionRelated: fi.ConnectionRelated,
-			Optional:          fi.Optional,
-			Values:            fi.Values,
-			Hint:              newLanguage(fi.Hint),
-			Label:             newLanguage(fi.Label),
-		}
-		switch t := fi.Default.(type) {
-		case []interface{}:
-			var auxFi []*fileField
-			if err = cast.MapToStruct(t, &auxFi); nil != err {
-				return nil, err
-			}
-			if ui.Default, err = newField(auxFi); nil != err {
-				return nil, err
-			}
-		default:
-			ui.Default = fi.Default
-		}
-		uis = append(uis, ui)
-	}
-	return uis, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func newAbout(fi *fileAbout) *about {
-	if nil == fi {
-		return nil
-	}
-	ui := new(about)
-	ui.Trial = fi.Trial
-	ui.Installed = fi.Installed
-	ui.Author = fi.Author
-	ui.HelpUrl = newLanguage(fi.HelpUrl)
-	ui.Description = newLanguage(fi.Description)
-	return ui
-}
+func newAbout(fi *fileAbout) *about { _ = "STUB: not implemented"; return nil }
 
-func newUiSink(fi *fileSink) (*uiSink, error) {
-	if nil == fi {
-		return nil, nil
-	}
-	var err error
-	ui := new(uiSink)
-	ui.Libs = fi.Libs
-	ui.Node = fi.Node
-	ui.About = newAbout(fi.About)
-	ui.Fields, err = newField(fi.Fields)
-	return ui, err
-}
+func newUiSink(fi *fileSink) (*uiSink, error) { _ = "STUB: not implemented"; return nil, nil }
 
 var gSinkmetadata = make(map[string]*uiSink) // immutable
 
-func ReadSinkMetaDir(checker InstallChecker) error {
-	confDir, err := conf.GetConfLoc()
-	if nil != err {
-		return err
-	}
-	dataDir, err := conf.GetDataLoc()
-	if err != nil {
-		return err
-	}
-	if err := readSinkMetaDir(confDir, checker); err != nil {
-		return err
-	}
-	return readSinkMetaDir(dataDir, checker)
-}
+func ReadSinkMetaDir(checker InstallChecker) error { _ = "STUB: not implemented"; return nil }
 
 func readSinkMetaDir(folder string, checker InstallChecker) error {
-	dir := filepath.Join(folder, "sinks")
-	files, err := os.ReadDir(dir)
-	if nil != err {
-		return err
-	}
-	for _, file := range files {
-		fname := file.Name()
-		if !strings.HasSuffix(fname, ".json") {
-			continue
-		}
-
-		filePath := filepath.Join(dir, fname)
-		if err := ReadSinkMetaFile(filePath, checker(strings.TrimSuffix(fname, ".json"))); nil != err {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func UninstallSink(name string) {
-	if ui, ok := gSinkmetadata[name+".json"]; ok {
-		if nil != ui.About {
-			ui.About.Installed = false
-			delete(gSinkmetadata, name+".json")
-		}
-	}
-	delYamlConf(fmt.Sprintf(SinkCfgOperatorKeyTemplate, name))
-}
+func UninstallSink(name string) { _ = "STUB: not implemented"; return }
 
-func ReadSinkMetaFile(filePath string, installed bool) error {
-	finame := filepath.Base(filePath)
-	metadata := new(fileSink)
-	err := filex.ReadJsonUnmarshal(filePath, metadata)
-	if nil != err {
-		return fmt.Errorf("filePath:%s err:%v", filePath, err)
-	}
-	if nil == metadata.About {
-		return fmt.Errorf("not found about of %s", finame)
-	} else {
-		metadata.About.Installed = installed
-	}
-	uisink, err := newUiSink(metadata)
-	if err != nil {
-		return err
-	}
-	gSinkmetadata[finame] = uisink
-	loadConfigOperatorForSink(strings.TrimSuffix(finame, `.json`))
-	return nil
-}
+func ReadSinkMetaFile(filePath string, installed bool) error { _ = "STUB: not implemented"; return nil }
 
 func GetSinkMeta(pluginName, language string) (s *uiSink, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.ConfKeyError, err.Error())
-			}
-		}
-	}()
-
-	fileName := pluginName + `.json`
-	sinkMetadata := gSinkmetadata
-	data, ok := sinkMetadata[fileName]
-	if !ok || data == nil {
-		return nil, fmt.Errorf(`%s%s`, getMsg(language, sink, "not_found_plugin"), pluginName)
-	}
-	t, _, _ := io.GetSinkPlugin(pluginName)
-	data.Type = plugin.ExtensionTypes[t]
-	return data, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type pluginfo struct {
@@ -272,28 +131,4 @@ type pluginfo struct {
 	Type  string `json:"type,omitempty"`
 }
 
-func GetSinks() (sinks []*pluginfo) {
-	sinkMeta := gSinkmetadata
-	for fileName, v := range sinkMeta {
-		name := strings.TrimSuffix(fileName, `.json`)
-		t, _, _ := io.GetSinkPlugin(name)
-		n := &pluginfo{
-			Name:  name,
-			About: v.About,
-			Type:  plugin.ExtensionTypes[t],
-		}
-		i := 0
-		for ; i < len(sinks); i++ {
-			if n.Name <= sinks[i].Name {
-				sinks = append(sinks, n)
-				copy(sinks[i+1:], sinks[i:])
-				sinks[i] = n
-				break
-			}
-		}
-		if len(sinks) == i {
-			sinks = append(sinks, n)
-		}
-	}
-	return sinks
-}
+func GetSinks() (sinks []*pluginfo) { _ = "STUB: not implemented"; return nil }

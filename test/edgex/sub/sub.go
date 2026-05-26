@@ -15,58 +15,12 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"os"
-
-	"github.com/edgexfoundry/go-mod-messaging/v4/messaging"
-	"github.com/edgexfoundry/go-mod-messaging/v4/pkg/types"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
-func subEventsFromMQTT(host string) {
-	msgConfig1 := types.MessageBusConfig{
-		Broker: types.HostInfo{
-			Host:     host,
-			Port:     1883,
-			Protocol: "tcp",
-		},
-		Type: messaging.MQTT,
-	}
+func subEventsFromMQTT(host string) { _ = "STUB: not implemented"; return }
 
-	if msgClient, err := messaging.NewMessageClient(msgConfig1); err != nil {
-		conf.Log.Fatal(err)
-	} else {
-		if ec := msgClient.Connect(); ec != nil {
-			conf.Log.Fatal(ec)
-		} else {
-			// log.Infof("The connection to edgex messagebus is established successfully.")
-			messages := make(chan types.MessageEnvelope)
-			topics := []types.TopicChannel{{Topic: "result", Messages: messages}}
-			err := make(chan error)
-			if e := msgClient.Subscribe(topics, err); e != nil {
-				conf.Log.Fatal(e)
-			} else {
-				count := 0
-				for {
-					select {
-					case e1 := <-err:
-						conf.Log.Errorf("%s\n", e1)
-						return
-					case env := <-messages:
-						count++
-						r, _ := json.Marshal(env.Payload)
-						fmt.Printf("%s\n", r)
-						if count == 1 {
-							return
-						}
-					}
-				}
-			}
-		}
-	}
-}
+// log.Infof("The connection to edgex messagebus is established successfully.")
 
 func main() {
 	if len(os.Args) == 3 {

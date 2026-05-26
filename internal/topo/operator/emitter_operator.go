@@ -15,8 +15,6 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
@@ -29,15 +27,6 @@ type EmitterOp struct {
 }
 
 func (p *EmitterOp) Apply(ctx api.StreamContext, data any, _ *xsql.FunctionValuer, _ *xsql.AggregateFunctionValuer) any {
-	ctx.GetLogger().Debugf("emitter op receive %v", data)
-	switch input := data.(type) {
-	case *xsql.RawTuple:
-		input.Emitter = p.Emitter
-		return input
-	case *xsql.Tuple:
-		input.Emitter = p.Emitter
-		return input
-	default:
-		return fmt.Errorf("run emitter op error: invalid input %[1]T(%[1]v)", input)
-	}
+	_ = "STUB: not implemented"
+	return *new(any)
 }

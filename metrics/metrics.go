@@ -31,12 +31,7 @@ const (
 	LblSuccess     = "success"
 )
 
-func GetStatusValue(err error) string {
-	if err == nil {
-		return LblSuccess
-	}
-	return LblException
-}
+func GetStatusValue(err error) string { _ = "STUB: not implemented"; return "" }
 
 var (
 	RuleStatusCountGauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -68,23 +63,10 @@ func init() {
 	prometheus.MustRegister(RuleCPUTimeCounter)
 }
 
-func SetRuleStatusCountGauge(isRunning bool, count int) {
-	lbl := LBlRuleRunning
-	if !isRunning {
-		lbl = LblRuleStop
-	}
-	RuleStatusCountGauge.WithLabelValues(lbl).Set(float64(count))
-}
+func SetRuleStatusCountGauge(isRunning bool, count int) { _ = "STUB: not implemented"; return }
 
-func SetRuleStatus(ruleID string, value int) {
-	v := float64(value)
-	RuleStatusGauge.WithLabelValues(ruleID).Set(v)
-}
+func SetRuleStatus(ruleID string, value int) { _ = "STUB: not implemented"; return }
 
-func RemoveRuleStatus(ruleID string) {
-	RuleStatusGauge.DeleteLabelValues(ruleID)
-}
+func RemoveRuleStatus(ruleID string) { _ = "STUB: not implemented"; return }
 
-func AddRuleCPUTime(ruleID string, seconds float64) {
-	RuleCPUTimeCounter.WithLabelValues(ruleID).Add(seconds)
-}
+func AddRuleCPUTime(ruleID string, seconds float64) { _ = "STUB: not implemented"; return }

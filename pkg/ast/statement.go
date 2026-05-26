@@ -14,8 +14,6 @@
 
 package ast
 
-import "strconv"
-
 type Statement interface {
 	stmt()
 	Node
@@ -36,27 +34,13 @@ type SelectStatement struct {
 
 type Fields []Field
 
-func (f Fields) node() {}
+func (f Fields) node() { _ = "STUB: not implemented"; return }
 
-func (f Fields) Len() int {
-	return len(f)
-}
+func (f Fields) Len() int { _ = "STUB: not implemented"; return 0 }
 
-func (f Fields) Swap(i, j int) {
-	f[i], f[j] = f[j], f[i]
-}
+func (f Fields) Swap(i, j int) { _ = "STUB: not implemented"; return }
 
-func (f Fields) Less(i int, j int) bool {
-	m := f[i].AName
-	if m == "" {
-		m = f[i].Name
-	}
-	n := f[j].AName
-	if n == "" {
-		n = f[j].Name
-	}
-	return m < n
-}
+func (f Fields) Less(i int, j int) bool { _ = "STUB: not implemented"; return false }
 
 type Field struct {
 	Name      string
@@ -66,33 +50,15 @@ type Field struct {
 	Node
 }
 
-func (f *Field) GetName() string {
-	if f.AName != "" {
-		return f.AName
-	} else {
-		return f.Name
-	}
-}
+func (f *Field) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (f *Field) IsSelectionField() bool {
-	if f.AName != "" {
-		return true
-	}
-	_, ok := f.Expr.(*FieldRef)
-	return ok
-}
+func (f *Field) IsSelectionField() bool { _ = "STUB: not implemented"; return false }
 
-func (f *Field) IsColumn() bool {
-	if f.AName != "" {
-		return false
-	}
-	_, ok := f.Expr.(*FieldRef)
-	return ok
-}
+func (f *Field) IsColumn() bool { _ = "STUB: not implemented"; return false }
 
 type Sources []Source
 
-func (s Sources) node() {}
+func (s Sources) node() { _ = "STUB: not implemented"; return }
 
 type Source interface {
 	Node
@@ -115,22 +81,7 @@ const (
 	CROSS_JOIN
 )
 
-func (j JoinType) String() string {
-	switch j {
-	case LEFT_JOIN:
-		return "LEFT_JOIN"
-	case INNER_JOIN:
-		return "INNER_JOIN"
-	case RIGHT_JOIN:
-		return "RIGHT_JOIN"
-	case FULL_JOIN:
-		return "FULL_JOIN"
-	case CROSS_JOIN:
-		return "CROSS_JOIN"
-	default:
-		return ""
-	}
-}
+func (j JoinType) String() string { _ = "STUB: not implemented"; return "" }
 
 type Join struct {
 	Name     string
@@ -143,7 +94,7 @@ type Join struct {
 
 type Joins []Join
 
-func (j Joins) node() {}
+func (j Joins) node() { _ = "STUB: not implemented"; return }
 
 type Dimension struct {
 	Expr Expr
@@ -153,26 +104,11 @@ type Dimension struct {
 
 type Dimensions []Dimension
 
-func (d Dimensions) node() {}
+func (d Dimensions) node() { _ = "STUB: not implemented"; return }
 
-func (d *Dimensions) GetWindow() *Window {
-	for _, child := range *d {
-		if w, ok := child.Expr.(*Window); ok {
-			return w
-		}
-	}
-	return nil
-}
+func (d *Dimensions) GetWindow() *Window { _ = "STUB: not implemented"; return nil }
 
-func (d *Dimensions) GetGroups() Dimensions {
-	var nd Dimensions
-	for _, child := range *d {
-		if _, ok := child.Expr.(*Window); !ok {
-			nd = append(nd, child)
-		}
-	}
-	return nd
-}
+func (d *Dimensions) GetGroups() Dimensions { _ = "STUB: not implemented"; return *new(Dimensions) }
 
 type WindowType int
 
@@ -186,23 +122,7 @@ const (
 	STATE_WINDOW
 )
 
-func (w WindowType) String() string {
-	switch w {
-	case NOT_WINDOW:
-		return "NOT_WINDOW"
-	case TUMBLING_WINDOW:
-		return "TUMBLING_WINDOW"
-	case HOPPING_WINDOW:
-		return "HOPPING_WINDOW"
-	case SLIDING_WINDOW:
-		return "SLIDING_WINDOW"
-	case SESSION_WINDOW:
-		return "SESSION_WINDOW"
-	case COUNT_WINDOW:
-		return "COUNT_WINDOW"
-	}
-	return ""
-}
+func (w WindowType) String() string { _ = "STUB: not implemented"; return "" }
 
 type Window struct {
 	PartitionExpr    *PartitionExpr
@@ -229,29 +149,13 @@ type SortField struct {
 	Expr
 }
 
-func (sf *SortField) String() string {
-	fe := ""
-	if sf.FieldExpr != nil {
-		fe += ", fieldExpr:{ " + sf.FieldExpr.String() + " }"
-	}
-	return "sortField:{ name:" + sf.Name + ", ascending:" + strconv.FormatBool(sf.Ascending) + fe + " }"
-}
+func (sf *SortField) String() string { _ = "STUB: not implemented"; return "" }
 
-func (wd *Window) String() string {
-	tu := ""
-	if wd.TimeUnit != nil {
-		tu += ", timeUnit: " + wd.TimeUnit.String() + " "
-	}
-	filter := ""
-	if wd.Filter != nil {
-		filter += ", " + wd.Filter.String()
-	}
-	return "window:{ windowType:" + wd.WindowType.String() + tu + filter + " }"
-}
+func (wd *Window) String() string { _ = "STUB: not implemented"; return "" }
 
 type SortFields []SortField
 
-func (d SortFields) node() {}
+func (d SortFields) node() { _ = "STUB: not implemented"; return }
 
 const (
 	RowkindInsert = "insert"

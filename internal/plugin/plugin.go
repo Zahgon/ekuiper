@@ -14,8 +14,6 @@
 
 package plugin
 
-import "encoding/json"
-
 type PluginType int
 
 const (
@@ -50,42 +48,19 @@ type IOPlugin struct {
 	ShellParas []string `json:"shellParas,omitempty" yaml:"shellParas,omitempty"`
 }
 
-func (p *IOPlugin) GetName() string {
-	return p.Name
-}
+func (p *IOPlugin) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (p *IOPlugin) GetFile() string {
-	return p.File
-}
+func (p *IOPlugin) GetFile() string { _ = "STUB: not implemented"; return "" }
 
-func (p *IOPlugin) GetShellParas() []string {
-	return p.ShellParas
-}
+func (p *IOPlugin) GetShellParas() []string { _ = "STUB: not implemented"; return nil }
 
-func (p *IOPlugin) GetSymbols() []string {
-	return nil
-}
+func (p *IOPlugin) GetSymbols() []string { _ = "STUB: not implemented"; return nil }
 
-func (p *IOPlugin) SetName(n string) {
-	p.Name = n
-}
+func (p *IOPlugin) SetName(n string) { _ = "STUB: not implemented"; return }
 
-func (p *IOPlugin) GetInstallScripts() []byte {
-	marshal, err := json.Marshal(p)
-	if err != nil {
-		return nil
-	}
-	return marshal
-}
+func (p *IOPlugin) GetInstallScripts() []byte { _ = "STUB: not implemented"; return nil }
 
-func NewPluginByType(t PluginType) Plugin {
-	switch t {
-	case FUNCTION:
-		return &FuncPlugin{}
-	default:
-		return &IOPlugin{}
-	}
-}
+func NewPluginByType(t PluginType) Plugin { _ = "STUB: not implemented"; return *new(Plugin) }
 
 type FuncPlugin struct {
 	IOPlugin
@@ -93,9 +68,7 @@ type FuncPlugin struct {
 	Functions []string `json:"functions"`
 }
 
-func (fp *FuncPlugin) GetSymbols() []string {
-	return fp.Functions
-}
+func (fp *FuncPlugin) GetSymbols() []string { _ = "STUB: not implemented"; return nil }
 
 type EXTENSION_TYPE int
 

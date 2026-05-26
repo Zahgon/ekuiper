@@ -16,14 +16,10 @@ package runtime
 
 import (
 	context2 "context"
-	"encoding/json"
-	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 	"github.com/lf-edge/ekuiper/sdk/go/connection"
-	"github.com/lf-edge/ekuiper/sdk/go/context"
 )
 
 type funcRuntime struct {
@@ -35,118 +31,24 @@ type funcRuntime struct {
 }
 
 func setupFuncRuntime(con *Control, s api.Function) (*funcRuntime, error) {
+	_ = "STUB: not implemented"
 	// connect to mq server
-	ch, err := connection.CreateFuncChannel(con.SymbolName)
-	if err != nil {
-		return nil, err
-	}
-	context.Log.Info("setup function channel")
-	ctx, cancel := context2.WithCancel(context2.Background())
-	return &funcRuntime{
-		s:      s,
-		ch:     ch,
-		ctx:    ctx,
-		cancel: cancel,
-		key:    fmt.Sprintf("func_%s", con.SymbolName),
-	}, nil
+	return nil, nil
 }
 
 // TODO how to stop? Nearly never end because each function only have one instance
-func (s *funcRuntime) run() {
-	defer s.stop()
-	err := s.ch.Run(func(req []byte) []byte {
-		d := &FuncData{}
-		err := json.Unmarshal(req, d)
-		if err != nil {
-			return encodeReply(false, err)
-		}
-		context.Log.Debugf("running func with %+v", d)
-		switch d.Func {
-		case "Validate":
-			arg, ok := d.Arg.([]interface{})
-			if !ok {
-				return encodeReply(false, "argument is not interface array")
-			}
-			err = s.s.Validate(arg)
-			if err == nil {
-				return encodeReply(true, "")
-			} else {
-				return encodeReply(false, err.Error())
-			}
-		case "Exec":
-			arg, ok := d.Arg.([]interface{})
-			if !ok {
-				return encodeReply(false, "argument is not interface array")
-			}
-			farg, fctx, err := parseFuncContextArgs(arg)
-			if err != nil {
-				return encodeReply(false, err.Error())
-			}
-			r, b := s.s.Exec(farg, fctx)
-			return encodeReply(b, r)
-		case "IsAggregate":
-			result := s.s.IsAggregate()
-			return encodeReply(true, result)
-		default:
-			return encodeReply(false, fmt.Sprintf("invalid func %s", d.Func))
-		}
-	})
-	context.Log.Error(err)
-}
+func (s *funcRuntime) run() { _ = "STUB: not implemented"; return }
 
 // TODO multiple error
-func (s *funcRuntime) stop() error {
-	s.cancel()
-	err := s.ch.Close()
-	if err != nil {
-		context.Log.Info(err)
-	}
-	context.Log.Info("closed function data channel")
-	reg.Delete(s.key)
-	return nil
-}
+func (s *funcRuntime) stop() error { _ = "STUB: not implemented"; return nil }
 
-func (s *funcRuntime) isRunning() bool {
-	return s.ctx.Err() == nil
-}
+func (s *funcRuntime) isRunning() bool { _ = "STUB: not implemented"; return false }
 
-func encodeReply(state bool, arg interface{}) []byte {
-	r, _ := json.Marshal(FuncReply{
-		State:  state,
-		Result: arg,
-	})
-	return r
-}
+func encodeReply(state bool, arg interface{}) []byte { _ = "STUB: not implemented"; return nil }
 
 func parseFuncContextArgs(args []interface{}) ([]interface{}, api.FunctionContext, error) {
-	if len(args) < 1 {
-		return nil, nil, fmt.Errorf("exec function context not found")
-	}
-	fargs, temp := args[:len(args)-1], args[len(args)-1]
-	rawCtx, ok := temp.(string)
-	if !ok {
-		return nil, nil, fmt.Errorf("cannot parse function raw context %v", temp)
-	}
-	m := &FuncMeta{}
-	err := json.Unmarshal([]byte(rawCtx), m)
-	if err != nil {
-		return nil, nil, fmt.Errorf("cannot parse function context %v", rawCtx)
-	}
-	if m.RuleId == "" || m.OpId == "" {
-		err := fmt.Sprintf("invalid arg %v, ruleId, opId are required", m)
-		context.Log.Error(err)
-		return nil, nil, errors.New(err)
-	}
-	key := fmt.Sprintf("%s_%s_%d_%d", m.RuleId, m.OpId, m.InstanceId, m.FuncId)
-	if c, ok := exeFuncCtxMap.Load(key); ok {
-		return fargs, c.(api.FunctionContext), nil
-	} else {
-		contextLogger := context.LogEntry("rule", m.RuleId)
-		ctx := context.WithValue(context.Background(), context.LoggerKey, contextLogger).WithMeta(m.RuleId, m.OpId)
-		fctx := context.NewDefaultFuncContext(ctx, m.FuncId)
-		exeFuncCtxMap.Store(key, fctx)
-		return fargs, fctx, nil
-	}
+	_ = "STUB: not implemented"
+	return nil, *new(api.FunctionContext), nil
 }
 
 var exeFuncCtxMap = &sync.Map{}

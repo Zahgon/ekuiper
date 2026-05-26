@@ -15,7 +15,6 @@
 package file
 
 import (
-	"github.com/fsnotify/fsnotify"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 )
 
@@ -23,57 +22,22 @@ type WatchWrapper struct {
 	f *Source
 }
 
-func (f *WatchWrapper) SetEofIngest(eof api.EOFIngest) {
-	f.f.SetEofIngest(eof)
-}
+func (f *WatchWrapper) SetEofIngest(eof api.EOFIngest) { _ = "STUB: not implemented"; return }
 
 func (f *WatchWrapper) Provision(ctx api.StreamContext, configs map[string]any) error {
-	return f.f.Provision(ctx, configs)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (f *WatchWrapper) Close(ctx api.StreamContext) error {
-	return f.f.Close(ctx)
-}
+func (f *WatchWrapper) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (f *WatchWrapper) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	return f.f.Connect(ctx, sch)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (f *WatchWrapper) Subscribe(ctx api.StreamContext, ingest api.TupleIngest, ingestError api.ErrorIngest) error {
-	f.f.Load(ctx, ingest, ingestError)
-	ctx.GetLogger().Infof("file watch loaded initially")
-	if f.f.isDir {
-		watcher, err := fsnotify.NewWatcher()
-		if err != nil {
-			return err
-		}
-		err = watcher.Add(f.f.file)
-		if err != nil {
-			return err
-		}
-		go func() {
-			defer watcher.Close()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case event := <-watcher.Events:
-					switch {
-					case event.Has(fsnotify.Create), event.Has(fsnotify.Write):
-						ctx.GetLogger().Debugf("file watch receive %v", event)
-						f.f.parseFile(ctx, event.Name, ingest, ingestError)
-					}
-				case err = <-watcher.Errors:
-					ctx.GetLogger().Errorf("file watch err:%v", err.Error())
-				}
-			}
-		}()
-	} else {
-		ctx.GetLogger().Infof("file watch exit")
-		if f.f != nil && f.f.eof != nil {
-			f.f.eof(ctx, "")
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 

@@ -15,10 +15,7 @@
 package planner
 
 import (
-	"strconv"
-
 	"github.com/lf-edge/ekuiper/v2/internal/topo/node"
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -41,134 +38,50 @@ type WindowPlan struct {
 	stateFuncs []*ast.Call
 }
 
-func (p WindowPlan) Init() *WindowPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(WINDOW)
-	return &p
-}
+func (p WindowPlan) Init() *WindowPlan { _ = "STUB: not implemented"; return nil }
 
 func (p *WindowPlan) WindowType() ast.WindowType {
-	return p.wtype
+	_ = "STUB: not implemented"
+	return *new(ast.WindowType)
 }
 
 func (p *WindowPlan) GetTriggerCondition() ast.Expr {
-	return p.triggerCondition
+	_ = "STUB: not implemented"
+	return *new(ast.Expr)
 }
 
-func (p *WindowPlan) GetBeginCondition() ast.Expr {
-	return p.beginCondition
-}
+func (p *WindowPlan) GetBeginCondition() ast.Expr { _ = "STUB: not implemented"; return *new(ast.Expr) }
 
 func (p *WindowPlan) GetSingleCondition() ast.Expr {
-	return p.singleCondition
+	_ = "STUB: not implemented"
+	return *new(ast.Expr)
 }
 
-func (p *WindowPlan) GetEmitCondition() ast.Expr {
-	return p.emitCondition
-}
+func (p *WindowPlan) GetEmitCondition() ast.Expr { _ = "STUB: not implemented"; return *new(ast.Expr) }
 
-func (p *WindowPlan) GetPartitionExpr() *ast.PartitionExpr {
-	return p.PartitionExpr
-}
+func (p *WindowPlan) GetPartitionExpr() *ast.PartitionExpr { _ = "STUB: not implemented"; return nil }
 
-func (p *WindowPlan) BuildExplainInfo() {
-	t := p.wtype.String()
-	info := "{ length:" + strconv.Itoa(p.length) + ", "
-	info += "windowType:" + t
-	if p.condition != nil {
-		info += ", condition:" + p.condition.String()
-	}
-	if len(p.stateFuncs) != 0 {
-		info += ", stateFuncs:[ "
-		for _, stateFunc := range p.stateFuncs {
-			info += stateFunc.String()
-		}
-		info += " ]"
-	}
-	info += ", limit: " + strconv.Itoa(p.limit) + " }"
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *WindowPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 func (p *WindowPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
+	_ = "STUB: not implemented"
 	// not time window depends on the event, so should not filter any
-	if p.wtype == ast.COUNT_WINDOW || p.wtype == ast.SLIDING_WINDOW {
-		return condition, p
-	} else if p.isEventTime {
-		// TODO event time filter, need event window op support
-		//p.condition = combine(condition, p.condition)
-		//// push nil condition won't return any
-		//p.baseLogicalPlan.PushDownPredicate(nil)
-		// return nil, p
-		return condition, p
-	} else {
-		// Presume window condition are only one table related.
-		// TODO window condition validation
-		a := combine(condition, p.condition)
-		p.condition, _ = p.baseLogicalPlan.PushDownPredicate(a)
-		return nil, p
-	}
+	return *new(ast.Expr), *new(LogicalPlan)
 }
 
-func (p *WindowPlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.condition)
-	f = append(f, getFields(p.triggerCondition)...)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
-}
+// TODO event time filter, need event window op support
+//p.condition = combine(condition, p.condition)
+//// push nil condition won't return any
+//p.baseLogicalPlan.PushDownPredicate(nil)
+// return nil, p
 
-func (p *WindowPlan) ExtractStateFunc() {
-	aliases := make(map[string]ast.Expr)
-	ast.WalkFunc(p.triggerCondition, func(n ast.Node) bool {
-		switch f := n.(type) {
-		case *ast.Call:
-			p.transform(f)
-		case *ast.FieldRef:
-			if f.AliasRef != nil {
-				aliases[f.Name] = f.AliasRef.Expression
-			}
-		}
-		return true
-	})
-	for _, ex := range aliases {
-		ast.WalkFunc(ex, func(n ast.Node) bool {
-			switch f := n.(type) {
-			case *ast.Call:
-				p.transform(f)
-			}
-			return true
-		})
-	}
-}
+// Presume window condition are only one table related.
+// TODO window condition validation
 
-func (p *WindowPlan) transform(f *ast.Call) {
-	if _, ok := xsql.ImplicitStateFuncs[f.Name]; ok {
-		f.Cached = true
-		p.stateFuncs = append(p.stateFuncs, &ast.Call{
-			Name:     f.Name,
-			FuncId:   f.FuncId,
-			FuncType: f.FuncType,
-		})
-	}
-}
+func (p *WindowPlan) PruneColumns(fields []ast.Expr) error { _ = "STUB: not implemented"; return nil }
 
-func (p *WindowPlan) GenWindowConfig() *node.WindowConfig {
-	l, i, d := convertFromDuration(p.timeUnit, p.length, p.interval, p.delay)
-	var rawInterval int
-	switch p.wtype {
-	case ast.TUMBLING_WINDOW, ast.SESSION_WINDOW:
-		rawInterval = p.length
-	case ast.HOPPING_WINDOW:
-		rawInterval = p.interval
-	}
-	return &node.WindowConfig{
-		Type:             p.wtype,
-		Delay:            d,
-		Length:           l,
-		Interval:         i,
-		CountInterval:    p.interval,
-		CountLength:      p.length,
-		RawInterval:      rawInterval,
-		TimeUnit:         p.timeUnit,
-		TriggerCondition: p.triggerCondition,
-		StateFuncs:       p.stateFuncs,
-	}
-}
+func (p *WindowPlan) ExtractStateFunc() { _ = "STUB: not implemented"; return }
+
+func (p *WindowPlan) transform(f *ast.Call) { _ = "STUB: not implemented"; return }
+
+func (p *WindowPlan) GenWindowConfig() *node.WindowConfig { _ = "STUB: not implemented"; return nil }

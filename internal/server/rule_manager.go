@@ -15,26 +15,12 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
-	"path/filepath"
-	"sort"
-	"strings"
 	"time"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
-	"github.com/lf-edge/ekuiper/v2/internal/processor"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/planner"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/rule"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/rule/machine"
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
-	"github.com/lf-edge/ekuiper/v2/pkg/replace"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -52,476 +38,179 @@ type RuleRegistry struct {
 //// registry and db level state change functions
 
 func (rr *RuleRegistry) update(key string, ruleJson string, value *rule.State) error {
-	rr.Lock()
-	defer rr.Unlock()
-	rr.internal[key] = value
-	return ruleProcessor.ExecUpsert(key, ruleJson)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // load the entry of a rule by id. It is used to get the current rule state
 // or send command to a running rule
 func (rr *RuleRegistry) load(key string) (value *rule.State, ok bool) {
-	rr.RLock()
-	result, ok := rr.internal[key]
-	rr.RUnlock()
-	return result, ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (rr *RuleRegistry) keys() (keys []string) {
-	rr.RLock()
-	defer rr.RUnlock()
-	keys = make([]string, 0, len(rr.internal))
-	for k := range rr.internal {
-		keys = append(keys, k)
-	}
-	return
-}
+func (rr *RuleRegistry) keys() (keys []string) { _ = "STUB: not implemented"; return nil }
 
 // save registers rule to in-memory registry and persists to DB atomically.
 // It fails if the rule already exists in DB.
 func (rr *RuleRegistry) save(key string, ruleJson string, value *rule.State) error {
-	rr.Lock()
-	defer rr.Unlock()
+	_ = "STUB: not implemented"
+	return nil
+
 	// Persist to DB first - ExecCreate fails if already exists
-	if err := ruleProcessor.ExecCreate(key, ruleJson); err != nil {
-		return err
-	}
-	// Update registry only after successful DB write
-	rr.internal[key] = value
+}
+
+// Update registry only after successful DB write
+
+// only register. It is called when recover from db
+func (rr *RuleRegistry) register(key string, value *rule.State) { _ = "STUB: not implemented"; return }
+
+func (rr *RuleRegistry) updateTrigger(id string, trigger bool) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-// only register. It is called when recover from db
-func (rr *RuleRegistry) register(key string, value *rule.State) {
-	rr.Lock()
-	defer rr.Unlock()
-	rr.internal[key] = value
-}
-
-func (rr *RuleRegistry) updateTrigger(id string, trigger bool) error {
-	rr.Lock()
-	defer rr.Unlock()
-	err := ruleProcessor.ExecReplaceRuleState(id, trigger)
-	return err
-}
-
 func (rr *RuleRegistry) delete(key string) (*rule.State, error) {
-	rr.Lock()
-	defer rr.Unlock()
-	var err error
-	result, ok := rr.internal[key]
-	if ok {
-		delete(rr.internal, key)
-		err = ruleProcessor.ExecDrop(key)
-	} else {
-		err = fmt.Errorf("rule %s not found", key)
-	}
-	return result, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 //// APIs for REST service
 //// Keep consistent by DB. Rollback when db errors happen
 
 func (rr *RuleRegistry) CreateRule(name, ruleJson string) (id string, err error) {
+	_ = "STUB: not implemented"
 	// Validate the rule json
-	r, err := ruleProcessor.GetRuleByJson(name, ruleJson)
-	if err != nil {
-		return "", fmt.Errorf("invalid rule json: %v", err)
-	}
-	if _, ok := rr.load(r.Id); ok {
-		return name, fmt.Errorf("rule %s already exists", r.Id)
-	}
-	ruleJson = replace.ReplaceRuleJson(ruleJson, conf.IsTesting)
-	// create state and save
-	rs := rule.NewState(r, func(id string, b bool) {
-		err = rr.updateTrigger(id, b)
-		if err != nil {
-			conf.Log.Warnf("update trigger error: %v", err)
-		}
-	})
-	// Validate the topo
-	err = rs.ValidateAndRun(r)
-	if err != nil {
-		return r.Id, err
-	}
-	// Store to registry and KV
-	err = rr.save(r.Id, ruleJson, rs)
-	if err != nil {
-		// rollback clean up
-		rs.Delete()
-		return r.Id, fmt.Errorf("store the rule error: %v", err)
-	}
-	return r.Id, nil
+	return "", nil
 }
+
+// create state and save
+
+// Validate the topo
+
+// Store to registry and KV
+
+// rollback clean up
 
 // RecoverRule loads in imported rule.
 // Unlike creation, 1. it supposes the rule is valid thus, it will always create the rule state in registry
 // 2. It does not handle rule saving to db.
-func (rr *RuleRegistry) RecoverRule(r *def.Rule) string {
-	rs := rule.NewState(r, func(id string, b bool) {
-		err := rr.updateTrigger(id, b)
-		if err != nil {
-			conf.Log.Warnf("update trigger error: %v", err)
-		}
-	})
-	rr.register(r.Id, rs)
-	if !r.Triggered {
-		return fmt.Sprintf("Rule %s was stopped.", r.Id)
-	} else {
-		panicOrError := infra.SafeRun(func() error {
-			// Start the rule which runs async
-			return rs.Start()
-		})
-		if panicOrError != nil {
-			return fmt.Sprintf("Rule %s start failed: %s", r.Id, panicOrError)
-		}
-	}
-	return fmt.Sprintf("Rule %s was started.", r.Id)
-}
+func (rr *RuleRegistry) RecoverRule(r *def.Rule) string { _ = "STUB: not implemented"; return "" }
+
+// Start the rule which runs async
 
 // UpsertRule validates the new rule, then update the db, then restart the rule
 // The entire operation is protected by a lock to ensure atomic version checking.
 func (rr *RuleRegistry) UpsertRule(ruleId, ruleJson string) error {
-	ruleJson = replace.ReplaceRuleJson(ruleJson, conf.IsTesting)
-	// Validate the rule json (can be done outside lock - no state change)
-	r, err := ruleProcessor.GetRuleByJson(ruleId, ruleJson)
-	if err != nil {
-		return fmt.Errorf("Invalid rule json: %v", err)
-	}
-
-	// Hold lock for entire operation to ensure atomic version check
-	rr.Lock()
-	defer rr.Unlock()
-
-	// do upsert.
-	rs, isUpdate := rr.internal[ruleId]
-	if !isUpdate { // if not exist, create it
-		rs = rule.NewState(r, func(id string, b bool) {
-			err = rr.updateTrigger(id, b)
-			if err != nil {
-				conf.Log.Warnf("update trigger error: %v", err)
-			}
-		})
-	} else {
-		// Version check is now atomic with the rest of the operation
-		rule := rs.GetRule()
-		if !processor.CanReplace(rule.Version, r.Version) {
-			return fmt.Errorf("rule %s already exists with version (%s), new version (%s) is lower", ruleId, rule.Version, r.Version)
-		}
-	}
-	err = rs.ValidateAndRun(r)
-	if err != nil {
-		return err
-	}
-	if !r.Temp {
-		// Persist directly - we already hold the lock
-		err = ruleProcessor.ExecUpsert(r.Id, ruleJson)
-		if err == nil {
-			rr.internal[r.Id] = rs
-		}
-	} else if !isUpdate {
-		// Temp rule, just register in memory
-		rr.internal[r.Id] = rs
-	}
-	if err != nil {
-		// rollback clean up
-		rs.Delete()
-	}
-	return err
-}
-
-func (rr *RuleRegistry) DeleteRule(name string) error {
-	// lock registry and db. rs level has its own lock
-	rs, err := rr.delete(name)
-	if rs != nil {
-		rs.Delete()
-	}
-	deleteRuleData(name)
-	return err
-}
-
-func (rr *RuleRegistry) StartRule(name string) error {
-	rs, ok := registry.load(name)
-	if !ok {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found in registry, please check if it is created", name))
-	} else {
-		err := rr.updateTrigger(name, true)
-		if err != nil {
-			conf.Log.Warnf("start rule update db status error: %s", err.Error())
-		}
-		return rs.Bootstrap()
-	}
-}
-
-func (rr *RuleRegistry) StopRule(name string) error {
-	if rs, ok := registry.load(name); ok {
-		err := rr.updateTrigger(name, false)
-		if err != nil {
-			conf.Log.Warnf("stop rule update db status error: %s", err.Error())
-		}
-		rs.Stop()
-	} else {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found in registry, please check if it is created", name))
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (rr *RuleRegistry) RestartRule(name string) error {
-	if rs, ok := registry.load(name); ok {
-		err := rr.updateTrigger(name, true)
-		if err != nil {
-			conf.Log.Warnf("restart rule update db status error: %s", err.Error())
-		}
-		rs.Stop()
-		r, err := ruleProcessor.GetRuleById(name)
-		if err != nil {
-			return err
-		}
-		rs.SetRule(r)
-		return rs.Start()
-	} else {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found in registry, please check if it is created", name))
-	}
+// Validate the rule json (can be done outside lock - no state change)
+
+// Hold lock for entire operation to ensure atomic version check
+
+// do upsert.
+
+// if not exist, create it
+
+// Version check is now atomic with the rest of the operation
+
+// Persist directly - we already hold the lock
+
+// Temp rule, just register in memory
+
+// rollback clean up
+
+func (rr *RuleRegistry) DeleteRule(name string) error {
+	_ = "STUB: not implemented"
+	// lock registry and db. rs level has its own lock
+	return nil
 }
 
+func (rr *RuleRegistry) StartRule(name string) error { _ = "STUB: not implemented"; return nil }
+
+func (rr *RuleRegistry) StopRule(name string) error { _ = "STUB: not implemented"; return nil }
+
+func (rr *RuleRegistry) RestartRule(name string) error { _ = "STUB: not implemented"; return nil }
+
 func (rr *RuleRegistry) GetAllRuleStatus() (string, error) {
-	rules, err := ruleProcessor.GetAllRules()
-	if err != nil {
-		return "", err
-	}
-	keys := rr.keys()
-	all := mergeAndSortStrings(rules, keys)
-	m := make(map[string]ruleExceptionStatus)
-	for _, ruleID := range all {
-		s, err := getRuleExceptionStatus(ruleID)
-		if err != nil {
-			return "", err
-		}
-		m[ruleID] = s
-	}
-	b, _ := json.Marshal(m)
-	return string(b), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (rr *RuleRegistry) GetAllRulesWithStatus() ([]map[string]any, error) {
-	ruleIds, err := ruleProcessor.GetAllRules()
-	if err != nil {
-		return nil, err
-	}
-	keys := rr.keys()
-	all := mergeAndSortStrings(ruleIds, keys)
-	result := make([]map[string]any, len(all))
-	for i, id := range all {
-		ruleName := id
-		ruleDef, _ := ruleProcessor.GetRuleById(id)
-		var tags []string
-		if ruleDef != nil {
-			if ruleDef.Name != "" {
-				ruleName = ruleDef.Name
-			}
-			tags = ruleDef.Tags
-		}
-		var str string
-		s, err := getRuleState(id)
-		if err != nil {
-			str = fmt.Sprintf("error: %s", err)
-		} else {
-			str = machine.StateName[s]
-		}
-		trace := false
-		if str == "running" {
-			rs, ok := registry.load(id)
-			if ok {
-				trace = rs.IsTraceEnabled()
-			}
-		}
-		ver := ""
-		if ruleDef != nil {
-			ver = ruleDef.Version
-		}
-		result[i] = map[string]any{
-			"id":      id,
-			"name":    ruleName,
-			"status":  str,
-			"version": ver,
-			"trace":   trace,
-			"tags":    tags,
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // mergeAndSortStrings merges two string slices, removes duplicates, and sorts the result.
 func mergeAndSortStrings(slice1, slice2 []string) []string {
+	_ = "STUB: not implemented"
 	// Step 1: Merge the two slices
-	merged := make([]string, 0, len(slice1)+len(slice2)) // Pre-allocate capacity
-	merged = append(merged, slice1...)
-	merged = append(merged, slice2...)
-
-	// Step 2: Remove duplicates using a map
-	seen := make(map[string]struct{})        // Using struct{} for a memory-efficient "set"
-	unique := make([]string, 0, len(merged)) // Pre-allocate capacity based on merged length (upper bound)
-
-	for _, s := range merged {
-		if _, ok := seen[s]; !ok { // If element not seen yet
-			seen[s] = struct{}{}       // Mark as seen
-			unique = append(unique, s) // Add to unique slice
-		}
-	}
-
-	// Step 3: Sort the unique slice
-	sort.Strings(unique) // sort.Strings sorts a slice of strings in ascending order
-
-	return unique
+	return nil
 }
 
+// Pre-allocate capacity
+
+// Step 2: Remove duplicates using a map
+// Using struct{} for a memory-efficient "set"
+// Pre-allocate capacity based on merged length (upper bound)
+
+// If element not seen yet
+// Mark as seen
+// Add to unique slice
+
+// Step 3: Sort the unique slice
+// sort.Strings sorts a slice of strings in ascending order
+
 func (rr *RuleRegistry) GetRuleStatus(name string) (string, error) {
-	if rs, ok := registry.load(name); ok {
-		return rs.GetStatusMessage(), nil
-	} else {
-		return "", errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found", name))
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (rr *RuleRegistry) GetRuleStatusV2(name string) (map[string]any, error) {
-	if rs, ok := rr.load(name); ok {
-		return rs.GetStatusMap(), nil
-	} else {
-		return nil, errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found", name))
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (rr *RuleRegistry) GetRuleTopo(name string) (string, error) {
-	if rs, ok := registry.load(name); ok {
-		graph := rs.GetTopoGraph()
-		if graph == nil {
-			return "", errorx.New(fmt.Sprintf("Fail to get rule %s's topo, make sure the rule has been started before", name))
-		}
-		bs, err := json.Marshal(graph)
-		if err != nil {
-			return "", errorx.New(fmt.Sprintf("Fail to encode rule %s's topo", name))
-		} else {
-			return string(bs), nil
-		}
-	} else {
-		return "", errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found", name))
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (rr *RuleRegistry) GetRuleSinkSchema(name string) (map[string]*ast.JsonStreamField, error) {
-	if rs, ok := registry.load(name); ok {
-		return rs.GetSchema()
-	} else {
-		return nil, errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found", name))
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (rr *RuleRegistry) ValidateRule(name, ruleJson string) ([]string, bool, error) {
+	_ = "STUB: not implemented"
 	// Validate the ruleDef json
-	ruleDef, err := ruleProcessor.GetRuleByJson(name, ruleJson)
-	if err != nil {
-		return nil, false, fmt.Errorf("invalid rule json: %v", err)
-	}
-	var sources []string
-	if len(ruleDef.Sql) > 0 {
-		stmt, _ := xsql.GetStatementFromSql(ruleDef.Sql)
-		s, err := store.GetKV("stream")
-		if err != nil {
-			return nil, false, err
-		}
-		sources = xsql.GetStreams(stmt)
-		for _, result := range sources {
-			_, err := xsql.GetDataSource(s, result)
-			if err != nil {
-				return nil, false, err
-			}
-		}
-	} else if ruleDef.Graph != nil {
-		tp, err := planner.PlanByGraph(ruleDef)
-		if err != nil {
-			return nil, false, fmt.Errorf("invalid ruleDef graph: %v", err)
-		}
-		sources = tp.GetTopo().Sources
-	}
-	return sources, true, nil
+	return nil, false, nil
 }
 
 /// Rule Scheduler internal API
 
-func (rr *RuleRegistry) scheduledStart(name string) error {
-	rs, ok := registry.load(name)
-	if !ok {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Scheduled rule %s is not found in registry, please check if it is deleted", name))
-	} else {
-		return rs.ScheduleStart()
-	}
-}
+func (rr *RuleRegistry) scheduledStart(name string) error { _ = "STUB: not implemented"; return nil }
 
-func (rr *RuleRegistry) scheduledStop(name string) error {
-	rs, ok := registry.load(name)
-	if !ok {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Scheduled rule %s is not found in registry, please check if it is deleted", name))
-	} else {
-		rs.ScheduleStop()
-		return nil
-	}
-}
+func (rr *RuleRegistry) scheduledStop(name string) error { _ = "STUB: not implemented"; return nil }
 
 func (rr *RuleRegistry) stopAtExit(name string, msg string) error {
-	rs, ok := registry.load(name)
-	if !ok {
-		return errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("Rule %s is not found in registry, please check if it is deleted", name))
-	} else {
-		if len(msg) > 0 {
-			rs.StopWithLastWill(msg)
-		} else {
-			rs.Stop()
-		}
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 //// Util functions
 
 func getRuleExceptionStatus(name string) (ruleExceptionStatus, error) {
-	s := ruleExceptionStatus{
-		lastExceptionTime: -1,
-	}
-	if rs, ok := registry.load(name); ok {
-		st := rs.GetState()
-		s.Status = machine.StateName[st]
-		if st == machine.Running {
-			keys, values := rs.GetMetrics()
-			for i, key := range keys {
-				if strings.Contains(key, "last_exception_time") {
-					v := values[i].(int64)
-					if v > s.lastExceptionTime {
-						s.lastExceptionTime = v
-						total, last := getTargetException(keys, values, key[:strings.Index(key, "_last_exception_time")])
-						s.LastException = last
-						s.ExceptionsTotal = total
-					}
-				}
-			}
-		}
-	}
-	return s, nil
+	_ = "STUB: not implemented"
+	return *new(ruleExceptionStatus), nil
 }
 
 func getTargetException(keys []string, values []any, prefix string) (int64, string) {
-	var t int64
-	lastException := ""
-	for i, key := range keys {
-		if key == fmt.Sprintf("%s_exceptions_total", prefix) {
-			t = values[i].(int64)
-			continue
-		}
-		if key == fmt.Sprintf("%s_last_exception", prefix) {
-			lastException = values[i].(string)
-			continue
-		}
-	}
-	return t, lastException
+	_ = "STUB: not implemented"
+	return 0, ""
 }
 
 type ruleExceptionStatus struct {
@@ -537,42 +226,11 @@ type ruleWrapper struct {
 	startTime time.Time
 }
 
-func getAllRulesWithState() ([]ruleWrapper, error) {
-	ruleIds, err := ruleProcessor.GetAllRules()
-	if err != nil {
-		return nil, err
-	}
-	sort.Strings(ruleIds)
-	rules := make([]ruleWrapper, 0, len(ruleIds))
-	for _, id := range ruleIds {
-		rs, ok := registry.load(id)
-		if ok {
-			s := rs.GetState()
-			rules = append(rules, ruleWrapper{rule: rs.GetRule(), state: s, startTime: rs.GetStartTimestamp()})
-		}
-	}
-	return rules, nil
-}
+func getAllRulesWithState() ([]ruleWrapper, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func getRuleState(name string) (machine.RunState, error) {
-	if rs, ok := registry.load(name); ok {
-		return rs.GetState(), nil
-	} else {
-		return machine.Stopped, fmt.Errorf("Rule %s is not found in registry", name)
-	}
+	_ = "STUB: not implemented"
+	return *new(machine.RunState), nil
 }
 
-func deleteRuleData(name string) {
-	dataLoc, err := conf.GetDataLoc()
-	if err != nil {
-		conf.Log.Errorf("delete rule data error: %v", err)
-		return
-	}
-	ruleDataPath := filepath.Join(dataLoc, "rule_"+name)
-	err = os.RemoveAll(ruleDataPath)
-	if err != nil {
-		conf.Log.Errorf("delete rule data error: %v", err)
-	} else {
-		conf.Log.Infof("delete rule data: %s", ruleDataPath)
-	}
-}
+func deleteRuleData(name string) { _ = "STUB: not implemented"; return }

@@ -21,31 +21,6 @@ import (
 )
 
 func FromReadonlySpan(readonly sdktrace.ReadOnlySpan) *LocalSpan {
-	span := &LocalSpan{
-		Name:         readonly.Name(),
-		TraceID:      readonly.SpanContext().TraceID().String(),
-		SpanID:       readonly.SpanContext().SpanID().String(),
-		ParentSpanID: readonly.Parent().SpanID().String(),
-		ChildSpan:    make([]*LocalSpan, 0),
-		StartTime:    readonly.StartTime(),
-		EndTime:      readonly.EndTime(),
-	}
-	if len(readonly.Attributes()) > 0 {
-		span.Attribute = make(map[string]interface{})
-		for _, attr := range readonly.Attributes() {
-			if string(attr.Key) == "rule" {
-				span.RuleID = attr.Value.AsString()
-			}
-			span.Attribute[string(attr.Key)] = attr.Value.AsInterface()
-		}
-	}
-	if len(readonly.Links()) > 0 {
-		span.Links = make([]LocalLink, 0)
-		for _, link := range readonly.Links() {
-			span.Links = append(span.Links, LocalLink{
-				TraceID: link.SpanContext.TraceID().String(),
-			})
-		}
-	}
-	return span
+	_ = "STUB: not implemented"
+	return nil
 }

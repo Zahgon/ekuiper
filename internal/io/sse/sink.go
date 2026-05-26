@@ -15,14 +15,8 @@
 package sse
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/io/http/httpserver"
-	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/connection"
 )
 
@@ -38,61 +32,31 @@ type SSESink struct {
 }
 
 func (s *SSESink) Provision(ctx api.StreamContext, configs map[string]any) error {
-	cfg := &SseConfig{}
-	if err := cast.MapToStruct(configs, cfg); err != nil {
-		return err
-	}
-	if !strings.HasPrefix(cfg.Endpoint, "/") {
-		return fmt.Errorf("sse endpoint should start with /")
-	}
-	s.cfg = cfg
-	s.props = configs
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *SSESink) Close(ctx api.StreamContext) error {
-	pubsub.RemovePub(s.topic)
-	return connection.DetachConnection(ctx, buildSseEpID(s.cfg.Endpoint))
-}
+func (s *SSESink) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (s *SSESink) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	var err error
+	_ = "STUB: not implemented"
+
 	// Connection pool will handle status change
-	s.cw, err = connection.FetchConnection(ctx, buildSseEpID(s.cfg.Endpoint), "sse", s.props, sch)
-	if err != nil {
-		return err
-	}
-	conn, err := s.cw.Wait(ctx)
-	if err != nil {
-		return err
-	}
-	if conn == nil {
-		return fmt.Errorf("sse endpoint not ready: %v", err)
-	}
-	c, ok := conn.(*httpserver.SSEConnection)
-	if !ok {
-		return fmt.Errorf("should use sse connection")
-	}
-	s.topic = c.SendTopic
-	pubsub.CreatePub(s.topic)
-	return err
+	return nil
 }
 
 func (s *SSESink) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	return s.collect(ctx, item.Raw())
-}
-
-func (s *SSESink) collect(ctx api.StreamContext, data []byte) error {
-	pubsub.ProduceAny(ctx, s.topic, data)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func GetSink() api.Sink {
-	return &SSESink{}
+func (s *SSESink) collect(ctx api.StreamContext, data []byte) error {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+func GetSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 var _ api.BytesCollector = &SSESink{}
 
-func buildSseEpID(endpoint string) string {
-	return fmt.Sprintf("$$sse/%s", endpoint)
-}
+func buildSseEpID(endpoint string) string { _ = "STUB: not implemented"; return "" }

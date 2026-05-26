@@ -14,62 +14,16 @@
 
 package ast
 
-func IsNumericArg(arg Expr) bool {
-	if _, ok := arg.(*NumberLiteral); ok {
-		return true
-	} else if _, ok := arg.(*IntegerLiteral); ok {
-		return true
-	}
-	return false
-}
+func IsNumericArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsIntegerArg(arg Expr) bool {
-	if _, ok := arg.(*IntegerLiteral); ok {
-		return true
-	}
-	return false
-}
+func IsIntegerArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsFloatArg(arg Expr) bool {
-	if _, ok := arg.(*NumberLiteral); ok {
-		return true
-	}
-	return false
-}
+func IsFloatArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsBooleanArg(arg Expr) bool {
-	switch t := arg.(type) {
-	case *BooleanLiteral:
-		return true
-	case *BinaryExpr:
-		switch t.OP {
-		case AND, OR, EQ, NEQ, LT, LTE, GT, GTE, BETWEEN, NOTBETWEEN, IN, NOTIN, LIKE, NOTLIKE:
-			return true
-		default:
-			return false
-		}
-	default:
-		return false
-	}
-}
+func IsBooleanArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsStringArg(arg Expr) bool {
-	if _, ok := arg.(*StringLiteral); ok {
-		return true
-	}
-	return false
-}
+func IsStringArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsTimeArg(arg Expr) bool {
-	if _, ok := arg.(*TimeLiteral); ok {
-		return true
-	}
-	return false
-}
+func IsTimeArg(arg Expr) bool { _ = "STUB: not implemented"; return false }
 
-func IsFieldRefArg(arg Expr) bool {
-	if _, ok := arg.(*FieldRef); ok {
-		return true
-	}
-	return false
-}
+func IsFieldRefArg(arg Expr) bool { _ = "STUB: not implemented"; return false }

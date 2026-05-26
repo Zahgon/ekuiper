@@ -15,13 +15,7 @@
 package processor
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
 	"io"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
 type RulesetProcessor struct {
@@ -36,157 +30,37 @@ type Ruleset struct {
 }
 
 func NewRulesetProcessor(r *RuleProcessor, s *StreamProcessor) *RulesetProcessor {
-	return &RulesetProcessor{
-		r: r,
-		s: s,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (rs *RulesetProcessor) Export() (io.ReadSeeker, []int, error) {
-	var all Ruleset
-	allStreams, err := rs.s.GetAll()
-	if err != nil {
-		return nil, nil, fmt.Errorf("fail to get all streams: %v", err)
-	}
-	all.Streams = allStreams["streams"]
-	all.Tables = allStreams["tables"]
-	rules, err := rs.r.GetAllRulesJson()
-	if err != nil {
-		return nil, nil, fmt.Errorf("fail to get all rules: %v", err)
-	}
-	all.Rules = rules
-	jsonBytes, err := json.Marshal(all)
-	if err != nil {
-		return nil, nil, err
-	}
-	counts := []int{len(all.Streams), len(all.Tables), len(all.Rules)}
-	return bytes.NewReader(jsonBytes), counts, nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadSeeker), nil, nil
 }
 
-func (rs *RulesetProcessor) ExportRuleSet() *Ruleset {
-	all := &Ruleset{}
-	allStreams, err := rs.s.GetAll()
-	if err != nil {
-		conf.Log.Errorf("fail to get all streams: %v", err)
-		return nil
-	}
-	all.Streams = allStreams["streams"]
-	all.Tables = allStreams["tables"]
-	rules, err := rs.r.GetAllRulesJson()
-	if err != nil {
-		conf.Log.Errorf("fail to get all rules: %v", err)
-		return nil
-	}
-	all.Rules = rules
-	return all
-}
+func (rs *RulesetProcessor) ExportRuleSet() *Ruleset { _ = "STUB: not implemented"; return nil }
 
-func (rs *RulesetProcessor) ExportRuleSetStatus() *Ruleset {
-	all := &Ruleset{}
-	allStreams, err := rs.s.streamStatusDb.All()
-	if err != nil {
-		conf.Log.Errorf("fail to get all stream status: %v", err)
-		return nil
-	}
-	allTables, err := rs.s.tableStatusDb.All()
-	if err != nil {
-		conf.Log.Errorf("fail to get all table status: %v", err)
-		return nil
-	}
-	all.Streams = allStreams
-	all.Tables = allTables
-	rules, err := rs.r.ruleStatusDb.All()
-	if err != nil {
-		conf.Log.Errorf("fail to get all rule status: %v", err)
-		return nil
-	}
-	all.Rules = rules
-	return all
-}
+func (rs *RulesetProcessor) ExportRuleSetStatus() *Ruleset { _ = "STUB: not implemented"; return nil }
 
 func (rs *RulesetProcessor) Import(content []byte) ([]string, []int, error) {
-	all := &Ruleset{}
-	err := json.Unmarshal(content, all)
-	if err != nil {
-		return nil, nil, fmt.Errorf("invalid import file: %v", err)
-	}
-	counts := make([]int, 3)
-	// restore streams
-	for k, v := range all.Streams {
-		_, e := rs.s.ExecReplaceStream(k, v, ast.TypeStream)
-		if e != nil {
-			conf.Log.Warnf("Fail to import stream %s with error: %v", k, e)
-		} else {
-			counts[0]++
-		}
-	}
-	// restore tables
-	for k, v := range all.Tables {
-		_, e := rs.s.ExecReplaceStream(k, v, ast.TypeTable)
-		if e != nil {
-			conf.Log.Warnf("Fail to import table %s with error: %v", k, e)
-		} else {
-			counts[1]++
-		}
-	}
-	var rules []string
-	// restore rules
-	for k, v := range all.Rules {
-		_, e := rs.r.ExecCreateWithValidation(k, v)
-		if e != nil {
-			conf.Log.Warnf("Fail to import rule %s with error: %v", k, e)
-		} else {
-			rules = append(rules, k)
-			counts[2]++
-		}
-	}
-	return rules, counts, nil
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }
+
+// restore streams
+
+// restore tables
+
+// restore rules
 
 func (rs *RulesetProcessor) ImportRuleSet(all Ruleset) Ruleset {
-	ruleSetRsp := Ruleset{
-		Rules:   map[string]string{},
-		Streams: map[string]string{},
-		Tables:  map[string]string{},
-	}
-
-	_ = rs.s.streamStatusDb.Clean()
-	_ = rs.s.tableStatusDb.Clean()
-	_ = rs.r.ruleStatusDb.Clean()
-
-	counts := make([]int, 3)
-	// restore streams
-	for k, v := range all.Streams {
-		_, e := rs.s.ExecReplaceStream(k, v, ast.TypeStream)
-		if e != nil {
-			conf.Log.Errorf("Fail to import stream %s(%s) with error: %v", k, v, e)
-			_ = rs.s.streamStatusDb.Set(k, e.Error())
-			ruleSetRsp.Streams[k] = e.Error()
-			continue
-		}
-		counts[0]++
-	}
-	// restore tables
-	for k, v := range all.Tables {
-		_, e := rs.s.ExecReplaceStream(k, v, ast.TypeTable)
-		if e != nil {
-			conf.Log.Errorf("Fail to import table %s(%s) with error: %v", k, v, e)
-			_ = rs.s.tableStatusDb.Set(k, e.Error())
-			ruleSetRsp.Tables[k] = e.Error()
-			continue
-		}
-		counts[1]++
-	}
-	// restore rules
-	for k, v := range all.Rules {
-		_, e := rs.r.ExecCreateWithValidation(k, v)
-		if e != nil {
-			conf.Log.Errorf("Fail to import rule %s(%s) with error: %v", k, v, e)
-			_ = rs.r.ruleStatusDb.Set(k, e.Error())
-			ruleSetRsp.Rules[k] = e.Error()
-			continue
-		}
-		counts[2]++
-	}
-	return ruleSetRsp
+	_ = "STUB: not implemented"
+	return *new(Ruleset)
 }
+
+// restore streams
+
+// restore tables
+
+// restore rules

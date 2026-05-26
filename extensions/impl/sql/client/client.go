@@ -16,7 +16,6 @@ package client
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
@@ -33,93 +32,31 @@ type SQLConnection struct {
 }
 
 func (s *SQLConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	url, ok := props["url"]
-	if !ok {
-		url, ok = props["dburl"]
-		if !ok {
-			return fmt.Errorf("dburl should be defined")
-		}
-	}
-	dburl, ok := url.(string)
-	if !ok || len(dburl) < 1 {
-		return fmt.Errorf("dburl should be defined as string")
-	}
-	ctx.GetLogger().Infof("create db with url:%v", dburl)
-
-	s.url = dburl
-	s.id = conId
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *SQLConnection) GetId(ctx api.StreamContext) string {
-	return s.id
-}
+func (s *SQLConnection) GetId(ctx api.StreamContext) string { _ = "STUB: not implemented"; return "" }
 
-func (s *SQLConnection) Dial(ctx api.StreamContext) error {
-	s.Lock()
-	defer s.Unlock()
-	return s.dial(ctx)
-}
+func (s *SQLConnection) Dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (s *SQLConnection) Reconnect() error {
-	s.Lock()
-	defer s.Unlock()
-	if err := s.db.Ping(); err == nil {
-		return nil
-	}
-	oldDB := s.db
-	oldDB.Close()
-	db, err := openDB(s.url)
-	if err != nil {
-		return fmt.Errorf("reconnect sql err:%v", err)
-	}
-	s.db = db
-	return s.db.Ping()
-}
+func (s *SQLConnection) Reconnect() error { _ = "STUB: not implemented"; return nil }
 
-func (s *SQLConnection) GetDB() *sql.DB {
-	s.RLock()
-	defer s.RUnlock()
-	return s.db
-}
+func (s *SQLConnection) GetDB() *sql.DB { _ = "STUB: not implemented"; return nil }
 
-func (s *SQLConnection) Ping(ctx api.StreamContext) error {
-	s.Lock()
-	defer s.Unlock()
-	if s.db == nil {
-		err := s.dial(ctx)
-		if err != nil {
-			return err
-		}
-	}
-	return s.db.Ping()
-}
+func (s *SQLConnection) Ping(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (s *SQLConnection) DetachSub(ctx api.StreamContext, props map[string]any) {
+	_ = "STUB: not implemented"
 	// do nothing
+	return
 }
 
-func (s *SQLConnection) Close(ctx api.StreamContext) error {
-	s.Lock()
-	defer s.Unlock()
-	if s.closed {
-		return nil
-	}
-	ctx.GetLogger().Infof("close db with url:%v", s.url)
-	s.db.Close()
-	s.closed = true
-	return nil
-}
+func (s *SQLConnection) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func CreateConnection(ctx api.StreamContext) modules.Connection {
-	return &SQLConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
-func (s *SQLConnection) dial(ctx api.StreamContext) error {
-	db, err := openDB(s.url)
-	if err != nil {
-		return fmt.Errorf("create connection err:%v", err)
-	}
-	s.db = db
-	return s.db.Ping()
-}
+func (s *SQLConnection) dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }

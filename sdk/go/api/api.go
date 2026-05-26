@@ -29,19 +29,16 @@ type DefaultSourceTuple struct {
 }
 
 func NewDefaultSourceTuple(message map[string]interface{}, meta map[string]interface{}) *DefaultSourceTuple {
-	return &DefaultSourceTuple{
-		Mess: message,
-		M:    meta,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *DefaultSourceTuple) Message() map[string]interface{} {
-	return t.Mess
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *DefaultSourceTuple) Meta() map[string]interface{} {
-	return t.M
-}
+func (t *DefaultSourceTuple) Meta() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
 type Source interface {
 	// Open Should be sync function for normal case. The container will run it in go func

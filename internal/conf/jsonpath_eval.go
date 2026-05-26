@@ -15,15 +15,8 @@
 package conf
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
-	"reflect"
-
 	"github.com/PaesslerAG/gval"
 	"github.com/PaesslerAG/jsonpath"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 var builder = gval.Full(jsonpath.PlaceholderExtension())
@@ -37,33 +30,11 @@ type gvalPathEval struct {
 }
 
 func (e *gvalPathEval) Eval(data interface{}) (interface{}, error) {
-	var input interface{}
-	at := reflect.TypeOf(data)
-	if at != nil {
-		switch at.Kind() {
-		case reflect.Map:
-			input = cast.ConvertToInterfaceArr(data.(map[string]interface{}))
-		case reflect.Slice:
-			input = cast.ConvertSlice(data)
-		case reflect.String:
-			v, _ := data.(string)
-			err := json.Unmarshal(cast.StringToBytes(v), &input)
-			if err != nil {
-				return nil, fmt.Errorf("data '%v' is not a valid json string", data)
-			}
-		default:
-			return nil, fmt.Errorf("invalid data %v for jsonpath", data)
-		}
-	} else {
-		return nil, fmt.Errorf("invalid data nil for jsonpath")
-	}
-	return e.valuer(context.Background(), input)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetJsonPathEval(jsonpath string) (JsonPathEval, error) {
-	e, err := builder.NewEvaluable(jsonpath)
-	if err != nil {
-		return nil, err
-	}
-	return &gvalPathEval{valuer: e}, nil
+	_ = "STUB: not implemented"
+	return *new(JsonPathEval), nil
 }

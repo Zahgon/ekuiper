@@ -14,19 +14,6 @@
 
 package function
 
-import (
-	"github.com/lf-edge/ekuiper/contract/v2/api"
+func registerWindowFunc() { _ = "STUB: not implemented"; return }
 
-	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-)
-
-func registerWindowFunc() {
-	builtins["row_number"] = builtinFunc{
-		fType: ast.FuncTypeWindow,
-		// we implement window functions in windowFuncOperator instead of exec.
-		exec: func(ctx api.FunctionContext, args []interface{}) (interface{}, bool) {
-			return nil, true
-		},
-		val: ValidateNoArg,
-	}
-}
+// we implement window functions in windowFuncOperator instead of exec.

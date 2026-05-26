@@ -15,10 +15,8 @@
 package aes
 
 import (
-	"fmt"
 	"io"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
@@ -30,47 +28,16 @@ type c struct {
 }
 
 func GetEncryptor(key []byte, props map[string]any) (message.Encryptor, error) {
-	cc := &c{Mode: "cfb"}
-	err := cast.MapToStruct(props, cc)
-	if err != nil {
-		return nil, err
-	}
-	switch cc.Mode {
-	case "cfb":
-		return NewStreamEncrypter(key, cc)
-	case "gcm":
-		return NewGcmEncrypter(key, cc)
-	default:
-		return nil, fmt.Errorf("unsupported AES encryption mode: %s", cc.Mode)
-	}
+	_ = "STUB: not implemented"
+	return *new(message.Encryptor), nil
 }
 
 func GetEncryptWriter(output io.Writer, key []byte, props map[string]any) (io.Writer, error) {
-	cc := &c{Mode: "cfb"}
-	err := cast.MapToStruct(props, cc)
-	if err != nil {
-		return nil, err
-	}
-	switch cc.Mode {
-	case "cfb":
-		return NewStreamWriter(key, output, cc)
-	default:
-		return nil, fmt.Errorf("unsupported AES writer mode: %s", cc.Mode)
-	}
+	_ = "STUB: not implemented"
+	return *new(io.Writer), nil
 }
 
 func GetDecryptor(key []byte, props map[string]any) (message.Decryptor, error) {
-	cc := &c{Mode: "gcm"}
-	err := cast.MapToStruct(props, cc)
-	if err != nil {
-		return nil, err
-	}
-	switch cc.Mode {
-	case "cfb":
-		return NewStreamEncrypter(key, cc)
-	case "gcm":
-		return NewGcmEncrypter(key, cc)
-	default:
-		return nil, fmt.Errorf("unsupported AES encryption mode: %s", cc.Mode)
-	}
+	_ = "STUB: not implemented"
+	return *new(message.Decryptor), nil
 }

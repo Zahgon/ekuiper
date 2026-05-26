@@ -15,9 +15,6 @@
 package connection
 
 import (
-	"errors"
-
-	"github.com/cenkalti/backoff/v4"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
@@ -28,73 +25,66 @@ type mockConnection struct {
 	ref int
 }
 
-func (m *mockConnection) GetId(ctx api.StreamContext) string {
-	return m.id
-}
+func (m *mockConnection) GetId(ctx api.StreamContext) string { _ = "STUB: not implemented"; return "" }
 
 func (m *mockConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	m.id = conId
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m *mockConnection) Dial(ctx api.StreamContext) error {
-	return nil
-}
+func (m *mockConnection) Dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (m *mockConnection) Ping(ctx api.StreamContext) error {
-	return nil
-}
+func (m *mockConnection) Ping(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (m *mockConnection) Close(ctx api.StreamContext) error {
-	return nil
-}
+func (m *mockConnection) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (m *mockConnection) Attach(ctx api.StreamContext) {
-	m.ref++
-}
+func (m *mockConnection) Attach(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 func (m *mockConnection) DetachSub(ctx api.StreamContext, props map[string]any) {
-	m.ref--
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *mockConnection) DetachPub(ctx api.StreamContext, props map[string]any) {
-	m.ref--
+	_ = "STUB: not implemented"
+	return
 }
 
-func (m *mockConnection) Ref(ctx api.StreamContext) int {
-	return m.ref
-}
+func (m *mockConnection) Ref(ctx api.StreamContext) int { _ = "STUB: not implemented"; return 0 }
 
 func CreateMockConnection(ctx api.StreamContext) modules.Connection {
-	return &mockConnection{ref: 0}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
 type mockErrConnection struct{}
 
 func (m mockErrConnection) GetId(ctx api.StreamContext) string {
-	return "test"
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (m mockErrConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	return backoff.Permanent(errors.New("mockErr"))
-}
-
-func (m mockErrConnection) Dial(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m mockErrConnection) Ping(ctx api.StreamContext) error {
-	return errors.New("mockErr")
-}
+func (m mockErrConnection) Dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
+
+func (m mockErrConnection) Ping(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (m mockErrConnection) Close(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (m mockErrConnection) DetachSub(ctx api.StreamContext, props map[string]any) {
+	_ = "STUB: not implemented"
 	// do nothing
+	return
 }
 
 func CreateMockErrConnection(ctx api.StreamContext) modules.Connection {
-	return &mockErrConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }

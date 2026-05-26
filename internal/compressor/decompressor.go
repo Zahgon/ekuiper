@@ -15,7 +15,6 @@
 package compressor
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
@@ -26,10 +25,8 @@ type DecompressorInstantiator func(name string) (message.Decompressor, error)
 var decompressors = map[string]DecompressorInstantiator{}
 
 func GetDecompressor(name string) (message.Decompressor, error) {
-	if instantiator, ok := decompressors[name]; ok {
-		return instantiator(name)
-	}
-	return nil, fmt.Errorf("unsupported decompressor: %s", name)
+	_ = "STUB: not implemented"
+	return *new(message.Decompressor), nil
 }
 
 type DecompressReaderIns func(reader io.Reader) (io.ReadCloser, error)
@@ -37,8 +34,6 @@ type DecompressReaderIns func(reader io.Reader) (io.ReadCloser, error)
 var decompressReaders = map[string]DecompressReaderIns{}
 
 func GetDecompressReader(name string, reader io.Reader) (io.ReadCloser, error) {
-	if instantiator, ok := decompressReaders[name]; ok {
-		return instantiator(reader)
-	}
-	return nil, fmt.Errorf("unsupported decompressor for file: %s", name)
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }

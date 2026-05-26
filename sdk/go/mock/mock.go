@@ -32,97 +32,79 @@ type mockContext struct {
 
 // Implement context interface
 func (c *mockContext) Deadline() (deadline time.Time, ok bool) {
-	return c.Ctx.Deadline()
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (c *mockContext) Done() <-chan struct{} {
-	return c.Ctx.Done()
-}
+func (c *mockContext) Done() <-chan struct{} { _ = "STUB: not implemented"; return nil }
 
-func (c *mockContext) Err() error {
-	return c.Ctx.Err()
-}
+func (c *mockContext) Err() error { _ = "STUB: not implemented"; return nil }
 
-func (c *mockContext) Value(key interface{}) interface{} {
-	return c.Ctx.Value(key)
-}
+func (c *mockContext) Value(key interface{}) interface{} { _ = "STUB: not implemented"; return nil }
 
 // Stream metas
 func (c *mockContext) GetContext() context.Context {
-	return c.Ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func (c *mockContext) GetLogger() api.Logger {
-	return Logger
-}
+func (c *mockContext) GetLogger() api.Logger { _ = "STUB: not implemented"; return *new(api.Logger) }
 
-func (c *mockContext) GetRuleId() string {
-	return c.RuleId
-}
+func (c *mockContext) GetRuleId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *mockContext) GetOpId() string {
-	return c.OpId
-}
+func (c *mockContext) GetOpId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *mockContext) GetInstanceId() int {
-	return 0
-}
+func (c *mockContext) GetInstanceId() int { _ = "STUB: not implemented"; return 0 }
 
 func (c *mockContext) GetRootPath() string {
+	_ = "STUB: not implemented"
 	// loc, _ := conf.GetLoc("")
-	return "root path"
+	return ""
 }
 
-func (c *mockContext) SetError(err error) {
-}
+func (c *mockContext) SetError(err error) { _ = "STUB: not implemented"; return }
 
 func (c *mockContext) WithMeta(ruleId string, opId string) api.StreamContext {
-	return c
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *mockContext) WithInstance(_ int) api.StreamContext {
-	return c
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *mockContext) WithCancel() (api.StreamContext, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(c.Ctx)
-	return &mockContext{
-		RuleId: c.RuleId,
-		OpId:   c.OpId,
-		Ctx:    ctx,
-	}, cancel
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext), *new(context.CancelFunc)
 }
 
 func (c *mockContext) IncrCounter(key string, amount int) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *mockContext) GetCounter(key string) (int, error) {
-	return 0, nil
-}
+func (c *mockContext) GetCounter(key string) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
 func (c *mockContext) PutState(key string, value interface{}) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *mockContext) GetState(key string) (interface{}, error) {
+	_ = "STUB: not implemented"
 	return nil, nil
 }
 
-func (c *mockContext) DeleteState(key string) error {
-	return nil
-}
+func (c *mockContext) DeleteState(key string) error { _ = "STUB: not implemented"; return nil }
 
-func (c *mockContext) Snapshot() error {
-	return nil
-}
+func (c *mockContext) Snapshot() error { _ = "STUB: not implemented"; return nil }
 
-func (c *mockContext) SaveState(checkpointId int64) error {
-	return nil
-}
+func (c *mockContext) SaveState(checkpointId int64) error { _ = "STUB: not implemented"; return nil }
 
 func newMockContext(ruleId string, opId string) api.StreamContext {
-	return &mockContext{Ctx: context.Background(), RuleId: ruleId, OpId: opId}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 type mockFuncContext struct {
@@ -130,15 +112,11 @@ type mockFuncContext struct {
 	funcId int
 }
 
-func (fc *mockFuncContext) GetFuncId() int {
-	return fc.funcId
-}
+func (fc *mockFuncContext) GetFuncId() int { _ = "STUB: not implemented"; return 0 }
 
 func newMockFuncContext(ctx api.StreamContext, id int) api.FunctionContext {
-	return &mockFuncContext{
-		StreamContext: ctx,
-		funcId:        id,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.FunctionContext)
 }
 
 var Logger *logrus.Logger

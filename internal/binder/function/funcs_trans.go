@@ -15,13 +15,8 @@
 package function
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/compressor"
-	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
@@ -30,97 +25,29 @@ type compressFunc struct {
 	compressor   message.Compressor
 }
 
-func (c *compressFunc) Validate(args []any) error {
-	var eargs []ast.Expr
-	for _, arg := range args {
-		if t, ok := arg.(ast.Expr); ok {
-			eargs = append(eargs, t)
-		} else {
-			// should never happen
-			return fmt.Errorf("receive invalid arg %v", arg)
-		}
-	}
-	return ValidateTwoStrArg(nil, eargs)
-}
+func (c *compressFunc) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
+
+// should never happen
 
 func (c *compressFunc) Exec(ctx api.FunctionContext, args []any) (any, bool) {
-	if args[0] == nil {
-		return nil, true
-	}
-	arg0, err := cast.ToBytes(args[0], cast.CONVERT_SAMEKIND)
-	if err != nil {
-		return fmt.Errorf("require string or bytea parameter, but got %v", args[0]), false
-	}
-	arg1 := cast.ToStringAlways(args[1])
-	if c.compressor != nil {
-		if c.compressType != arg1 {
-			return fmt.Errorf("compress type must be consistent, previous %s, now %s", c.compressType, arg1), false
-		}
-	} else {
-		ctx.GetLogger().Infof("creating compressor %s", arg1)
-		c.compressor, err = compressor.GetCompressor(arg1, nil)
-		if err != nil {
-			return err, false
-		}
-		c.compressType = arg1
-	}
-	r, e := c.compressor.Compress(arg0)
-	if e != nil {
-		return e, false
-	}
-	return r, true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (c *compressFunc) IsAggregate() bool {
-	return false
-}
+func (c *compressFunc) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
 type decompressFunc struct {
 	compressType string
 	decompressor message.Decompressor
 }
 
-func (d *decompressFunc) Validate(args []any) error {
-	var eargs []ast.Expr
-	for _, arg := range args {
-		if t, ok := arg.(ast.Expr); ok {
-			eargs = append(eargs, t)
-		} else {
-			// should never happen
-			return fmt.Errorf("receive invalid arg %v", arg)
-		}
-	}
-	return ValidateTwoStrArg(nil, eargs)
-}
+func (d *decompressFunc) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
+
+// should never happen
 
 func (d *decompressFunc) Exec(ctx api.FunctionContext, args []any) (any, bool) {
-	if args[0] == nil {
-		return nil, true
-	}
-	arg0, err := cast.ToBytes(args[0], cast.CONVERT_SAMEKIND)
-	if err != nil {
-		return fmt.Errorf("require string or bytea parameter, but got %v", args[0]), false
-	}
-	arg1 := cast.ToStringAlways(args[1])
-	if d.decompressor != nil {
-		if d.compressType != arg1 {
-			return fmt.Errorf("decompress type must be consistent, previous %s, now %s", d.compressType, arg1), false
-		}
-	} else {
-		ctx.GetLogger().Infof("creating decompressor %s", arg1)
-		d.decompressor, err = compressor.GetDecompressor(arg1)
-		if err != nil {
-			return err, false
-		}
-		d.compressType = arg1
-	}
-	r, e := d.decompressor.Decompress(arg0)
-	if e != nil {
-		return e, false
-	}
-	return r, true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (d *decompressFunc) IsAggregate() bool {
-	return false
-}
+func (d *decompressFunc) IsAggregate() bool { _ = "STUB: not implemented"; return false }

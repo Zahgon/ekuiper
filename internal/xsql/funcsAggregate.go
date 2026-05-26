@@ -16,8 +16,6 @@ package xsql
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 )
 
 type AggregateFunctionValuer struct {
@@ -26,62 +24,56 @@ type AggregateFunctionValuer struct {
 }
 
 func NewFunctionValuersForOp(ctx api.StreamContext) (*FunctionValuer, *AggregateFunctionValuer) {
-	p := NewFuncRuntime(ctx)
-	return NewAggregateFunctionValuers(p)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // Should only be called by stream to make sure a single instance for an operation
 func NewAggregateFunctionValuers(p *funcRuntime) (*FunctionValuer, *AggregateFunctionValuer) {
-	fv := NewFunctionValuer(p)
-	return fv, &AggregateFunctionValuer{
-		fv: fv,
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (v *AggregateFunctionValuer) SetData(data AggregateData) {
-	v.data = data
-}
+func (v *AggregateFunctionValuer) SetData(data AggregateData) { _ = "STUB: not implemented"; return }
 
 func (v *AggregateFunctionValuer) GetSingleCallValuer() CallValuer {
-	return v.fv
+	_ = "STUB: not implemented"
+	return *new(CallValuer)
 }
 
 func (v *AggregateFunctionValuer) Value(_, _ string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (v *AggregateFunctionValuer) Meta(_, _ string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (v *AggregateFunctionValuer) FuncValue(key string) (interface{}, bool) {
-	if vv, ok := v.data.(FuncValuer); ok {
-		return vv.FuncValue(key)
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (*AggregateFunctionValuer) AppendAlias(string, interface{}) bool {
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (v *AggregateFunctionValuer) AliasValue(_ string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (v *AggregateFunctionValuer) Call(name string, funcId int, args []interface{}) (interface{}, bool) {
-	nf, fctx, err := v.fv.runtime.Get(name, funcId)
-	switch err {
-	case errorx.NotFoundErr:
-		return nil, false
-	case nil:
-		// do nothing, continue
-	default:
-		return err, false
-	}
-	return ExecFunc(name, nf, args, fctx)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
+// do nothing, continue
+
 func (v *AggregateFunctionValuer) GetAllTuples() AggregateData {
-	return v.data
+	_ = "STUB: not implemented"
+	return *new(AggregateData)
 }

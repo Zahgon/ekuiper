@@ -20,12 +20,9 @@ type TsBuilder struct {
 	database KVDatabase
 }
 
-func NewTsBuilder(d KVDatabase) TsBuilder {
-	return TsBuilder{
-		database: d,
-	}
-}
+func NewTsBuilder(d KVDatabase) TsBuilder { _ = "STUB: not implemented"; return *new(TsBuilder) }
 
 func (b TsBuilder) CreateTs(name string) (kv.Tskv, error) {
-	return createPebbleTs(b.database, name)
+	_ = "STUB: not implemented"
+	return *new(kv.Tskv), nil
 }

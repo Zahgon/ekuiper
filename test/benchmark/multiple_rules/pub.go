@@ -14,30 +14,8 @@
 
 package main
 
-import (
-	"fmt"
-	"time"
-
-	mqtt "github.com/eclipse/paho.mqtt.golang"
-)
-
 const (
 	tps = 500
 )
 
-func pub() {
-	opts := mqtt.NewClientOptions().AddBroker(mqttUrl)
-	client := mqtt.NewClient(opts)
-	defer client.Disconnect(0)
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		panic(token.Error())
-	}
-	for i := 0; ; i++ {
-		payload := []byte(fmt.Sprintf(`{"temperature":%d,"humidity":90}`, 12+i%10))
-		if token := client.Publish("rawdata", 0, false, payload); token.Wait() && token.Error() != nil {
-			fmt.Println(token.Error())
-		}
-
-		time.Sleep(1000 / tps * time.Millisecond)
-	}
-}
+func pub() { _ = "STUB: not implemented"; return }

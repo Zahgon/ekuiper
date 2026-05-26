@@ -17,7 +17,6 @@ package httpserver
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
@@ -30,27 +29,17 @@ type HttpPushConnection struct {
 }
 
 func (h *HttpPushConnection) GetId(ctx api.StreamContext) string {
-	return h.id
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (h *HttpPushConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	cfg := &connectionCfg{}
-	if err := cast.MapToStruct(props, cfg); err != nil {
-		return err
-	}
-	h.cfg = cfg
-	h.endpoint = cfg.Datasource
-	h.method = cfg.Method
-	h.id = conId
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (h *HttpPushConnection) Dial(ctx api.StreamContext) error {
-	topic, err := RegisterEndpoint(h.cfg.Datasource, h.cfg.Method)
-	if err != nil {
-		return err
-	}
-	h.topic = topic
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -60,21 +49,20 @@ type connectionCfg struct {
 }
 
 func CreateConnection(_ api.StreamContext) modules.Connection {
-	return &HttpPushConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
 func (h *HttpPushConnection) Ping(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (h *HttpPushConnection) DetachSub(ctx api.StreamContext) {
-	UnregisterEndpoint(h.endpoint, h.method)
-}
+func (h *HttpPushConnection) DetachSub(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 func (h *HttpPushConnection) Close(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (h *HttpPushConnection) GetTopic() string {
-	return h.topic
-}
+func (h *HttpPushConnection) GetTopic() string { _ = "STUB: not implemented"; return "" }

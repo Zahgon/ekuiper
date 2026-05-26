@@ -19,7 +19,6 @@ import (
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -33,83 +32,18 @@ type EventSlidingWindowOp struct {
 }
 
 func NewEventSlidingWindowOp(o *WindowV2Operator) *EventSlidingWindowOp {
-	return &EventSlidingWindowOp{
-		WindowV2Operator: o,
-		Delay:            o.windowConfig.Delay,
-		Length:           o.windowConfig.Length,
-		stateFuncs:       o.windowConfig.StateFuncs,
-		triggerCondition: o.windowConfig.TriggerCondition,
-		delayTS:          make([]time.Time, 0),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *EventSlidingWindowOp) exec(ctx api.StreamContext, errCh chan<- error) {
-	fv, _ := xsql.NewFunctionValuersForOp(ctx)
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case input := <-s.input:
-			data, processed := s.ingest(ctx, input)
-			if processed {
-				continue
-			}
-			switch tuple := data.(type) {
-			case *xsql.WatermarkTuple:
-				now := tuple.GetTimestamp()
-				newIndex := -1
-				for i, delayTs := range s.delayTS {
-					if delayTs.Before(now) || delayTs.Equal(now) {
-						windowStart := delayTs.Add(-s.Length).Add(-s.Delay)
-						windowEnd := now
-						s.emitWindow(ctx, windowStart, windowEnd)
-					} else {
-						newIndex = i
-						break
-					}
-				}
-				if newIndex != -1 {
-					s.delayTS = s.delayTS[newIndex:]
-				}
-				s.scanner.gc(now.Add(-s.Length).Add(-s.Delay))
-			case *xsql.Tuple:
-				s.onProcessStart(ctx, input)
-				windowEnd := tuple.Timestamp
-				windowStart := windowEnd.Add(-s.Length)
-				s.scanner.addTuple(tuple)
-				sendWindow := true
-				if s.triggerCondition != nil {
-					sendWindow = isMatchCondition(ctx, s.triggerCondition, fv, tuple, s.stateFuncs)
-				}
-				if s.Delay > 0 && sendWindow {
-					s.delayTS = append(s.delayTS, tuple.Timestamp.Add(s.Delay))
-					sendWindow = false
-				}
-				if sendWindow {
-					s.emitWindow(ctx, windowStart, windowEnd)
-				}
-				s.onProcessEnd(ctx)
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (o *WindowV2Operator) ingest(ctx api.StreamContext, item any) (any, bool) {
-	ctx.GetLogger().Debugf("receive %v", item)
-	item, processed := o.preprocess(ctx, item)
-	if processed {
-		return item, processed
-	}
-	switch d := item.(type) {
-	case error:
-		if o.sendError {
-			o.Broadcast(d)
-		}
-		return nil, true
-	case xsql.EOFTuple, xsql.BatchEOFTuple:
-		o.Broadcast(d)
-		return nil, true
-	}
-	// watermark tuple should return
-	return item, false
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
+
+// watermark tuple should return

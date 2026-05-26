@@ -16,36 +16,19 @@ package httpserver
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 	"sync"
 
 	"github.com/gorilla/websocket"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
 )
 
 const (
 	WebsocketTopicPrefix = "$$websocket/"
 )
 
-func recvTopic(endpoint string, isServer bool) string {
-	if isServer {
-		return fmt.Sprintf("%s/server/recv/%s", WebsocketTopicPrefix, endpoint)
-	} else {
-		return fmt.Sprintf("%s/client/recv/%s", WebsocketTopicPrefix, endpoint)
-	}
-}
+func recvTopic(endpoint string, isServer bool) string { _ = "STUB: not implemented"; return "" }
 
-func sendTopic(endpoint string, isServer bool) string {
-	if isServer {
-		return fmt.Sprintf("%s/server/send/%s", WebsocketTopicPrefix, endpoint)
-	} else {
-		return fmt.Sprintf("%s/client/send/%s", WebsocketTopicPrefix, endpoint)
-	}
-}
+func sendTopic(endpoint string, isServer bool) string { _ = "STUB: not implemented"; return "" }
 
 type websocketEndpointContext struct {
 	wg    *sync.WaitGroup
@@ -53,183 +36,53 @@ type websocketEndpointContext struct {
 }
 
 func RegisterWebSocketEndpoint(ctx api.StreamContext, endpoint string) (string, string, error) {
-	managerLock.RLock()
-	m := manager
-	managerLock.RUnlock()
-	if m == nil {
-		return "", "", fmt.Errorf("http server is not running")
-	}
-	return m.RegisterWebSocketEndpoint(ctx, endpoint)
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
-func UnRegisterWebSocketEndpoint(endpoint string) {
-	managerLock.RLock()
-	m := manager
-	managerLock.RUnlock()
-	if m == nil {
-		return
-	}
-	wctx := m.UnRegisterWebSocketEndpoint(endpoint)
-	if wctx != nil {
-		// wait all process exit
-		wctx.wg.Wait()
-	}
-}
+func UnRegisterWebSocketEndpoint(endpoint string) { _ = "STUB: not implemented"; return }
+
+// wait all process exit
 
 func (m *GlobalServerManager) handleProcess(ctx api.StreamContext, endpoint string, instanceID int, c *websocket.Conn, cancel context.CancelFunc, parWg *sync.WaitGroup) {
-	defer func() {
-		m.CloseEndpointConnection(endpoint, c)
-		parWg.Done()
-	}()
-	subWg := &sync.WaitGroup{}
-	subWg.Add(2)
-	go recvProcess(ctx, recvTopic(endpoint, true), c, cancel, subWg)
-	go sendProcess(ctx, sendTopic(endpoint, true), fmt.Sprintf("ws/send/%v", instanceID), c, cancel, subWg)
-	subWg.Wait()
+	_ = "STUB: not implemented"
+	return
 }
 
 func sendProcess(ctx api.StreamContext, topic, sourceID string, c *websocket.Conn, cancel context.CancelFunc, wg *sync.WaitGroup) {
-	defer func() {
-		pubsub.CloseSourceConsumerChannel(topic, sourceID)
-		cancel()
-		c.Close()
-		wg.Done()
-	}()
-	ch := pubsub.CreateSub(topic, nil, sourceID, 1024)
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case d := <-ch:
-			data := d.([]byte)
-			if err := c.WriteMessage(websocket.TextMessage, data); err != nil {
-				conf.Log.Errorf("write websocket msg err:%v, topic:%v", err, topic)
-				return
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func recvProcess(ctx api.StreamContext, topic string, c *websocket.Conn, cancel context.CancelFunc, wg *sync.WaitGroup) {
-	defer func() {
-		cancel()
-		c.Close()
-		wg.Done()
-	}()
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-		}
-		msgType, data, err := c.ReadMessage()
-		if err != nil {
-			conf.Log.Errorf("read websocket msg err:%v, topic:%v", err, topic)
-			pubsub.ProduceAny(ctx, topic, err)
-			return
-		}
-		switch msgType {
-		case websocket.TextMessage:
-			pubsub.ProduceAny(ctx, topic, data)
-		default:
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *GlobalServerManager) RegisterWebSocketEndpoint(ctx api.StreamContext, endpoint string) (string, string, error) {
-	conf.Log.Infof("websocket endpoint %v register", endpoint)
-	m.Lock()
-	defer m.Unlock()
-	rTopic := recvTopic(endpoint, true)
-	sTopic := sendTopic(endpoint, true)
-	pubsub.CreatePub(rTopic)
-	m.routes[endpoint] = func(w http.ResponseWriter, r *http.Request) {
-		c, err := m.upgrader.Upgrade(w, r, nil)
-		if err != nil {
-			conf.Log.Errorf("websocket upgrade error: %v", err)
-			return
-		}
-		fmt.Printf("is context updated?: %p\n", ctx)
-		subCtx, cancel := ctx.WithCancel()
-		wg := m.AddEndpointConnection(endpoint, c, cancel)
-		go m.handleProcess(subCtx, endpoint, m.FetchInstanceID(), c, cancel, wg)
-		conf.Log.Infof("websocket endpint %v create connection", endpoint)
-	}
-	m.router.HandleFunc(endpoint, func(w http.ResponseWriter, r *http.Request) {
-		m.RLock()
-		h, ok := m.routes[endpoint]
-		m.RUnlock()
-		if ok {
-			h(w, r)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
-		}
-	})
-
-	conf.Log.Infof("websocker endpoint %v registered success", endpoint)
-	return rTopic, sTopic, nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }
 
 func (m *GlobalServerManager) UnRegisterWebSocketEndpoint(endpoint string) *websocketEndpointContext {
-	conf.Log.Infof("websocket endpoint %v unregister", endpoint)
-	pubsub.RemovePub(recvTopic(endpoint, true))
-	m.Lock()
-	defer m.Unlock()
-	wctx, ok := m.websocketEndpoint[endpoint]
-	if !ok {
-		return nil
-	}
-	for conn, cancel := range wctx.conns {
-		conn.Close()
-		cancel()
-	}
-	delete(m.websocketEndpoint, endpoint)
-	delete(m.routes, endpoint)
-	return wctx
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *GlobalServerManager) CloseEndpointConnection(endpoint string, c *websocket.Conn) {
-	m.Lock()
-	defer m.Unlock()
-	wctx, ok := m.websocketEndpoint[endpoint]
-	if !ok {
-		return
-	}
-	wctx.conns[c]()
-	c.Close()
-	delete(wctx.conns, c)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (m *GlobalServerManager) AddEndpointConnection(endpoint string, c *websocket.Conn, cancel context.CancelFunc) *sync.WaitGroup {
-	m.Lock()
-	defer m.Unlock()
-	wctx, ok := m.websocketEndpoint[endpoint]
-	if ok {
-		wctx.conns[c] = cancel
-		wctx.wg.Add(1)
-		return wctx.wg
-	}
-	wg := &sync.WaitGroup{}
-	wg.Add(1)
-	m.websocketEndpoint[endpoint] = &websocketEndpointContext{
-		wg: wg,
-		conns: map[*websocket.Conn]context.CancelFunc{
-			c: cancel,
-		},
-	}
-	return wg
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (m *GlobalServerManager) FetchInstanceID() int {
-	m.Lock()
-	defer m.Unlock()
-	m.instanceID++
-	return m.instanceID
-}
+func (m *GlobalServerManager) FetchInstanceID() int { _ = "STUB: not implemented"; return 0 }
 
 // getEndpointConnections only for unit test
 func (m *GlobalServerManager) getEndpointConnections(endpoint string) *websocketEndpointContext {
-	m.RLock()
-	defer m.RUnlock()
-	return m.websocketEndpoint[endpoint]
+	_ = "STUB: not implemented"
+	return nil
 }

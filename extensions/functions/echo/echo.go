@@ -15,28 +15,19 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 )
 
 type echo struct{}
 
-func (f *echo) Validate(args []any) error {
-	if len(args) != 1 {
-		return fmt.Errorf("echo function only supports 1 parameter but got %d", len(args))
-	}
-	return nil
-}
+func (f *echo) Validate(args []any) error { _ = "STUB: not implemented"; return nil }
 
 func (f *echo) Exec(_ api.FunctionContext, args []any) (any, bool) {
-	result := args[0]
-	return result, true
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (f *echo) IsAggregate() bool {
-	return false
-}
+func (f *echo) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
 var Echo echo
 

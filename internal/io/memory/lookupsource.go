@@ -15,14 +15,11 @@
 package memory
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/io/memory/store"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type lc struct {
@@ -40,59 +37,20 @@ type lookupsource struct {
 }
 
 func (s *lookupsource) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	ctx.GetLogger().Infof("lookup source %s is opened with key %v", s.topic, s.key)
-	var err error
-	s.table, err = store.Reg(s.topic, s.topicRegex, s.key)
-	if err != nil {
-		sch(api.ConnectionDisconnected, err.Error())
-		return err
-	}
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *lookupsource) Provision(ctx api.StreamContext, props map[string]any) error {
-	cfg := &lc{}
-	err := cast.MapToStruct(props, cfg)
-	if err != nil {
-		return fmt.Errorf("read properties %v fail with error: %v", props, err)
-	}
-	if cfg.Topic == "" {
-		return fmt.Errorf("datasource(topic) is required")
-	}
-	if strings.ContainsAny(cfg.Topic, "+#") {
-		r, err := getRegexp(cfg.Topic)
-		if err != nil {
-			return err
-		}
-		s.topicRegex = r
-	}
-	if cfg.Key == "" {
-		return fmt.Errorf("key is required for lookup source")
-	}
-	s.topic = cfg.Topic
-	s.key = cfg.Key
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *lookupsource) Lookup(ctx api.StreamContext, _ []string, keys []string, values []interface{}) ([]map[string]any, error) {
-	ctx.GetLogger().Debugf("lookup source %s is looking up keys %v with values %v", s.topic, keys, values)
-	tuples, err := s.table.Read(keys, values)
-	if err != nil {
-		return nil, err
-	}
-	r := make([]map[string]any, len(tuples))
-	for i, t := range tuples {
-		r[i] = t.ToMap()
-	}
-	return r, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (s *lookupsource) Close(ctx api.StreamContext) error {
-	ctx.GetLogger().Infof("lookup source %s is closing", s.topic)
-	return store.Unreg(s.topic, s.key)
-}
+func (s *lookupsource) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func GetLookupSource() api.Source {
-	return &lookupsource{}
-}
+func GetLookupSource() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }

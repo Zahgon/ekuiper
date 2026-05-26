@@ -15,21 +15,13 @@
 package node
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/converter"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
-	"github.com/lf-edge/ekuiper/v2/pkg/model"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 // SinkNode represents a sink node that collects data from the stream
@@ -51,258 +43,76 @@ type SinkNode struct {
 // 2. Set resendInterval and bufferLength will use bufferLength as the memory cache
 // 3. By default, drop if it cannot sends out.
 func newSinkNode(ctx api.StreamContext, name string, rOpt def.RuleOption, eoflimit int, sc *SinkConf, isRetry bool) *SinkNode {
+	_ = "STUB: not implemented"
 	// set collect retry according to cache setting
-	retry := time.Duration(sc.ResendInterval)
-	if (sc.EnableCache || isRetry) && retry <= 0 {
-		// default retry interval to 100ms
-		retry = 100 * time.Millisecond
-	}
-	// Sink input channel as buffer
-	if isRetry || (sc.EnableCache && !sc.ResendAlterQueue) {
-		rOpt.BufferLength = sc.MemoryCacheThreshold
-	} else {
-		rOpt.BufferLength = sc.BufferLength
-	}
-	ctx.GetLogger().Infof("create sink node %s with isRetry %v, resendInterval %d, bufferLength %d", name, isRetry, retry, rOpt.BufferLength)
-	return &SinkNode{
-		defaultSinkNode: newDefaultSinkNode(name, &rOpt),
-		eoflimit:        eoflimit,
-		resendInterval:  retry,
-	}
+	return nil
 }
 
+// default retry interval to 100ms
+
+// Sink input channel as buffer
+
 func (s *SinkNode) setKafkaSinkStatsManager(ctx api.StreamContext) {
-	if strings.Contains(strings.ToLower(s.name), "kafka") {
-		dctx, ok := ctx.(*kctx.DefaultContext)
-		if ok {
-			kctx.WithValue(dctx, "$statManager", s.statManager)
-			s.isStatManagerHostBySink = true
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *SinkNode) Exec(ctx api.StreamContext, errCh chan<- error) {
-	s.prepareExec(ctx, errCh, "sink")
-	go func() {
-		err := infra.SafeRun(func() error {
-			s.setKafkaSinkStatsManager(ctx)
-			err := s.sink.Connect(ctx, s.connectionStatusChange)
-			if err != nil {
-				infra.DrainError(ctx, err, errCh)
-			}
-			defer func() {
-				s.sink.Close(ctx)
-				s.Close()
-			}()
-			s.currentEof = 0
-			for {
-				select {
-				case <-ctx.Done():
-					return nil
-				case d := <-s.input:
-					data, processed := s.ingest(ctx, d)
-					if processed {
-						break
-					}
-					s.onProcessStart(ctx, data)
-					err = s.doCollect(ctx, s.sink, data)
-					if err != nil { // resend handling when enabling cache. Two cases: 1. send to alter queue with resendOUt. 2. retry (blocking) until success or unrecoverable error if resendInterval is set
-						s.onError(ctx, err)
-						if s.resendOut != nil {
-							s.BroadcastCustomized(data, func(val any) {
-								select {
-								case s.resendOut <- val:
-									// do nothing
-								case <-ctx.Done():
-									// rule stop so stop waiting
-								default:
-									s.onError(ctx, fmt.Errorf("buffer full, drop message from %s to resend sink", s.name))
-								}
-							})
-						} else if s.resendInterval > 0 {
-							if !errorx.IsIOError(err) {
-								ctx.GetLogger().Errorf("no io error %v, drop %v", err, xsql.GetId(data))
-							} else {
-								ticker := timex.GetTicker(s.resendInterval)
-								defer ticker.Stop()
-								for err != nil && errorx.IsIOError(err) {
-									ctx.GetLogger().Debugf("wait resending %v", xsql.GetId(data))
-									select {
-									case <-ctx.Done():
-										ctx.GetLogger().Infof("rule stop, exit retry for %v", xsql.GetId(data))
-										return nil
-									case <-ticker.C:
-										err = s.doCollect(ctx, s.sink, data)
-										s.statManager.SetBufferLength(int64(len(s.input)))
-									}
-								}
-								if err == nil {
-									ctx.GetLogger().Debugf("resend success %v", xsql.GetId(data))
-									s.onSend(ctx, data)
-								} else {
-									ctx.GetLogger().Debugf("no io error %v", err)
-								}
-							}
-						}
-					} else {
-						s.onSend(ctx, data)
-					}
-					s.onProcessEnd(ctx)
-					s.statManager.SetBufferLength(int64(len(s.input)))
-				}
-			}
-		})
-		if err != nil {
-			infra.DrainError(ctx, err, errCh)
-		}
-	}()
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *SinkNode) SetResendOutput(output chan<- any) {
-	s.resendOut = output
-}
+// resend handling when enabling cache. Two cases: 1. send to alter queue with resendOUt. 2. retry (blocking) until success or unrecoverable error if resendInterval is set
+
+// do nothing
+
+// rule stop so stop waiting
+
+func (s *SinkNode) SetResendOutput(output chan<- any) { _ = "STUB: not implemented"; return }
 
 func (s *SinkNode) connectionStatusChange(status string, message string) {
-	if status == api.ConnectionDisconnected {
-		s.statManager.IncTotalExceptions(message)
-	}
-	s.statManager.SetConnectionState(status, message)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *SinkNode) ingest(ctx api.StreamContext, item any) (any, bool) {
-	ctx.GetLogger().Debugf("%s_%d receive %v", ctx.GetOpId(), ctx.GetInstanceId(), item)
-	item, processed := s.preprocess(ctx, item)
-	if processed {
-		return item, processed
-	}
-	switch d := item.(type) {
-	case error:
-		if s.sendError {
-			return d, false
-		}
-		return nil, true
-	case *xsql.WatermarkTuple, xsql.BatchEOFTuple:
-		return nil, true
-	case xsql.EOFTuple:
-		s.currentEof++
-		if s.eoflimit == s.currentEof {
-			infra.DrainError(ctx, errorx.NewEOF(string(d)), s.ctrlCh)
-		}
-		return nil, true
-	}
-	ctx.GetLogger().Debugf("%s_%d receive data %v", ctx.GetOpId(), ctx.GetInstanceId(), item)
-	return item, false
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 // NewBytesSinkNode creates a sink node that collects data from the stream. Do some static validation
 func NewBytesSinkNode(ctx api.StreamContext, name string, sink api.BytesCollector, rOpt def.RuleOption, eoflimit int, sc *SinkConf, isRetry bool) (*SinkNode, error) {
-	ctx.GetLogger().Infof("create bytes sink node %s", name)
-	n := newSinkNode(ctx, name, rOpt, eoflimit, sc, isRetry)
-	n.sink = sink
-	n.doCollect = bytesCollect
-	return n, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func bytesCollect(ctx api.StreamContext, sink api.Sink, data any) (err error) {
-	ctx.GetLogger().Debugf("Sink node %s receive data %s", ctx.GetOpId(), data)
-	switch d := data.(type) {
-	case api.RawTuple:
-		err = sink.(api.BytesCollector).Collect(ctx, d)
-	case error:
-		err = sink.(api.BytesCollector).Collect(ctx, &xsql.RawTuple{
-			Rawdata: []byte(d.Error()),
-		})
-	default:
-		err = fmt.Errorf("expect api.RawTuple data type but got %T", d)
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewTupleSinkNode creates a sink node that collects data from the stream. Do some static validation
 func NewTupleSinkNode(ctx api.StreamContext, name string, sink api.TupleCollector, rOpt def.RuleOption, eoflimit int, sc *SinkConf, isRetry bool) (*SinkNode, error) {
-	ctx.GetLogger().Infof("create message sink node %s", name)
-	n := newSinkNode(ctx, name, rOpt, eoflimit, sc, isRetry)
-	n.sink = sink
-	// Create converter for decoding RawTuple
-	conv, err := converter.GetOrCreateConverter(ctx, sc.Format, sc.SchemaId, nil, nil)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create converter for format %s: %v", sc.Format, err)
-	}
-	n.doCollect = createTupleCollect(conv)
-	return n, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Create converter for decoding RawTuple
 
 // createTupleCollect creates a tupleCollect function with the given converter
 func createTupleCollect(conv message.Converter) func(ctx api.StreamContext, sink api.Sink, data any) error {
-	return func(ctx api.StreamContext, sink api.Sink, data any) (err error) {
-		switch d := data.(type) {
-		// Some tuple list type also implements tuple. So need to handle list firstly
-		case api.MessageTupleList:
-			err = sink.(api.TupleCollector).CollectList(ctx, d)
-		case api.MessageTuple:
-			err = sink.(api.TupleCollector).Collect(ctx, d)
-		case *xsql.RawTuple: // may receive raw tuple from data template
-			err = decodeAndCollect(ctx, sink.(api.TupleCollector), d, conv)
-		case error:
-			err = sink.(api.TupleCollector).Collect(ctx, model.NewDefaultSourceTuple(xsql.Message{"error": d.Error()}, nil, timex.GetNow()))
-		default:
-			err = fmt.Errorf("expect tuple data type but got %T", d)
-		}
-		return err
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// Some tuple list type also implements tuple. So need to handle list firstly
+
+// may receive raw tuple from data template
 
 // decodeAndCollect decodes RawTuple and calls Collect or CollectList based on result
 func decodeAndCollect(ctx api.StreamContext, sink api.TupleCollector, d *xsql.RawTuple, conv message.Converter) error {
-	result, err := conv.Decode(ctx, d.Rawdata)
-	if err != nil {
-		return err
-	}
-
-	switch r := result.(type) {
-	case map[string]any:
-		t := &xsql.Tuple{
-			Ctx:       d.Ctx,
-			Metadata:  d.Metadata,
-			Timestamp: d.Timestamp,
-			Emitter:   d.Emitter,
-			Props:     d.Props,
-			Message:   r,
-		}
-		return sink.Collect(ctx, t)
-	case []map[string]any:
-		tuples := make([]api.MessageTuple, len(r))
-		for i, m := range r {
-			tuples[i] = &xsql.Tuple{
-				Ctx:       d.Ctx,
-				Metadata:  d.Metadata,
-				Timestamp: d.Timestamp,
-				Emitter:   d.Emitter,
-				Props:     d.Props,
-				Message:   m,
-			}
-		}
-		return sink.CollectList(ctx, &xsql.TransformedTupleList{Content: tuples})
-	case []any:
-		tuples := make([]api.MessageTuple, 0, len(r))
-		for _, v := range r {
-			if m, ok := v.(map[string]any); ok {
-				tuples = append(tuples, &xsql.Tuple{
-					Ctx:       d.Ctx,
-					Metadata:  d.Metadata,
-					Timestamp: d.Timestamp,
-					Emitter:   d.Emitter,
-					Props:     d.Props,
-					Message:   m,
-				})
-			} else {
-				return fmt.Errorf("only map[string]any inside a list is supported but got: %T", v)
-			}
-		}
-		return sink.CollectList(ctx, &xsql.TransformedTupleList{Content: tuples})
-	default:
-		return fmt.Errorf("unsupported decode result type: %T", r)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ DataSinkNode = (*SinkNode)(nil)

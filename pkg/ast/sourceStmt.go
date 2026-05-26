@@ -14,11 +14,6 @@
 
 package ast
 
-import (
-	"encoding/json"
-	"fmt"
-)
-
 const (
 	TypeStream StreamType = iota
 	TypeTable
@@ -60,147 +55,36 @@ type JsonStreamField struct {
 	Selected bool `json:"selected,omitempty"`
 }
 
-func (u *StreamField) MarshalJSON() ([]byte, error) {
-	return json.Marshal(&struct {
-		FieldType interface{}
-		Name      string
-	}{
-		FieldType: printFieldTypeForJson(u.FieldType),
-		Name:      u.Name,
-	})
-}
+func (u *StreamField) MarshalJSON() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // UnmarshalJSON The json format follows json schema
-func (sf *StreamFields) UnmarshalJSON(data []byte) error {
-	temp := map[string]*JsonStreamField{}
-	err := json.Unmarshal(data, &temp)
-	if err != nil {
-		return err
-	}
-	return sf.UnmarshalFromMap(temp)
-}
+func (sf *StreamFields) UnmarshalJSON(data []byte) error { _ = "STUB: not implemented"; return nil }
 
 func (sf *StreamFields) UnmarshalFromMap(data map[string]*JsonStreamField) error {
-	t, err := fieldsTypeFromSchema(data)
-	if err != nil {
-		return err
-	}
-	*sf = t
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (sf *StreamFields) ToJsonSchema() map[string]*JsonStreamField {
-	return convertSchema(*sf)
-}
-
-func convertSchema(sfs StreamFields) map[string]*JsonStreamField {
-	if len(sfs) > 0 {
-		result := make(map[string]*JsonStreamField, len(sfs))
-		for _, sf := range sfs {
-			result[sf.Name] = convertFieldType(sf.FieldType)
-		}
-		return result
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func convertFieldType(sf FieldType) *JsonStreamField {
-	switch t := sf.(type) {
-	case *BasicType:
-		return &JsonStreamField{
-			Type: t.Type.String(),
-		}
-	case *ArrayType:
-		var items *JsonStreamField
-		switch t.Type {
-		case ARRAY, STRUCT:
-			items = convertFieldType(t.FieldType)
-		default:
-			items = &JsonStreamField{
-				Type: t.Type.String(),
-			}
-		}
-		return &JsonStreamField{
-			Type:  "array",
-			Items: items,
-		}
-	case *RecType:
-		return &JsonStreamField{
-			Type:       "struct",
-			Properties: convertSchema(t.StreamFields),
-		}
-	default:
-		return &JsonStreamField{}
-	}
+func convertSchema(sfs StreamFields) map[string]*JsonStreamField {
+	_ = "STUB: not implemented"
+	return nil
 }
 
+func convertFieldType(sf FieldType) *JsonStreamField { _ = "STUB: not implemented"; return nil }
+
 func fieldsTypeFromSchema(mjsf map[string]*JsonStreamField) (StreamFields, error) {
-	sfs := make(StreamFields, 0, len(mjsf))
-	for k, v := range mjsf {
-		ft, err := fieldTypeFromSchema(v)
-		if err != nil {
-			return nil, err
-		}
-		sfs = append(sfs, StreamField{
-			Name:      k,
-			FieldType: ft,
-		})
-	}
-	return sfs, nil
+	_ = "STUB: not implemented"
+	return *new(StreamFields), nil
 }
 
 func fieldTypeFromSchema(v *JsonStreamField) (FieldType, error) {
-	var ft FieldType
-	switch v.Type {
-	case "array":
-		if v.Items == nil {
-			return nil, fmt.Errorf("array field type should have items")
-		}
-		itemType, err := fieldTypeFromSchema(v.Items)
-		if err != nil {
-			return nil, fmt.Errorf("invalid array field type: %v", err)
-		}
-		switch t := itemType.(type) {
-		case *BasicType:
-			ft = &ArrayType{
-				Type: t.Type,
-			}
-		case *RecType:
-			ft = &ArrayType{
-				Type:      STRUCT,
-				FieldType: t,
-			}
-		case *ArrayType:
-			ft = &ArrayType{
-				Type:      ARRAY,
-				FieldType: t,
-			}
-		}
-	case "struct":
-		if v.Properties == nil {
-			return nil, fmt.Errorf("struct field type should have properties")
-		}
-		sfs, err := fieldsTypeFromSchema(v.Properties)
-		if err != nil {
-			return nil, fmt.Errorf("invalid struct field type: %v", err)
-		}
-		ft = &RecType{StreamFields: sfs}
-	case "bigint":
-		ft = &BasicType{Type: BIGINT}
-	case "float":
-		ft = &BasicType{Type: FLOAT}
-	case "string":
-		ft = &BasicType{Type: STRINGS}
-	case "bytea":
-		ft = &BasicType{Type: BYTEA}
-	case "datetime":
-		ft = &BasicType{Type: DATETIME}
-	case "boolean":
-		ft = &BasicType{Type: BOOLEAN}
-	default:
-		return nil, fmt.Errorf("unsupported type %s", v.Type)
-	}
-	return ft, nil
+	_ = "STUB: not implemented"
+	return *new(FieldType), nil
 }
 
 type StreamFields []StreamField
@@ -253,7 +137,7 @@ type Options struct {
 	StreamName   string                      `json:"-"`
 }
 
-func (o Options) node() {}
+func (o Options) node() { _ = "STUB: not implemented"; return }
 
 type ShowStreamsStatement struct {
 	Statement
@@ -277,11 +161,11 @@ type DropStreamStatement struct {
 	Statement
 }
 
-func (dss *DescribeStreamStatement) GetName() string { return dss.Name }
+func (dss *DescribeStreamStatement) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (ess *ExplainStreamStatement) GetName() string { return ess.Name }
+func (ess *ExplainStreamStatement) GetName() string { _ = "STUB: not implemented"; return "" }
 
-func (dss *DropStreamStatement) GetName() string { return dss.Name }
+func (dss *DropStreamStatement) GetName() string { _ = "STUB: not implemented"; return "" }
 
 type ShowTablesStatement struct {
 	Statement
@@ -305,63 +189,21 @@ type DropTableStatement struct {
 	Statement
 }
 
-func (dss *DescribeTableStatement) GetName() string { return dss.Name }
-func (ess *ExplainTableStatement) GetName() string  { return ess.Name }
-func (dss *DropTableStatement) GetName() string     { return dss.Name }
+func (dss *DescribeTableStatement) GetName() string { _ = "STUB: not implemented"; return "" }
+func (ess *ExplainTableStatement) GetName() string  { _ = "STUB: not implemented"; return "" }
+func (dss *DropTableStatement) GetName() string     { _ = "STUB: not implemented"; return "" }
 
 func printFieldTypeForJson(ft FieldType) (result interface{}) {
-	r, q := doPrintFieldTypeForJson(ft)
-	if q {
-		return r
-	} else {
-		return json.RawMessage(r)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func doPrintFieldTypeForJson(ft FieldType) (result string, isLiteral bool) {
-	switch t := ft.(type) {
-	case *BasicType:
-		return t.Type.String(), true
-	case *ArrayType:
-		var (
-			fieldType string
-			q         bool
-		)
-		if t.FieldType != nil {
-			fieldType, q = doPrintFieldTypeForJson(t.FieldType)
-		} else {
-			fieldType, q = t.Type.String(), true
-		}
-		if q {
-			result = fmt.Sprintf(`{"Type":"array","ElementType":"%s"}`, fieldType)
-		} else {
-			result = fmt.Sprintf(`{"Type":"array","ElementType":%s}`, fieldType)
-		}
-
-	case *RecType:
-		result = `{"Type":"struct","Fields":[`
-		isFirst := true
-		for _, f := range t.StreamFields {
-			if isFirst {
-				isFirst = false
-			} else {
-				result += ","
-			}
-			fieldType, q := doPrintFieldTypeForJson(f.FieldType)
-			if q {
-				result = fmt.Sprintf(`%s{"FieldType":"%s","Name":"%s"}`, result, fieldType, f.Name)
-			} else {
-				result = fmt.Sprintf(`%s{"FieldType":%s,"Name":"%s"}`, result, fieldType, f.Name)
-			}
-		}
-		result += `]}`
-	}
-	return result, false
+	_ = "STUB: not implemented"
+	return "", false
 }
 
 func CheckSchemaIndex(schema map[string]*JsonStreamField) bool {
-	for _, field := range schema {
-		return field != nil && field.HasIndex
-	}
+	_ = "STUB: not implemented"
 	return false
 }

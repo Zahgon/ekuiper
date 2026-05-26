@@ -21,19 +21,8 @@ type BufioWrapWriter struct {
 	w *bufio.Writer
 }
 
-func NewBufioWrapWriter(w *bufio.Writer) *BufioWrapWriter {
-	return &BufioWrapWriter{
-		w: w,
-	}
-}
+func NewBufioWrapWriter(w *bufio.Writer) *BufioWrapWriter { _ = "STUB: not implemented"; return nil }
 
-func (b *BufioWrapWriter) Write(p []byte) (int, error) {
-	if len(p) > b.w.Available() {
-		_ = b.w.Flush()
-	}
-	return b.w.Write(p)
-}
+func (b *BufioWrapWriter) Write(p []byte) (int, error) { _ = "STUB: not implemented"; return 0, nil }
 
-func (b *BufioWrapWriter) Flush() error {
-	return b.w.Flush()
-}
+func (b *BufioWrapWriter) Flush() error { _ = "STUB: not implemented"; return nil }

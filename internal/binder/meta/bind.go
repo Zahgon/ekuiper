@@ -14,30 +14,5 @@
 
 package meta
 
-import (
-	"github.com/lf-edge/ekuiper/v2/internal/binder/io"
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/meta"
-)
-
 // Bind Must run after function and io bound
-func Bind() {
-	if err := meta.ReadSourceMetaDir(func(name string) bool {
-		s, _ := io.Source(name)
-		return s != nil
-	}, func(name string) bool {
-		s, _ := io.LookupSource(name)
-		return s != nil
-	}); nil != err {
-		conf.Log.Errorf("readSourceMetaDir:%v", err)
-	}
-	if err := meta.ReadSinkMetaDir(func(name string) bool {
-		s, _ := io.Sink(name)
-		return s != nil
-	}); nil != err {
-		conf.Log.Errorf("readSinkMetaDir:%v", err)
-	}
-	if err := meta.ReadUiMsgDir(); nil != err {
-		conf.Log.Errorf("readUiMsgDir:%v", err)
-	}
-}
+func Bind() { _ = "STUB: not implemented"; return }

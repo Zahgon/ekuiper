@@ -16,32 +16,4 @@
 
 package logger
 
-import (
-	"log/syslog"
-
-	logrus_syslog "github.com/sirupsen/logrus/hooks/syslog"
-)
-
-func InitSyslog(network, address, level, tag string) error {
-	p := syslog.LOG_INFO
-	switch level {
-	case "debug":
-		p = syslog.LOG_DEBUG
-	case "info":
-		p = syslog.LOG_INFO
-	case "warn":
-		p = syslog.LOG_WARNING
-	case "error":
-		p = syslog.LOG_ERR
-	default:
-		p = syslog.LOG_INFO
-	}
-	if hook, err := logrus_syslog.NewSyslogHook(network, address, p, tag); err != nil {
-		Log.Error("Unable to connect to local syslog daemon")
-		return err
-	} else {
-		Log.Infof("Setting up syslog network %s, address %s, level %s, tag %s", network, address, level, tag)
-		Log.AddHook(hook)
-	}
-	return nil
-}
+func InitSyslog(network, address, level, tag string) error { _ = "STUB: not implemented"; return nil }

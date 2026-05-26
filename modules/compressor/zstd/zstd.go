@@ -19,8 +19,6 @@ import (
 	"io"
 
 	"github.com/klauspost/compress/zstd"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type compressProps struct {
@@ -28,18 +26,8 @@ type compressProps struct {
 }
 
 func NewZstdCompressor(props map[string]any) (*zstdCompressor, error) {
-	p := &compressProps{WindowSize: 8 << 20}
-	err := cast.MapToStruct(props, p)
-	if err != nil {
-		return nil, err
-	}
-	zstdWriter, err := zstd.NewWriter(nil, zstd.WithWindowSize(p.WindowSize))
-	if err != nil {
-		return nil, err
-	}
-	return &zstdCompressor{
-		writer: zstdWriter,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type zstdCompressor struct {
@@ -48,43 +36,27 @@ type zstdCompressor struct {
 }
 
 func (g *zstdCompressor) Compress(data []byte) ([]byte, error) {
-	g.buffer.Reset()
-	g.writer.Reset(&g.buffer)
-	_, err := g.writer.Write(data)
-	if err != nil {
-		return nil, err
-	}
-	err = g.writer.Close()
-	if err != nil {
-		return nil, err
-	}
-	return g.buffer.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func NewzstdDecompressor() (*zstdDecompressor, error) {
-	r, err := zstd.NewReader(nil, zstd.WithDecoderConcurrency(0))
-	if err != nil {
-		return nil, err
-	}
-	return &zstdDecompressor{decoder: r}, nil
-}
+func NewzstdDecompressor() (*zstdDecompressor, error) { _ = "STUB: not implemented"; return nil, nil }
 
 type zstdDecompressor struct {
 	decoder *zstd.Decoder
 }
 
 func (z *zstdDecompressor) Decompress(data []byte) ([]byte, error) {
-	return z.decoder.DecodeAll(data, nil)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func NewReader(r io.Reader) (io.ReadCloser, error) {
-	result, err := zstd.NewReader(r)
-	if err != nil {
-		return nil, err
-	}
-	return result.IOReadCloser(), nil
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }
 
 func NewWriter(w io.Writer) (io.Writer, error) {
-	return zstd.NewWriter(w)
+	_ = "STUB: not implemented"
+	return *new(io.Writer), nil
 }

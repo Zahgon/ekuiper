@@ -15,10 +15,7 @@
 package store
 
 import (
-	"database/sql"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/store/definition"
-	sqldb "github.com/lf-edge/ekuiper/v2/internal/pkg/store/sql"
 )
 
 type StoreConf struct {
@@ -30,70 +27,16 @@ type StoreConf struct {
 	PebbleConfig definition.PebbleConfig
 }
 
-func SetupDefault(dataDir string) error {
-	c := definition.Config{
-		Type:         "sqlite",
-		ExtStateType: "sqlite",
-		Redis:        definition.RedisConfig{},
-		Sqlite: definition.SqliteConfig{
-			Path: dataDir,
-			Name: "",
-		},
-		Fdb: definition.FdbConfig{},
-	}
-
-	return Setup(c, false)
-}
+func SetupDefault(dataDir string) error { _ = "STUB: not implemented"; return nil }
 
 func SetupWithConfig(sc *StoreConf, setupCheckpointDB bool) error {
-	c := definition.Config{
-		Type:         sc.Type,
-		ExtStateType: sc.ExtStateType,
-		Redis:        sc.RedisConfig,
-		Sqlite:       sc.SqliteConfig,
-		Fdb:          sc.FdbConfig,
-		Pebble:       sc.PebbleConfig,
-	}
-	return Setup(c, setupCheckpointDB)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func Setup(config definition.Config, setupCheckpointDB bool) error {
-	s, err := newStores(config, "sqliteKV.db")
-	if err != nil {
-		return err
-	}
-	globalStores = s
-	if setupCheckpointDB {
-		s, err = newStores(config, "checkpoint.db")
-		if err != nil {
-			return err
-		}
-		checkpointStores = s
-		db, err := checkpointStores.GetKV("init_checkpointdb")
-		if err != nil {
-			checkpointStores = nil
-		} else {
-			// write sth to ensure checkpoint.db created
-			db.Set("init", "init")
-		}
-	}
-	s, err = newStores(config, "cache.db")
-	if err != nil {
-		return err
-	}
-	cacheStores = s
-	s, err = newExtStateStores(config, "extState.db")
-	if err != nil {
-		return err
-	}
-	extStateStores = s
-	db, err := sqldb.BuildSqliteStore(config, "trace.db")
-	if err != nil {
-		return err
-	}
-	TraceStores = db
-	return TraceStores.Apply(func(db *sql.DB) error {
-		_, err := db.Exec(`CREATE TABLE IF NOT EXISTS trace (traceID TEXT PRIMARY KEY, ruleID TEXT NOT NULL, value BLOB,createdtimestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP);`)
-		return err
-	})
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// write sth to ensure checkpoint.db created

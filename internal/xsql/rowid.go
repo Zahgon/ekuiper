@@ -14,15 +14,4 @@
 
 package xsql
 
-import "fmt"
-
-func GetId(val any) any {
-	switch vt := val.(type) {
-	case *RawTuple:
-		return fmt.Sprintf("tt %d, uid %s", vt.Timestamp.UnixMilli(), vt.Props[`{{prop "snowflake"}}`])
-	case *Tuple:
-		return vt.Timestamp.UnixMilli()
-	default:
-		return fmt.Sprintf("%T", vt)
-	}
-}
+func GetId(val any) any { _ = "STUB: not implemented"; return *new(any) }

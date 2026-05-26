@@ -16,25 +16,10 @@ package processor
 
 import (
 	"bytes"
-	"encoding/json"
-	"fmt"
-	"strings"
-
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
 	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store/memory"
-	"github.com/lf-edge/ekuiper/v2/internal/schema"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/lookup"
-	streamSchema "github.com/lf-edge/ekuiper/v2/internal/topo/schema"
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
-	"github.com/lf-edge/ekuiper/v2/pkg/validate"
 )
 
 var log = conf.Log
@@ -55,684 +40,130 @@ type StreamDetail struct {
 // globalStreamProcessor is the singleton instance of StreamProcessor
 var globalStreamProcessor *StreamProcessor
 
-func NewStreamProcessor() *StreamProcessor {
-	db, err := store.GetKV("stream")
-	if err != nil {
-		panic(fmt.Sprintf("Can not initialize store for the stream processor at path 'stream': %v", err))
-	}
-	streamDb, err := store.GetKV("streamStatus")
-	if err != nil {
-		panic(fmt.Sprintf("Can not initialize store for the stream processor at path 'stream': %v", err))
-	}
-	tableDb, err := store.GetKV("tableStatus")
-	if err != nil {
-		panic(fmt.Sprintf("Can not initialize store for the stream processor at path 'stream': %v", err))
-	}
-	processor := &StreamProcessor{
-		db:             db,
-		streamStatusDb: streamDb,
-		tableStatusDb:  tableDb,
-		tempDb:         memory.NewMemoryKV(),
-	}
-	globalStreamProcessor = processor
-	return processor
-}
+func NewStreamProcessor() *StreamProcessor { _ = "STUB: not implemented"; return nil }
 
 // GetDataSource retrieves a stream/table definition by name from both persistent and temp stores.
 // It first checks the persistent store, then falls back to the temp store if not found.
 func (p *StreamProcessor) GetDataSource(name string) (*ast.StreamStmt, error) {
+	_ = "STUB: not implemented"
 	// Try persistent store first
-	stmt, err := xsql.GetDataSource(p.db, name)
-	if err == nil {
-		return stmt, nil
-	}
-	// Try temp store
-	return xsql.GetDataSource(p.tempDb, name)
+	return nil, nil
 }
+
+// Try temp store
 
 // GetStreamProcessorDataSource is a global function that uses the global StreamProcessor instance
 // to retrieve stream/table definitions from both persistent and temp stores.
 func GetStreamProcessorDataSource(name string) (*ast.StreamStmt, error) {
-	if globalStreamProcessor == nil {
-		return nil, fmt.Errorf("stream processor not initialized")
-	}
-	return globalStreamProcessor.GetDataSource(name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) ExecStmt(statement string) (result []string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-
-	parser := xsql.NewParser(strings.NewReader(statement))
-	stmt, err := xsql.Language.Parse(parser)
-	if err != nil {
-		return nil, err
-	}
-	switch s := stmt.(type) {
-	case *ast.StreamStmt: // Table is also StreamStmt
-		if err := validate.ValidateID(string(s.Name)); err != nil {
-			return nil, err
-		}
-		var r string
-		err = p.execSave(s, statement, false)
-		stt := ast.StreamTypeMap[s.StreamType]
-		if err != nil {
-			err = fmt.Errorf("Create %s fails: %v.", stt, err)
-		} else {
-			r = fmt.Sprintf("%s %s is created.", cases.Title(language.Und).String(stt), s.Name)
-			log.Printf("%s", r)
-		}
-		result = append(result, r)
-	case *ast.ShowStreamsStatement:
-		result, err = p.execShow(ast.TypeStream)
-	case *ast.ShowTablesStatement:
-		result, err = p.execShow(ast.TypeTable)
-	case *ast.DescribeStreamStatement:
-		var r string
-		r, err = p.execDescribe(s, ast.TypeStream)
-		result = append(result, r)
-	case *ast.DescribeTableStatement:
-		var r string
-		r, err = p.execDescribe(s, ast.TypeTable)
-		result = append(result, r)
-	case *ast.ExplainStreamStatement:
-		var r string
-		r, err = p.execExplain(s, ast.TypeStream)
-		result = append(result, r)
-	case *ast.ExplainTableStatement:
-		var r string
-		r, err = p.execExplain(s, ast.TypeTable)
-		result = append(result, r)
-	case *ast.DropStreamStatement:
-		var r string
-		r, err = p.execDrop(s, ast.TypeStream)
-		result = append(result, r)
-	case *ast.DropTableStatement:
-		var r string
-		r, err = p.execDrop(s, ast.TypeTable)
-		result = append(result, r)
-	default:
-		return nil, fmt.Errorf("Invalid stream statement: %s", statement)
-	}
-
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (p *StreamProcessor) RecoverLookupTable() (err error) {
-	keys, err := p.db.Keys()
-	if err != nil {
-		return fmt.Errorf("error loading data from db: %v.", err)
-	}
-	var (
-		v  string
-		vs = &xsql.StreamInfo{}
-	)
-	for _, k := range keys {
-		if ok, _ := p.db.Get(k, &v); ok {
-			if err := json.Unmarshal(cast.StringToBytes(v), vs); err == nil && vs.StreamType == ast.TypeTable {
-				parser := xsql.NewParser(strings.NewReader(vs.Statement))
-				stmt, e := xsql.Language.Parse(parser)
-				if e != nil {
-					log.Error(e)
-				}
-				switch s := stmt.(type) {
-				case *ast.StreamStmt:
-					log.Infof("Starting lookup table %s", s.Name)
-					e = lookup.CreateInstance(string(s.Name), s.Options.TYPE, s.Options)
-					if e != nil {
-						log.Errorf("%s", e.Error())
-					}
-				default:
-					log.Errorf("Invalid lookup table statement: %s", vs.Statement)
-				}
+// Table is also StreamStmt
 
-			}
-		}
-	}
+func (p *StreamProcessor) RecoverLookupTable() (err error) { _ = "STUB: not implemented"; return nil }
+
+func (p *StreamProcessor) execSave(stmt *ast.StreamStmt, statement string, replace bool) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (p *StreamProcessor) execSave(stmt *ast.StreamStmt, statement string, replace bool) error {
-	if stmt.StreamType == ast.TypeTable && stmt.Options.KIND == ast.StreamKindLookup {
-		_ = lookup.DropInstance(string(stmt.Name))
-		log.Infof("Creating lookup table %s", stmt.Name)
-		err := lookup.CreateInstance(string(stmt.Name), stmt.Options.TYPE, stmt.Options)
-		if err != nil {
-			return err
-		}
-	}
-	s, err := json.Marshal(xsql.StreamInfo{
-		StreamType: stmt.StreamType,
-		Statement:  statement,
-		StreamKind: stmt.Options.KIND,
-		Temp:       stmt.Options.Temp,
-	})
-	if err != nil {
-		return fmt.Errorf("error when saving to db: %v.", err)
-	}
-	if !stmt.Options.Temp {
-		if replace {
-			err = p.db.Set(string(stmt.Name), string(s))
-		} else {
-			err = p.db.Setnx(string(stmt.Name), string(s))
-		}
-	} else {
-		if replace {
-			err = p.tempDb.Set(string(stmt.Name), string(s))
-		} else {
-			err = p.tempDb.Setnx(string(stmt.Name), string(s))
-		}
-	}
-	return err
-}
-
 func (p *StreamProcessor) ExecReplaceStream(name string, statement string, st ast.StreamType) (info string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-
-	parser := xsql.NewParser(strings.NewReader(statement))
-	stmt, err := xsql.Language.Parse(parser)
-	if err != nil {
-		return "", err
-	}
-	stt := ast.StreamTypeMap[st]
-	switch s := stmt.(type) {
-	case *ast.StreamStmt:
-		if s.StreamType != st {
-			return "", errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("%s %s is not found", ast.StreamTypeMap[st], s.Name))
-		}
-		if string(s.Name) != name {
-			return "", fmt.Errorf("Replace %s fails: the sql statement must update the %s source.", name, name)
-		}
-		if s.Options.Temp {
-			return "", fmt.Errorf("Replace %s fails: cannot replace with temp option.", name)
-		}
-		// compare version
-		old, _ := p.DescStream(name, s.StreamType)
-		if old != nil && s.Options.SHARED != old.(*ast.StreamStmt).Options.SHARED {
-			return "", fmt.Errorf("Replace %s fails: do not support to change stream SHARED option.", name)
-		}
-		if old != nil && !CanReplace(old.(*ast.StreamStmt).Options.VERSION, s.Options.VERSION) {
-			return "", fmt.Errorf("source %s already exists with version (%s), new version (%s) is lower", name, old.(*ast.StreamStmt).Options.VERSION, s.Options.VERSION)
-		}
-		err = p.execSave(s, statement, true)
-		if err != nil {
-			return "", fmt.Errorf("Replace %s fails: %v.", stt, err)
-		} else {
-			info := fmt.Sprintf("%s %s is replaced.", cases.Title(language.Und).String(stt), s.Name)
-			log.Printf("%s", info)
-			return info, nil
-		}
-	default:
-		return "", fmt.Errorf("Invalid %s statement: %s", stt, statement)
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }
+
+// compare version
 
 func (p *StreamProcessor) ExecStreamSql(statement string) (info string, err error) {
-	r, err := p.ExecStmt(statement)
-	if err != nil {
-		return "", err
-	} else {
-		return strings.Join(r, "\n"), err
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (p *StreamProcessor) execShow(st ast.StreamType) ([]string, error) {
-	keys, err := p.ShowStream(st)
-	if len(keys) == 0 {
-		keys = append(keys, fmt.Sprintf("No %s definitions are found.", ast.StreamTypeMap[st]))
-	}
-	return keys, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) ShowStream(st ast.StreamType) (res []string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-
-	stt, ok := ast.StreamTypeMap[st]
-	if !ok {
-		return nil, fmt.Errorf("show %v fails, %v not found", st, st)
-	}
-	keys, err := p.db.Keys()
-	if err != nil {
-		return nil, fmt.Errorf("Show %ss fails, error when loading data from db: %v.", stt, err)
-	}
-	keys2, err := p.tempDb.Keys()
-	if err != nil {
-		return nil, fmt.Errorf("Show %ss fails, error when loading data from temp db: %v.", stt, err)
-	}
-	keys = append(keys, keys2...)
-	var (
-		v      string
-		vs     = &xsql.StreamInfo{}
-		result = make([]string, 0)
-	)
-	for _, k := range keys {
-		if ok, _ := p.db.Get(k, &v); !ok {
-			if ok, _ := p.tempDb.Get(k, &v); !ok {
-				continue
-			}
-		}
-		if err := json.Unmarshal(cast.StringToBytes(v), vs); err == nil && vs.StreamType == st {
-			result = append(result, k)
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) ShowStreamOrTableDetails(kind string, st ast.StreamType) (res []StreamDetail, err error) {
-	var streams []string
-
-	if kind != "" {
-		streams, err = p.ShowTable(kind)
-	} else {
-		streams, err = p.ShowStream(st)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-	streamDetails := make([]StreamDetail, 0)
-	for _, name := range streams {
-		sd, err := p.DescStream(name, st)
-		if err != nil {
-			return nil, err
-		}
-		switch v := sd.(type) {
-		case *ast.StreamStmt:
-			t := v.Options.TYPE
-			if t == "" {
-				t = "mqtt"
-			}
-			f := v.Options.FORMAT
-			if f == "" {
-				f = "json"
-			}
-			streamDetails = append(streamDetails, StreamDetail{Name: name, Type: strings.ToLower(t), Format: strings.ToLower(f)})
-		}
-	}
-
-	return streamDetails, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) ShowTable(kind string) (res []string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	if kind == "" {
-		return p.ShowStream(ast.TypeTable)
-	}
-	keys, err := p.db.Keys()
-	if err != nil {
-		return nil, fmt.Errorf("Show tables fails, error when loading data from db: %v.", err)
-	}
-	keys2, err := p.tempDb.Keys()
-	if err != nil {
-		return nil, fmt.Errorf("Show tables fails, error when loading data from temp db: %v.", err)
-	}
-	keys = append(keys, keys2...)
-
-	var (
-		v      string
-		vs     = &xsql.StreamInfo{}
-		result = make([]string, 0)
-	)
-	for _, k := range keys {
-		if ok, _ := p.db.Get(k, &v); !ok {
-			if ok, _ := p.tempDb.Get(k, &v); !ok {
-				continue
-			}
-		}
-		if err := json.Unmarshal(cast.StringToBytes(v), vs); err == nil && vs.StreamType == ast.TypeTable {
-			if kind == "scan" && (vs.StreamKind == ast.StreamKindScan || vs.StreamKind == "") {
-				result = append(result, k)
-			} else if kind == "lookup" && vs.StreamKind == ast.StreamKindLookup {
-				result = append(result, k)
-			}
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) GetStream(name string, st ast.StreamType) (res string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	vs, err := xsql.GetDataSourceStatement(p.db, name)
-	if err != nil {
-		vs, err = xsql.GetDataSourceStatement(p.tempDb, name)
-	}
-	if vs != nil && vs.StreamType == st {
-		return vs.Statement, nil
-	}
-	if err != nil {
-		return "", err
-	}
-	return "", errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("%s %s is not found", ast.StreamTypeMap[st], name))
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (p *StreamProcessor) execDescribe(stmt ast.NameNode, st ast.StreamType) (r string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	streamStmt, err := p.DescStream(stmt.GetName(), st)
-	if err != nil {
-		return "", err
-	}
-	switch s := streamStmt.(type) {
-	case *ast.StreamStmt:
-		var buff bytes.Buffer
-		buff.WriteString("Fields\n--------------------------------------------------------------------------------\n")
-		for _, f := range s.StreamFields {
-			buff.WriteString(f.Name + "\t")
-			buff.WriteString(printFieldType(f.FieldType))
-			buff.WriteString("\n")
-		}
-		buff.WriteString("\n")
-		printOptions(s.Options, &buff)
-		return buff.String(), err
-	default:
-		return "%s", fmt.Errorf("Error resolving the %s %s, the data in db may be corrupted.", ast.StreamTypeMap[st], stmt.GetName())
-	}
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func printOptions(opts *ast.Options, buff *bytes.Buffer) {
-	if opts.CONF_KEY != "" {
-		buff.WriteString(fmt.Sprintf("CONF_KEY: %s\n", opts.CONF_KEY))
-	}
-	if opts.DATASOURCE != "" {
-		buff.WriteString(fmt.Sprintf("DATASOURCE: %s\n", opts.DATASOURCE))
-	}
-	if opts.FORMAT != "" {
-		buff.WriteString(fmt.Sprintf("FORMAT: %s\n", opts.FORMAT))
-	}
-	if opts.SCHEMAID != "" {
-		buff.WriteString(fmt.Sprintf("SCHEMAID: %s\n", opts.SCHEMAID))
-	}
-	if opts.KEY != "" {
-		buff.WriteString(fmt.Sprintf("KEY: %s\n", opts.KEY))
-	}
-	if opts.RETAIN_SIZE != 0 {
-		buff.WriteString(fmt.Sprintf("RETAIN_SIZE: %d\n", opts.RETAIN_SIZE))
-	}
-	if opts.SHARED {
-		buff.WriteString(fmt.Sprintf("SHARED: %v\n", opts.SHARED))
-	}
-	if opts.STRICT_VALIDATION {
-		buff.WriteString(fmt.Sprintf("STRICT_VALIDATION: %v\n", opts.STRICT_VALIDATION))
-	}
-	if opts.TIMESTAMP != "" {
-		buff.WriteString(fmt.Sprintf("TIMESTAMP: %s\n", opts.TIMESTAMP))
-	}
-	if opts.TIMESTAMP_FORMAT != "" {
-		buff.WriteString(fmt.Sprintf("TIMESTAMP_FORMAT: %s\n", opts.TIMESTAMP_FORMAT))
-	}
-	if opts.TYPE != "" {
-		buff.WriteString(fmt.Sprintf("TYPE: %s\n", opts.TYPE))
-	}
-	if opts.EXTRA != "" {
-		buff.WriteString(fmt.Sprintf("EXTRA: %s\n", opts.EXTRA))
-	}
-	if opts.VERSION != "" {
-		buff.WriteString(fmt.Sprintf("VERSION: %s\n", opts.VERSION))
-	}
-}
+func printOptions(opts *ast.Options, buff *bytes.Buffer) { _ = "STUB: not implemented"; return }
 
 func (p *StreamProcessor) DescStream(name string, st ast.StreamType) (r ast.Statement, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	statement, err := p.GetStream(name, st)
-	if err != nil {
-		return nil, fmt.Errorf("Describe %s fails, %s.", ast.StreamTypeMap[st], err)
-	}
-	parser := xsql.NewParser(strings.NewReader(statement))
-	stream, err := xsql.Language.Parse(parser)
-	if err != nil {
-		return nil, err
-	}
-	return stream, nil
+	_ = "STUB: not implemented"
+	return *new(ast.Statement), nil
 }
 
 func (p *StreamProcessor) GetInferredSchema(name string, st ast.StreamType) (r ast.StreamFields, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	statement, err := p.GetStream(name, st)
-	if err != nil {
-		return nil, fmt.Errorf("Describe %s fails, %s.", ast.StreamTypeMap[st], err)
-	}
-	parser := xsql.NewParser(strings.NewReader(statement))
-	stream, err := xsql.Language.Parse(parser)
-	if err != nil {
-		return nil, err
-	}
-	stmt, ok := stream.(*ast.StreamStmt)
-	if !ok {
-		return nil, fmt.Errorf("Describe %s fails, cannot parse the data \"%s\" to a stream statement", ast.StreamTypeMap[st], statement)
-	}
-	if stmt.Options.SCHEMAID != "" {
-		return schema.InferFromSchemaFile(stmt.Options.FORMAT, stmt.Options.SCHEMAID)
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(ast.StreamFields), nil
 }
 
 // GetInferredJsonSchema return schema in json schema type
 // TODO merge external schema and inferred dynamic schema
 func (p *StreamProcessor) GetInferredJsonSchema(name string, st ast.StreamType) (r map[string]*ast.JsonStreamField, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	statement, err := p.GetStream(name, st)
-	if err != nil {
-		return nil, fmt.Errorf("Describe %s fails, %s.", ast.StreamTypeMap[st], err)
-	}
-	parser := xsql.NewParser(strings.NewReader(statement))
-	stream, err := xsql.Language.Parse(parser)
-	if err != nil {
-		return nil, err
-	}
-	stmt, ok := stream.(*ast.StreamStmt)
-	if !ok {
-		return nil, fmt.Errorf("Describe %s fails, cannot parse the data \"%s\" to a stream statement", ast.StreamTypeMap[st], statement)
-	}
-	sfs := stmt.StreamFields
-	if stmt.Options.SCHEMAID != "" {
-		sfs, err = schema.InferFromSchemaFile(stmt.Options.FORMAT, stmt.Options.SCHEMAID)
-		if err != nil {
-			return nil, err
-		}
-	}
-	result := sfs.ToJsonSchema()
-	if len(result) > 0 {
-		return result, nil
-	}
-	return streamSchema.GetStreamSchema(name)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (p *StreamProcessor) execExplain(stmt ast.NameNode, st ast.StreamType) (string, error) {
-	_, err := p.GetStream(stmt.GetName(), st)
-	if err != nil {
-		return "", fmt.Errorf("Explain %s fails, %s.", ast.StreamTypeMap[st], err)
-	}
-	return "TO BE SUPPORTED", nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (p *StreamProcessor) execDrop(stmt ast.NameNode, st ast.StreamType) (string, error) {
-	s, err := p.DropStream(stmt.GetName(), st)
-	if err != nil {
-		return s, fmt.Errorf("Drop %s fails: %s.", ast.StreamTypeMap[st], err)
-	}
-	return s, nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (p *StreamProcessor) DropStream(name string, st ast.StreamType) (r string, err error) {
-	defer func() {
-		if err != nil {
-			if _, ok := err.(errorx.ErrorWithCode); !ok {
-				err = errorx.NewWithCode(errorx.StreamTableError, err.Error())
-			}
-		}
-	}()
-	if st == ast.TypeTable {
-		err := lookup.DropInstance(name)
-		if err != nil {
-			return "", err
-		}
-	}
-	// Check if the key exists without unmarshalling content
-	// This allows deleting corrupted streams (e.g., from v1.x migration)
-	var v string
-	found, _ := p.db.Get(name, &v)
-	if !found {
-		found, _ = p.tempDb.Get(name, &v)
-		if !found {
-			return "", errorx.NewWithCode(errorx.NOT_FOUND, fmt.Sprintf("%s %s is not found", ast.StreamTypeMap[st], name))
-		}
-		// Delete from temp db
-		err = p.tempDb.Delete(name)
-		if err != nil {
-			return "", err
-		}
-	} else {
-		// Delete from main db
-		err = p.db.Delete(name)
-		if err != nil {
-			return "", err
-		}
-	}
-	streamSchema.RemoveStreamSchema(name)
-	return fmt.Sprintf("%s %s is dropped.", cases.Title(language.Und).String(ast.StreamTypeMap[st]), name), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func printFieldType(ft ast.FieldType) (result string) {
-	switch t := ft.(type) {
-	case *ast.BasicType:
-		result = t.Type.String()
-	case *ast.ArrayType:
-		result = "array("
-		if t.FieldType != nil {
-			result += printFieldType(t.FieldType)
-		} else {
-			result += t.Type.String()
-		}
-		result += ")"
-	case *ast.RecType:
-		result = "struct("
-		isFirst := true
-		for _, f := range t.StreamFields {
-			if isFirst {
-				isFirst = false
-			} else {
-				result += ", "
-			}
-			result = result + f.Name + " " + printFieldType(f.FieldType)
-		}
-		result += ")"
-	}
-	return
-}
+// Check if the key exists without unmarshalling content
+// This allows deleting corrupted streams (e.g., from v1.x migration)
+
+// Delete from temp db
+
+// Delete from main db
+
+func printFieldType(ft ast.FieldType) (result string) { _ = "STUB: not implemented"; return "" }
 
 // GetAll return all streams and tables defined to export.
 func (p *StreamProcessor) GetAll() (result map[string]map[string]string, err error) {
-	defs, e := p.db.All()
-	if e != nil {
-		err = e
-		return
-	}
-	tempDefs, e := p.tempDb.All()
-	if e != nil {
-		err = e
-		return
-	}
-	for k, v := range tempDefs {
-		defs[k] = v
-	}
-	vs := &xsql.StreamInfo{}
-	result = map[string]map[string]string{
-		"streams": make(map[string]string),
-		"tables":  make(map[string]string),
-	}
-	for k, v := range defs {
-		if err := json.Unmarshal(cast.StringToBytes(v), vs); err == nil {
-			switch vs.StreamType {
-			case ast.TypeStream:
-				result["streams"][k] = vs.Statement
-			case ast.TypeTable:
-				result["tables"][k] = vs.Statement
-			}
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DescribeToJson takes the human redable text from execDescribe and converts it to json
 // Intended use is for CLI when passing -json flag
-func DescribeToJson(s string) string {
-	q := strings.Replace(s, "Fields\n--------------------------------------------------------------------------------\n", "", 1)
-	sections := strings.Split(q, "\n\n")
-	fields, options := sections[0], sections[1]
-	type field struct {
-		Name, Type string
-	}
-	type output struct {
-		Fields  []field
-		Options map[string]string
-	}
-	o := output{Options: make(map[string]string)}
-	for _, f := range strings.Split(fields, "\n") {
-		split := strings.Split(f, "\t")
-		n, t := split[0], split[1]
-		o.Fields = append(o.Fields, field{Name: n, Type: t})
-	}
-	for _, f := range strings.Split(strings.Trim(options, "\n"), "\n") {
-		split := strings.Split(f, " ")
-		n, v := split[0], split[1:]
-		o.Options[n] = strings.Join(v, "")
-	}
-	b, err := json.MarshalIndent(o, "", "\t")
-	if err != nil {
-		fmt.Println(err)
-		return ""
-	}
-	return string(b)
-}
+func DescribeToJson(s string) string { _ = "STUB: not implemented"; return "" }

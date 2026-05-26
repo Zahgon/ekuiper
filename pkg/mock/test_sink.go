@@ -15,67 +15,19 @@
 package mock
 
 import (
-	"errors"
-	"fmt"
-	"time"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
-	mockContext "github.com/lf-edge/ekuiper/v2/pkg/mock/context"
 )
 
 func RunBytesSinkCollect(s api.BytesCollector, data [][]byte, props map[string]any) error {
-	ctx := mockContext.NewMockContext("ruleSink", "op1")
-	err := s.Provision(ctx, props)
-	if err != nil {
-		return err
-	}
-	err = s.Connect(ctx, func(status string, message string) {
-		// do nothing
-	})
-	if err != nil {
-		return err
-	}
-	time.Sleep(time.Second)
-	for _, e := range data {
-		err = s.Collect(ctx, &xsql.RawTuple{Rawdata: e})
-		if err != nil {
-			return err
-		}
-	}
-	time.Sleep(time.Second)
-	fmt.Println("closing sink")
-	return s.Close(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// do nothing
+
 func RunTupleSinkCollect(s api.TupleCollector, data []any, props map[string]any) error {
-	ctx := mockContext.NewMockContext("ruleSink", "op1")
-	err := s.Provision(ctx, props)
-	if err != nil {
-		return err
-	}
-	err = s.Connect(ctx, func(status string, message string) {
-		// do nothing
-	})
-	if err != nil {
-		return err
-	}
-	time.Sleep(time.Second)
-	for _, e := range data {
-		switch ee := e.(type) {
-		case api.MessageTupleList:
-			err = s.CollectList(ctx, ee)
-		case api.MessageTuple:
-			err = s.Collect(ctx, ee)
-		default:
-			err = errors.New("unsupported data type")
-		}
-		if err != nil {
-			return err
-		}
-	}
-	time.Sleep(time.Second)
-	fmt.Println("closing sink")
-	return s.Close(ctx)
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// do nothing

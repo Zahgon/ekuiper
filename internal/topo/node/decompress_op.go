@@ -15,14 +15,9 @@
 package node
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/compressor"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 )
 
@@ -32,44 +27,16 @@ type DecompressOp struct {
 }
 
 func NewDecompressOp(name string, rOpt *def.RuleOption, compressMethod string) (*DecompressOp, error) {
-	dc, err := compressor.GetDecompressor(compressMethod)
-	if err != nil {
-		return nil, fmt.Errorf("get decompressor %s fail with error: %v", compressMethod, err)
-	}
-	return &DecompressOp{
-		defaultSinkNode: newDefaultSinkNode(name, rOpt),
-		tool:            dc,
-	}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (o *DecompressOp) Exec(ctx api.StreamContext, errCh chan<- error) {
-	o.prepareExec(ctx, errCh, "op")
-	go func() {
-		defer func() {
-			o.Close()
-		}()
-		err := infra.SafeRun(func() error {
-			runWithOrder(ctx, o.defaultSinkNode, o.concurrency, o.Worker)
-			return nil
-		})
-		if err != nil {
-			infra.DrainError(ctx, err, errCh)
-		}
-	}()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (o *DecompressOp) Worker(_ api.StreamContext, item any) []any {
-	switch d := item.(type) {
-	case error:
-		return []any{d}
-	case *xsql.RawTuple:
-		if r, err := o.tool.Decompress(d.Raw()); err != nil {
-			return []any{err}
-		} else {
-			d.Rawdata = r
-			return []any{d}
-		}
-	default:
-		return []any{fmt.Errorf("unsupported data received: %v", d)}
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

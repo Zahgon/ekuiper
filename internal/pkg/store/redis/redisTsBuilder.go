@@ -26,12 +26,9 @@ type TsBuilder struct {
 	redis *redis.Client
 }
 
-func NewTsBuilder(d *redis.Client) TsBuilder {
-	return TsBuilder{
-		redis: d,
-	}
-}
+func NewTsBuilder(d *redis.Client) TsBuilder { _ = "STUB: not implemented"; return *new(TsBuilder) }
 
 func (b TsBuilder) CreateTs(table string) (st.Tskv, error) {
-	return createRedisTs(b.redis, table)
+	_ = "STUB: not implemented"
+	return *new(st.Tskv), nil
 }

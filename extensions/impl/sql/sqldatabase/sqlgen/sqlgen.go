@@ -15,10 +15,6 @@
 package sqlgen
 
 import (
-	"errors"
-	"fmt"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/store"
 )
 
@@ -43,28 +39,16 @@ type InternalSqlQueryCfg struct {
 	store       *store.IndexFieldStoreWrap
 }
 
-func (i *InternalSqlQueryCfg) InitIndexFieldStore() {
-	i.store = &store.IndexFieldStoreWrap{}
-	i.store.Init(i.IndexFields...)
-}
+func (i *InternalSqlQueryCfg) InitIndexFieldStore() { _ = "STUB: not implemented"; return }
 
-func (i *InternalSqlQueryCfg) SetIndexValue(v interface{}) {
-	switch vv := v.(type) {
-	case *store.IndexFieldStore:
-		i.store.InitByStore(vv)
-		i.store.LoadFromList()
-	default:
-		i.InitIndexFieldStore()
-	}
-}
+func (i *InternalSqlQueryCfg) SetIndexValue(v interface{}) { _ = "STUB: not implemented"; return }
 
 func (i *InternalSqlQueryCfg) GetIndexValueWrap() *store.IndexFieldStoreWrap {
-	return i.store
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (i *InternalSqlQueryCfg) GetIndexValue() interface{} {
-	return i.store.GetStore()
-}
+func (i *InternalSqlQueryCfg) GetIndexValue() interface{} { _ = "STUB: not implemented"; return nil }
 
 type sqlConfig struct {
 	TemplateSqlQueryCfg *TemplateSqlQueryCfg `json:"templateSqlQueryCfg"`
@@ -72,69 +56,16 @@ type sqlConfig struct {
 }
 
 func (cfg *sqlConfig) Init(props map[string]interface{}) error {
-	err := cast.MapToStruct(props, &cfg)
-	if err != nil {
-		return fmt.Errorf("read properties %v fail with error: %v", props, err)
-	}
-
-	if cfg.TemplateSqlQueryCfg == nil && cfg.InternalSqlQueryCfg == nil {
-		return errors.New("either one of the internalSqlQueryCfg and templateSqlQueryCfg should be defined")
-	}
-
-	if cfg.TemplateSqlQueryCfg != nil {
-		if err := formatIndexFieldsDatetime(cfg.TemplateSqlQueryCfg.IndexFields); err != nil {
-			return err
-		}
-
-		cfg.TemplateSqlQueryCfg.InitIndexFieldStore()
-	}
-
-	if cfg.InternalSqlQueryCfg != nil {
-		if err := formatIndexFieldsDatetime(cfg.InternalSqlQueryCfg.IndexFields); err != nil {
-			return err
-		}
-		cfg.InternalSqlQueryCfg.InitIndexFieldStore()
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func formatIndexFieldsDatetime(indexFields []*store.IndexField) error {
-	for _, field := range indexFields {
-		if field.IndexFieldDataType == DATETIME_TYPE && field.IndexFieldDateTimeFormat != "" {
-			t, err := cast.InterfaceToTime(field.IndexFieldValue, field.IndexFieldDateTimeFormat)
-			if err != nil {
-				err = fmt.Errorf("InterfaceToTime datetime convert got error %v", err)
-				return err
-			}
-			field.IndexFieldValue = t
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func GetQueryGenerator(driver string, props map[string]interface{}) (SqlQueryGenerator, error) {
-	cfg := &sqlConfig{}
-	err := cfg.Init(props)
-	if err != nil {
-		return nil, err
-	}
-
-	if cfg.TemplateSqlQueryCfg != nil {
-		ge, err := NewTemplateSqlQuery(cfg.TemplateSqlQueryCfg)
-		if err != nil {
-			return nil, err
-		} else {
-			return ge, nil
-		}
-	}
-
-	switch driver {
-	case "sqlserver":
-		return NewSqlServerQuery(cfg.InternalSqlQueryCfg), nil
-	case "godror", "oracle":
-		return NewOracleQueryGenerate(cfg.InternalSqlQueryCfg), nil
-	default:
-		return NewCommonSqlQuery(cfg.InternalSqlQueryCfg), nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SqlQueryGenerator), nil
 }

@@ -17,9 +17,7 @@
 package reader
 
 import (
-	"errors"
 	"io"
-	"os"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 	"github.com/parquet-go/parquet-go"
@@ -41,65 +39,22 @@ type ParquetReader struct {
 }
 
 func (pr *ParquetReader) Provision(ctx api.StreamContext, props map[string]any) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (pr *ParquetReader) Bind(ctx api.StreamContext, fr io.Reader, _ int) (err error) {
-	f, ok := fr.(*os.File)
-	if !ok {
-		return errors.New("parquet reader needs a file")
-	}
-	info, err := f.Stat()
-	if err != nil {
-		return err
-	}
-
-	pr.pf, err = parquet.OpenFile(f, info.Size())
-	if err != nil {
-		return err
-	}
-	pr.groups = pr.pf.RowGroups()
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (pr *ParquetReader) Read(_ api.StreamContext) (any, error) {
-	var row [1]parquet.Row
-	for pr.curGroup < len(pr.groups) {
-		group := pr.groups[pr.curGroup]
-		if pr.rowsReader == nil {
-			pr.rowsReader = group.Rows()
-		}
-
-		_, err := pr.rowsReader.ReadRows(row[:])
-		switch {
-		case errors.Is(err, io.EOF):
-			pr.curGroup++
-			err = pr.rowsReader.Close()
-			pr.rowsReader = nil
-			if err != nil {
-				return nil, err
-			}
-			continue
-		case err != nil:
-			return nil, err
-		}
-
-		m := make(map[string]any)
-		err = pr.pf.Schema().Reconstruct(&m, row[0])
-		if err != nil {
-			return nil, err
-		}
-		return m, nil
-	}
-	return nil, io.EOF
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func (pr *ParquetReader) IsBytesReader() bool {
-	return false
-}
+func (pr *ParquetReader) IsBytesReader() bool { _ = "STUB: not implemented"; return false }
 
-func (pr *ParquetReader) Close(_ api.StreamContext) error {
-	return nil
-}
+func (pr *ParquetReader) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 var _ modules.FileStreamReader = &ParquetReader{}

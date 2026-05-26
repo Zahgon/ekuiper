@@ -16,19 +16,12 @@ package gzip
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 
 	"github.com/klauspost/compress/gzip"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
-func NewGzipCompressor() (*gzipCompressor, error) {
-	return &gzipCompressor{
-		writer: gzip.NewWriter(nil),
-	}, nil
-}
+func NewGzipCompressor() (*gzipCompressor, error) { _ = "STUB: not implemented"; return nil, nil }
 
 type gzipCompressor struct {
 	writer *gzip.Writer
@@ -36,53 +29,27 @@ type gzipCompressor struct {
 }
 
 func (g *gzipCompressor) Compress(data []byte) ([]byte, error) {
-	g.buffer.Reset()
-	g.writer.Reset(&g.buffer)
-	_, err := g.writer.Write(data)
-	if err != nil {
-		return nil, err
-	}
-	err = g.writer.Close()
-	if err != nil {
-		return nil, err
-	}
-	return g.buffer.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func NewGzipDecompressor() (*gzipDecompressor, error) {
-	return &gzipDecompressor{}, nil
-}
+func NewGzipDecompressor() (*gzipDecompressor, error) { _ = "STUB: not implemented"; return nil, nil }
 
 type gzipDecompressor struct {
 	reader *gzip.Reader
 }
 
 func (z *gzipDecompressor) Decompress(data []byte) ([]byte, error) {
-	if z.reader == nil {
-		r, err := gzip.NewReader(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf("failed to decompress: %v", err)
-		}
-		z.reader = r
-	} else {
-		err := z.reader.Reset(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf("failed to decompress: %v", err)
-		}
-	}
-	defer func() {
-		err := z.reader.Close()
-		if err != nil {
-			conf.Log.Warnf("failed to close gzip decompressor: %v", err)
-		}
-	}()
-	return io.ReadAll(z.reader)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func NewReader(r io.Reader) (io.ReadCloser, error) {
-	return gzip.NewReader(r)
+	_ = "STUB: not implemented"
+	return *new(io.ReadCloser), nil
 }
 
 func NewWriter(w io.Writer) (io.Writer, error) {
-	return gzip.NewWriter(w), nil
+	_ = "STUB: not implemented"
+	return *new(io.Writer), nil
 }

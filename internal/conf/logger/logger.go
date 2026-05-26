@@ -15,11 +15,8 @@
 package logger
 
 import (
-	"io"
 	"os"
-	"strings"
 
-	filename "github.com/keepeye/logrus-filename"
 	"github.com/sirupsen/logrus"
 )
 
@@ -35,31 +32,6 @@ func init() {
 	InitLogger()
 }
 
-func InitLogger() {
-	if LogFile != nil {
-		return
-	}
-	Log = logrus.New()
-	Log.SetOutput(io.Discard)
-	filenameHook := filename.NewHook()
-	filenameHook.Field = "file"
-	Log.AddHook(filenameHook)
+func InitLogger() { _ = "STUB: not implemented"; return }
 
-	Log.SetFormatter(&logrus.TextFormatter{
-		DisableColors: true,
-		FullTimestamp: true,
-	})
-	Log.Debugf("init with args %s", os.Args)
-	for _, arg := range os.Args {
-		if strings.HasPrefix(arg, "-test.") {
-			IsTesting = true
-			break
-		}
-	}
-}
-
-func CloseLogger() {
-	if LogFile != nil {
-		LogFile.Close()
-	}
-}
+func CloseLogger() { _ = "STUB: not implemented"; return }

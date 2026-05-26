@@ -16,19 +16,12 @@ package zlib
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 
 	"github.com/klauspost/compress/zlib"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
-func NewZlibCompressor() (*zlibCompressor, error) {
-	return &zlibCompressor{
-		writer: zlib.NewWriter(nil),
-	}, nil
-}
+func NewZlibCompressor() (*zlibCompressor, error) { _ = "STUB: not implemented"; return nil, nil }
 
 type zlibCompressor struct {
 	writer *zlib.Writer
@@ -36,45 +29,17 @@ type zlibCompressor struct {
 }
 
 func (z *zlibCompressor) Compress(data []byte) ([]byte, error) {
-	z.buffer.Reset()
-	z.writer.Reset(&z.buffer)
-	_, err := z.writer.Write(data)
-	if err != nil {
-		return nil, err
-	}
-	err = z.writer.Close()
-	if err != nil {
-		return nil, err
-	}
-	return z.buffer.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func NewZlibDecompressor() (*zlibDecompressor, error) {
-	return &zlibDecompressor{}, nil
-}
+func NewZlibDecompressor() (*zlibDecompressor, error) { _ = "STUB: not implemented"; return nil, nil }
 
 type zlibDecompressor struct {
 	reader io.ReadCloser
 }
 
 func (z *zlibDecompressor) Decompress(data []byte) ([]byte, error) {
-	if z.reader == nil {
-		r, err := zlib.NewReader(bytes.NewReader(data))
-		if err != nil {
-			return nil, fmt.Errorf("failed to decompress: %v", err)
-		}
-		z.reader = r
-	} else {
-		err := z.reader.(zlib.Resetter).Reset(bytes.NewReader(data), nil)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decompress: %v", err)
-		}
-	}
-	defer func() {
-		err := z.reader.Close()
-		if err != nil {
-			conf.Log.Warnf("failed to close zlib decompressor: %v", err)
-		}
-	}()
-	return io.ReadAll(z.reader)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

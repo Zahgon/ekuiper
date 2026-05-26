@@ -15,12 +15,10 @@
 package xsql
 
 import (
-	"strings"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -109,133 +107,43 @@ type AffiliateRow struct {
 }
 
 func (d *AffiliateRow) AppendAlias(key string, value interface{}) bool {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.AliasMap == nil {
-		d.AliasMap = make(map[string]interface{})
-	}
-	d.AliasMap[key] = value
-	return true
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (d *AffiliateRow) AliasValue(key string) (interface{}, bool) {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
-	return d.aliasValue(key)
-}
-
-func (d *AffiliateRow) aliasValue(key string) (interface{}, bool) {
-	if d.AliasMap == nil {
-		return nil, false
-	}
-	v, ok := d.AliasMap[key]
-	return v, ok
-}
-
-func (d *AffiliateRow) Value(key, table string) (interface{}, bool) {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
-	if table == "" {
-		r, ok := d.aliasValue(key)
-		if ok {
-			return r, ok
-		}
-		r, ok = d.CalCols[key]
-		if ok {
-			return r, ok
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
-func (d *AffiliateRow) Set(col string, value interface{}) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.CalCols == nil {
-		d.CalCols = make(map[string]interface{})
-	}
-	d.CalCols[col] = value
+func (d *AffiliateRow) aliasValue(key string) (interface{}, bool) {
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (d *AffiliateRow) Del(col string) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if d.CalCols != nil {
-		delete(d.CalCols, col)
-	}
-	if d.AliasMap != nil {
-		delete(d.AliasMap, col)
-	}
+func (d *AffiliateRow) Value(key, table string) (interface{}, bool) {
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (d *AffiliateRow) Clone() AffiliateRow {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
-	nd := &AffiliateRow{}
-	if len(d.CalCols) > 0 {
-		nd.CalCols = make(map[string]interface{}, len(d.CalCols))
-		for k, v := range d.CalCols {
-			nd.CalCols[k] = v
-		}
-	}
-	if len(d.AliasMap) > 0 {
-		nd.AliasMap = make(map[string]interface{}, len(d.AliasMap))
-		for k, v := range d.AliasMap {
-			nd.AliasMap[k] = v
-		}
-	}
-	return *nd //nolint:govet
-}
+func (d *AffiliateRow) Set(col string, value interface{}) { _ = "STUB: not implemented"; return }
 
-func (d *AffiliateRow) IsEmpty() bool {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
-	return len(d.CalCols) == 0 && len(d.AliasMap) == 0
-}
+func (d *AffiliateRow) Del(col string) { _ = "STUB: not implemented"; return }
+
+func (d *AffiliateRow) Clone() AffiliateRow { _ = "STUB: not implemented"; return *new(AffiliateRow) }
+
+//nolint:govet
+
+func (d *AffiliateRow) IsEmpty() bool { _ = "STUB: not implemented"; return false }
 
 func (d *AffiliateRow) MergeMap(cachedMap map[string]interface{}) {
-	d.lock.RLock()
-	defer d.lock.RUnlock()
-	for k, v := range d.CalCols {
-		// Do not write out the internal fields
-		if !strings.HasPrefix(k, "$$") {
-			cachedMap[k] = v
-		}
-	}
-	for k, v := range d.AliasMap {
-		cachedMap[k] = v
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (d *AffiliateRow) Pick(cols [][]string) [][]string {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-	if len(cols) > 0 {
-		newAliasMap := make(map[string]interface{})
-		newCalCols := make(map[string]interface{})
-		newCols := make([][]string, 0, len(cols))
-		for _, a := range cols {
-			if a[1] == "" || a[1] == string(ast.DefaultStream) {
-				if v, ok := d.AliasMap[a[0]]; ok {
-					newAliasMap[a[0]] = v
-					continue
-				}
-				if v, ok := d.CalCols[a[0]]; ok {
-					newCalCols[a[0]] = v
-					continue
-				}
-			}
-			newCols = append(newCols, a)
-		}
-		d.AliasMap = newAliasMap
-		d.CalCols = newCalCols
-		return newCols
-	} else {
-		d.AliasMap = nil
-		d.CalCols = nil
-		return cols
-	}
-}
+// Do not write out the internal fields
+
+func (d *AffiliateRow) Pick(cols [][]string) [][]string { _ = "STUB: not implemented"; return nil }
 
 /*
  *  Message definition
@@ -245,22 +153,13 @@ func (d *AffiliateRow) Pick(cols [][]string) [][]string {
 type Message map[string]interface{}
 
 func (m Message) Get(key string) (value any, ok bool) {
-	v, o := m[key]
-	return v, o
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (m Message) Range(f func(key string, value any) bool) {
-	for k, v := range m {
-		exit := f(k, v)
-		if exit {
-			break
-		}
-	}
-}
+func (m Message) Range(f func(key string, value any) bool) { _ = "STUB: not implemented"; return }
 
-func (m Message) ToMap() map[string]any {
-	return m
-}
+func (m Message) ToMap() map[string]any { _ = "STUB: not implemented"; return nil }
 
 var _ Valuer = Message{}
 
@@ -285,44 +184,29 @@ type RawTuple struct {
 }
 
 func (r *RawTuple) GetTracerCtx() api.StreamContext {
-	return r.Ctx
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
-func (r *RawTuple) SetTracerCtx(ctx api.StreamContext) {
-	r.Ctx = ctx
-}
+func (r *RawTuple) SetTracerCtx(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
-func (r *RawTuple) Replace(new []byte) {
-	r.Rawdata = new
-}
+func (r *RawTuple) Replace(new []byte) { _ = "STUB: not implemented"; return }
 
 func (r *RawTuple) DynamicProps(template string) (string, bool) {
-	v, ok := r.Props[template]
-	return v, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func (r *RawTuple) AllProps() map[string]string {
-	return r.Props
-}
+func (r *RawTuple) AllProps() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (r *RawTuple) Raw() []byte {
-	return r.Rawdata
-}
+func (r *RawTuple) Raw() []byte { _ = "STUB: not implemented"; return nil }
 
 func (r *RawTuple) Meta(key, table string) (any, bool) {
-	v, ok := r.Metadata[key]
-	return v, ok
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (r *RawTuple) Clone() *RawTuple {
-	return &RawTuple{
-		Emitter:   r.Emitter,
-		Timestamp: r.Timestamp,
-		Rawdata:   r.Rawdata,
-		Metadata:  r.Metadata,
-		Props:     r.Props,
-	}
-}
+func (r *RawTuple) Clone() *RawTuple { _ = "STUB: not implemented"; return nil }
 
 var (
 	_ api.RawTuple        = &RawTuple{}
@@ -344,20 +228,15 @@ type Tuple struct {
 }
 
 func (t *Tuple) GetTracerCtx() api.StreamContext {
-	return t.Ctx
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
-func (t *Tuple) SetTracerCtx(ctx api.StreamContext) {
-	t.Ctx = ctx
-}
+func (t *Tuple) SetTracerCtx(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
-func (t *Tuple) Created() time.Time {
-	return t.Timestamp
-}
+func (t *Tuple) Created() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func (t *Tuple) AllMeta() map[string]any {
-	return t.Metadata
-}
+func (t *Tuple) AllMeta() map[string]any { _ = "STUB: not implemented"; return nil }
 
 var (
 	_ Row          = &Tuple{}
@@ -375,12 +254,11 @@ type JoinTuple struct {
 }
 
 func (jt *JoinTuple) GetTracerCtx() api.StreamContext {
-	return jt.Ctx
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
-func (jt *JoinTuple) SetTracerCtx(ctx api.StreamContext) {
-	jt.Ctx = ctx
-}
+func (jt *JoinTuple) SetTracerCtx(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 var _ Row = &JoinTuple{}
 
@@ -395,12 +273,11 @@ type GroupedTuples struct {
 }
 
 func (s *GroupedTuples) GetTracerCtx() api.StreamContext {
-	return s.Ctx
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
-func (s *GroupedTuples) SetTracerCtx(ctx api.StreamContext) {
-	s.Ctx = ctx
-}
+func (s *GroupedTuples) SetTracerCtx(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 var _ CollectionRow = &GroupedTuples{}
 
@@ -409,381 +286,172 @@ var _ CollectionRow = &GroupedTuples{}
  */
 
 func ToMessage(input interface{}) (Message, bool) {
-	var result Message
-	switch m := input.(type) {
-	case Message:
-		result = m
-	case Metadata:
-		result = Message(m)
-	case map[string]interface{}:
-		result = m
-	default:
-		return nil, false
-	}
-	return result, true
+	_ = "STUB: not implemented"
+	return *new(Message), false
 }
 
 func (m Message) Value(key, _ string) (interface{}, bool) {
-	if v, ok := m[key]; ok {
-		return v, ok
-	} else if conf.Config == nil || conf.Config.Basic.IgnoreCase {
-		// Only when with 'SELECT * FROM ...'  and 'schemaless', the key in map is not convert to lower case.
-		// So all keys in map should be converted to lowercase and then compare them.
-		return m.getIgnoreCase(key)
-	} else {
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
+// Only when with 'SELECT * FROM ...'  and 'schemaless', the key in map is not convert to lower case.
+// So all keys in map should be converted to lowercase and then compare them.
+
 func (m Message) getIgnoreCase(key interface{}) (interface{}, bool) {
-	if k, ok := key.(string); ok {
-		for mk, v := range m {
-			if strings.EqualFold(k, mk) {
-				return v, true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (m Message) Meta(key, table string) (interface{}, bool) {
-	if key == "*" {
-		return map[string]interface{}(m), true
-	}
-	return m.Value(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // MetaData implementation
 
 func (m Metadata) Value(key, table string) (interface{}, bool) {
-	msg := Message(m)
-	return msg.Value(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (m Metadata) Meta(key, table string) (interface{}, bool) {
-	if key == "*" {
-		return map[string]interface{}(m), true
-	}
-	msg := Message(m)
-	return msg.Meta(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // Tuple implementation
 
 func (t *Tuple) Value(key, table string) (interface{}, bool) {
-	r, ok := t.AffiliateRow.Value(key, table)
-	if ok {
-		return r, ok
-	}
-	return t.Message.Value(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (t *Tuple) All(string) (map[string]any, bool) {
-	return t.Message, true
-}
+func (t *Tuple) All(string) (map[string]any, bool) { _ = "STUB: not implemented"; return nil, false }
 
-func (t *Tuple) Clone() Row {
-	return &Tuple{
-		Emitter:      t.Emitter,
-		Timestamp:    t.Timestamp,
-		Message:      t.Message,
-		Metadata:     t.Metadata,
-		AffiliateRow: t.AffiliateRow.Clone(),
-	}
-}
+func (t *Tuple) Clone() Row { _ = "STUB: not implemented"; return *new(Row) }
 
 // ToMap should only use in sink.
-func (t *Tuple) ToMap() map[string]interface{} {
-	t.lock.Lock()
-	defer t.lock.Unlock()
-	if t.AffiliateRow.IsEmpty() {
-		return t.Message
-	}
-	if t.cachedMap == nil { // clone the message
-		m := make(map[string]any, len(t.Message))
-		for k, v := range t.Message {
-			m[k] = v
-		}
-		t.cachedMap = m
-		t.AffiliateRow.MergeMap(t.cachedMap)
-	}
-	return t.cachedMap
-}
+func (t *Tuple) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
+
+// clone the message
 
 func (t *Tuple) Meta(key, table string) (interface{}, bool) {
-	if key == "*" {
-		return map[string]interface{}(t.Metadata), true
-	}
-	return t.Metadata.Value(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (t *Tuple) MetaData() Metadata {
-	return t.Metadata
-}
+func (t *Tuple) MetaData() Metadata { _ = "STUB: not implemented"; return *new(Metadata) }
 
-func (t *Tuple) GetEmitter() string {
-	return t.Emitter
-}
+func (t *Tuple) GetEmitter() string { _ = "STUB: not implemented"; return "" }
 
 func (t *Tuple) DynamicProps(template string) (string, bool) {
-	r, ok := t.Props[template]
-	return r, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func (t *Tuple) AllProps() map[string]string {
-	return t.Props
-}
+func (t *Tuple) AllProps() map[string]string { _ = "STUB: not implemented"; return nil }
 
 func (t *Tuple) AggregateEval(expr ast.Expr, v CallValuer) []interface{} {
-	return []interface{}{Eval(expr, MultiValuer(t, v, &WildcardValuer{t}))}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *Tuple) GetTimestamp() time.Time {
-	return t.Timestamp
-}
+func (t *Tuple) GetTimestamp() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func (t *Tuple) IsWatermark() bool {
-	return false
-}
+func (t *Tuple) IsWatermark() bool { _ = "STUB: not implemented"; return false }
 
 func (t *Tuple) FuncValue(key string) (interface{}, bool) {
-	switch key {
-	case "event_time":
-		return t.Timestamp.UnixMilli(), true
-	default:
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (t *Tuple) Pick(allWildcard bool, cols [][]string, wildcardEmitters map[string]bool, except []string, sendNil bool) {
+	_ = "STUB: not implemented"
 	// invalidate cache, will calculate again
-	t.cachedMap = nil
-	cols = t.AffiliateRow.Pick(cols)
-	if !allWildcard && wildcardEmitters[t.Emitter] {
-		allWildcard = true
-	}
-	if !allWildcard {
-		if len(cols) > 0 {
-			pickedMap := make(map[string]any, len(cols))
-			for _, colTab := range cols {
-				if colTab[1] == t.Emitter || colTab[1] == "" || colTab[1] == string(ast.DefaultStream) {
-					if v, ok := t.Message.Value(colTab[0], colTab[1]); ok {
-						pickedMap[colTab[0]] = v
-					} else if sendNil {
-						pickedMap[colTab[0]] = nil
-					}
-				}
-			}
-			t.Message = pickedMap
-		} else {
-			t.Message = make(map[string]interface{})
-		}
-	} else if len(except) > 0 {
-		pickedMap := make(map[string]interface{})
-		for key, mess := range t.Message {
-			if !contains(except, key) {
-				pickedMap[key] = mess
-			}
-		}
-		t.Message = pickedMap
-	}
+	return
 }
 
 // JoinTuple implementation
 
-func (jt *JoinTuple) AddTuple(tuple Row) {
-	jt.Tuples = append(jt.Tuples, tuple)
-}
+func (jt *JoinTuple) AddTuple(tuple Row) { _ = "STUB: not implemented"; return }
 
-func (jt *JoinTuple) AddTuples(tuples []Row) {
-	jt.Tuples = append(jt.Tuples, tuples...)
-}
+func (jt *JoinTuple) AddTuples(tuples []Row) { _ = "STUB: not implemented"; return }
 
 func (jt *JoinTuple) doGetValue(key, table string, isVal bool) (interface{}, bool) {
-	tuples := jt.Tuples
-	if table == "" {
-		if len(tuples) > 1 {
-			for _, tuple := range tuples { // TODO support key without modifier?
-				v, ok := getTupleValue(tuple, key, isVal)
-				if ok {
-					return v, ok
-				}
-			}
-			conf.Log.Debugf("Wrong key: %s not found", key)
-			return nil, false
-		} else {
-			return getTupleValue(tuples[0], key, isVal)
-		}
-	} else {
-		// TODO should use hash here
-		for _, tuple := range tuples {
-			if et, ok := tuple.(EmittedData); ok && et.GetEmitter() == table {
-				v, ok := getTupleValue(tuple, key, isVal)
-				if v != nil && ok {
-					return v, ok
-				}
-			}
-			if subJt, ok := tuple.(*JoinTuple); ok {
-				v, ok := subJt.doGetValue(key, table, isVal)
-				if v != nil && ok {
-					return v, ok
-				}
-			}
-		}
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
+
+// TODO support key without modifier?
+
+// TODO should use hash here
 
 func getTupleValue(tuple Row, key string, isVal bool) (interface{}, bool) {
-	if isVal {
-		return tuple.Value(key, "")
-	} else {
-		return tuple.Meta(key, "")
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (jt *JoinTuple) GetEmitter() string {
-	return "$$JOIN"
-}
+func (jt *JoinTuple) GetEmitter() string { _ = "STUB: not implemented"; return "" }
 
 func (jt *JoinTuple) Value(key, table string) (interface{}, bool) {
-	r, ok := jt.AffiliateRow.Value(key, table)
-	if ok {
-		return r, ok
-	}
-	return jt.doGetValue(key, table, true)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (jt *JoinTuple) Meta(key, table string) (interface{}, bool) {
-	return jt.doGetValue(key, table, false)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (jt *JoinTuple) All(stream string) (map[string]interface{}, bool) {
-	if stream != "" {
-		for _, t := range jt.Tuples {
-			if et, ok := t.(EmittedData); ok && et.GetEmitter() == stream {
-				return t.All("")
-			}
-		}
-	}
-	result := make(map[string]interface{})
-	for _, t := range jt.Tuples {
-		if m, ok := t.All(""); ok {
-			for k, v := range m {
-				result[k] = v
-			}
-		}
-	}
-	return result, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (jt *JoinTuple) Clone() Row {
-	ts := make([]Row, len(jt.Tuples))
-	for i, t := range jt.Tuples {
-		ts[i] = t.Clone()
-	}
-	c := &JoinTuple{
-		Tuples:       ts,
-		AffiliateRow: jt.AffiliateRow.Clone(),
-	}
-	return c
-}
+func (jt *JoinTuple) Clone() Row { _ = "STUB: not implemented"; return *new(Row) }
 
-func (jt *JoinTuple) ToMap() map[string]interface{} {
-	jt.lock.Lock()
-	defer jt.lock.Unlock()
-	if jt.cachedMap == nil { // clone the message
-		m := make(map[string]interface{})
-		for i := len(jt.Tuples) - 1; i >= 0; i-- {
-			for k, v := range jt.Tuples[i].ToMap() {
-				m[k] = v
-			}
-		}
-		jt.cachedMap = m
-		jt.AffiliateRow.MergeMap(jt.cachedMap)
-	}
-	return jt.cachedMap
-}
+func (jt *JoinTuple) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
+
+// clone the message
 
 func (jt *JoinTuple) Pick(allWildcard bool, cols [][]string, wildcardEmitters map[string]bool, except []string, sendNil bool) {
-	cols = jt.AffiliateRow.Pick(cols)
-	if !allWildcard {
-		if len(cols) > 0 {
-			for i, tuple := range jt.Tuples {
-				if et, ok := tuple.(EmittedData); ok {
-					if _, ok := wildcardEmitters[et.GetEmitter()]; ok {
-						continue
-					}
-				}
-				nt := tuple.Clone()
-				nt.Pick(allWildcard, cols, wildcardEmitters, except, sendNil)
-				jt.Tuples[i] = nt
-			}
-		} else {
-			jt.Tuples = jt.Tuples[:0]
-		}
-	}
-	jt.cachedMap = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 func (jt *JoinTuple) AggregateEval(expr ast.Expr, v CallValuer) []interface{} {
-	return []interface{}{Eval(expr, MultiValuer(jt, v, &WildcardValuer{jt}))}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GroupedTuple implementation
 
 func (s *GroupedTuples) AggregateEval(expr ast.Expr, v CallValuer) []interface{} {
-	var result []interface{}
-	for _, t := range s.Content {
-		result = append(result, Eval(expr, MultiValuer(t, &WindowRangeValuer{WindowRange: s.WindowRange}, v, &WildcardValuer{t})))
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *GroupedTuples) Value(key, table string) (interface{}, bool) {
-	r, ok := s.AffiliateRow.Value(key, table)
-	if ok {
-		return r, ok
-	}
-	return s.Content[0].Value(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (s *GroupedTuples) Meta(key, table string) (interface{}, bool) {
-	return s.Content[0].Meta(key, table)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (s *GroupedTuples) All(_ string) (map[string]interface{}, bool) {
-	return s.Content[0].All("")
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (s *GroupedTuples) ToMap() map[string]interface{} {
-	s.lock.Lock()
-	defer s.lock.Unlock()
-	if s.cachedMap == nil {
-		m := make(map[string]interface{})
-		for k, v := range s.Content[0].ToMap() {
-			m[k] = v
-		}
-		s.cachedMap = m
-		s.AffiliateRow.MergeMap(s.cachedMap)
-	}
-	return s.cachedMap
-}
+func (s *GroupedTuples) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
-func (s *GroupedTuples) Clone() Row {
-	ts := make([]Row, len(s.Content))
-	copy(ts, s.Content)
-	c := &GroupedTuples{
-		Content:      ts,
-		WindowRange:  s.WindowRange,
-		AffiliateRow: s.AffiliateRow.Clone(),
-	}
-	return c
-}
+func (s *GroupedTuples) Clone() Row { _ = "STUB: not implemented"; return *new(Row) }
 
 func (s *GroupedTuples) Pick(allWildcard bool, cols [][]string, wildcardEmitters map[string]bool, except []string, sendNil bool) {
-	cols = s.AffiliateRow.Pick(cols)
-	sc := s.Content[0].Clone()
-	sc.Pick(allWildcard, cols, wildcardEmitters, except, sendNil)
-	s.Content[0] = sc
+	_ = "STUB: not implemented"
+	return
 }

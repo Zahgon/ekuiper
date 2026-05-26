@@ -26,46 +26,6 @@ type AggFuncOp struct {
 }
 
 func (a *AggFuncOp) Apply(ctx api.StreamContext, data interface{}, _ *xsql.FunctionValuer, afv *xsql.AggregateFunctionValuer) interface{} {
-	switch input := data.(type) {
-	case error:
-		return input
-	case *xsql.Tuple:
-		results := make(map[string]any)
-		for _, aggField := range a.AggFields {
-			afv.SetData(input)
-			ve := &xsql.ValuerEval{Valuer: afv}
-			v := ve.Eval(aggField.Expr)
-			if err, ok := v.(error); ok {
-				return err
-			}
-			results[aggField.Name] = v
-		}
-		for k, v := range results {
-			input.Set(k, v)
-		}
-		return input
-	case xsql.Collection:
-		results := make(map[string]any)
-		for _, aggField := range a.AggFields {
-			input.GroupRange(func(i int, aggRow xsql.CollectionRow) (bool, error) {
-				afv.SetData(aggRow)
-				ve := &xsql.ValuerEval{Valuer: afv}
-				v := ve.Eval(aggField.Expr)
-				if err, ok := v.(error); ok {
-					return false, err
-				}
-				results[aggField.Name] = v
-				return true, nil
-			})
-		}
-		input.RangeSet(func(i int, r xsql.Row) (bool, error) {
-			for k, v := range results {
-				r.Set(k, v)
-			}
-			return true, nil
-		})
-		return input
-	default:
-		return data
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

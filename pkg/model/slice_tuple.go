@@ -24,19 +24,6 @@ type IndexValuer interface {
 // SliceVal this is the content type for slice tuple
 type SliceVal []any
 
-func (s SliceVal) IsEmpty() bool {
-	for _, v := range s {
-		if v != nil {
-			return false
-		}
-	}
-	return true
-}
+func (s SliceVal) IsEmpty() bool { _ = "STUB: not implemented"; return false }
 
-func (s SliceVal) SetByIndex(index int, val any) bool {
-	if index < 0 || index >= len(s) {
-		return false
-	}
-	s[index] = val
-	return true
-}
+func (s SliceVal) SetByIndex(index int, val any) bool { _ = "STUB: not implemented"; return false }

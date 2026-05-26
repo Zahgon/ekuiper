@@ -15,20 +15,16 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/jhump/protoreflect/desc"            //nolint:staticcheck
 	"github.com/jhump/protoreflect/desc/protoparse" //nolint:staticcheck
 	"github.com/jhump/protoreflect/dynamic"         //nolint:staticcheck
+
 	// introduce annotations
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 
-	kconf "github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/converter/protobuf"
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type descriptor interface {
@@ -70,136 +66,68 @@ var ( // Do not call these directly, use the get methods
 	reg = &sync.Map{}
 )
 
-func ProtoParser() *protoparse.Parser {
-	once.Do(func() {
-		dir := "data/services/schemas/"
-		if kconf.IsTesting {
-			dir = "service/test/schemas/"
-		}
-		schemaDir, _ := kconf.GetLoc(dir)
-		protoParser = &protoparse.Parser{ImportPaths: []string{schemaDir}}
-	})
-	return protoParser
-}
+func ProtoParser() *protoparse.Parser { _ = "STUB: not implemented"; return nil }
 
 func parse(schema schema, file string, schemaless bool) (descriptor, error) {
-	info := &schemaInfo{
-		SchemaType: schema,
-		SchemaFile: file,
-		Schemaless: schemaless,
-	}
-	switch schema {
-	case SCHEMALESS:
-		if schemaless {
-			if file == "" {
-				return &wrappedSchemalessDescriptor{}, nil
-			}
-			return nil, fmt.Errorf("schemaless type does not support schema files")
-		}
-		return nil, fmt.Errorf("unsupported schema %s for schema type", schema)
-	case PROTOBUFF:
-		if schemaless {
-			return nil, fmt.Errorf("unsupported schema %s for schemaless type", schema)
-		}
-		if v, ok := reg.Load(info); ok {
-			return v.(descriptor), nil
-		}
-		if fds, err := ProtoParser().ParseFiles(file); err != nil {
-			return nil, err
-		} else {
-			result := &wrappedProtoDescriptor{
-				FileDescriptor: fds[0],
-				mf:             dynamic.NewMessageFactoryWithDefaults(),
-				fc:             protobuf.GetFieldConverter(),
-			}
-			err := result.parseHttpOptions()
-			if err != nil {
-				return nil, err
-			}
-			reg.Store(info, result)
-			return result, nil
-		}
-	default:
-		return nil, fmt.Errorf("unsupported schema %s", schema)
-	}
+	_ = "STUB: not implemented"
+	return *new(descriptor), nil
 }
 
 type wrappedSchemalessDescriptor struct{}
 
 func (d *wrappedSchemalessDescriptor) GetFunctions() (result []string) {
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertParamsToMessage(_ string, _ []interface{}) (*dynamic.Message, error) {
-	return nil, fmt.Errorf("not supported")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertReturnMessage(_ string, _ *dynamic.Message) (interface{}, error) {
-	return nil, fmt.Errorf("not supported")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) MethodDescriptor(_ string) *desc.MethodDescriptor {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (d *wrappedSchemalessDescriptor) MessageFactory() *dynamic.MessageFactory {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertParamsToJson(_ string, params []interface{}) ([]byte, error) {
-	if len(params) == 0 {
-		return nil, nil
-	} else if len(params) == 1 {
-		return json.Marshal(params[0])
-	}
-	return json.Marshal(params)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertReturnJson(_ string, returnVal []byte) (interface{}, error) {
-	var data interface{}
-	err := json.Unmarshal(returnVal, &data)
-	return data, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertParamsToText(_ string, params []interface{}) ([]byte, error) {
-	var (
-		data []byte
-		err  error
-	)
-	data, err = d.ConvertParamsToJson("", params)
-	if err == nil {
-		return data, err
-	}
-	if len(params) == 1 {
-		switch params[0].(type) {
-		case []byte:
-			res := params[0].([]byte)
-			return res, nil
-		case string:
-			res := params[0].(string)
-			return []byte(res), nil
-		default:
-			return nil, fmt.Errorf("only data in json format is supported")
-		}
-	}
-	return nil, fmt.Errorf("only data in json format is supported")
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertReturnText(_ string, returnVal []byte) (interface{}, error) {
-	var data interface{}
-	err := json.Unmarshal(returnVal, &data)
-	if err == nil {
-		return data, nil
-	}
-	return string(returnVal), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertParams(_ string, params []interface{}) ([]interface{}, error) {
-	return params, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedSchemalessDescriptor) ConvertReturn(_ string, params interface{}) (interface{}, error) {
-	return params, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type wrappedProtoDescriptor struct {
@@ -211,204 +139,79 @@ type wrappedProtoDescriptor struct {
 
 // GetFunctions TODO support for duplicate names
 func (d *wrappedProtoDescriptor) GetFunctions() (result []string) {
-	for _, s := range d.GetServices() {
-		for _, m := range s.GetMethods() {
-			result = append(result, m.GetName())
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *wrappedProtoDescriptor) MessageFactory() *dynamic.MessageFactory {
-	return d.mf
+	_ = "STUB: not implemented"
+
+	// ConvertParams TODO support optional field, support enum type
+	// Parameter mapping for protobuf
+	// 1. If param length is 1, it can either a map contains all field or a field only.
+	// 2. If param length is more then 1, they will map to message fields in the order
+	return nil
 }
 
-// ConvertParams TODO support optional field, support enum type
-// Parameter mapping for protobuf
-// 1. If param length is 1, it can either a map contains all field or a field only.
-// 2. If param length is more then 1, they will map to message fields in the order
 func (d *wrappedProtoDescriptor) ConvertParams(method string, params []interface{}) ([]interface{}, error) {
-	m := d.MethodDescriptor(method)
-	if m == nil {
-		return nil, fmt.Errorf("can't find method %s in proto", method)
-	}
-	im := m.GetInputType()
-	return d.convertParams(im, params)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) ConvertParamsToMessage(method string, params []interface{}) (*dynamic.Message, error) {
-	m := d.MethodDescriptor(method)
-	if m == nil {
-		return nil, fmt.Errorf("can't find method %s in proto", method)
-	}
-	im := m.GetInputType()
-	message := d.mf.NewDynamicMessage(im)
-	typedParams, err := d.convertParams(im, params)
-	if err != nil {
-		return nil, err
-	}
-	for i, typeParam := range typedParams {
-		if typeParam != nil {
-			message.SetFieldByNumber(i+1, typeParam)
-		}
-	}
-	return message, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) ConvertParamsToJson(method string, params []interface{}) ([]byte, error) {
+	_ = "STUB: not implemented"
 	// Deal with encoded json string. Just return the string
-	if len(params) == 1 {
-		m := d.MethodDescriptor(method)
-		if m == nil {
-			return nil, fmt.Errorf("can't find method %s in proto", method)
-		}
-		im := m.GetInputType()
-		if im.GetFullyQualifiedName() == protobuf.WrapperString {
-			ss, err := cast.ToString(params[0], cast.STRICT)
-			if err != nil {
-				return nil, err
-			}
-			return []byte(ss), nil
-		}
-	}
-
-	if message, err := d.ConvertParamsToMessage(method, params); err != nil {
-		return nil, err
-	} else {
-		return message.MarshalJSON()
-	}
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) ConvertParamsToText(method string, params []interface{}) ([]byte, error) {
-	if message, err := d.ConvertParamsToMessage(method, params); err != nil {
-		return nil, err
-	} else {
-		return message.MarshalText()
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) convertParams(im *desc.MessageDescriptor, params []interface{}) ([]interface{}, error) {
-	fields := im.GetFields()
-	var result []interface{}
-	switch len(params) {
-	case 0:
-		if len(fields) == 0 {
-			return result, nil
-		} else {
-			return nil, fmt.Errorf("require %d parameters but none", len(fields))
-		}
-	case 1:
-		// If it is map, try unfold it
-		// TODO custom error for non map or map name not match
-		if r, err := d.unfoldMap(im, params[0]); err != nil {
-			kconf.Log.Debugf("try unfold param for message %s fail: %v", im.GetName(), err)
-		} else {
-			for _, v := range r {
-				if v != nil {
-					return r, nil
-				}
-			}
-		}
-		// For non map params, treat it as special case of multiple params
-		if len(fields) == 1 {
-			param0, err := d.fc.EncodeField(fields[0], params[0])
-			if err != nil {
-				return nil, err
-			}
-			return append(result, param0), nil
-		} else {
-			return nil, fmt.Errorf("require %d parameters but only got 1", len(fields))
-		}
-	default:
-		if len(fields) == len(params) {
-			for i, field := range fields {
-				param, err := d.fc.EncodeField(field, params[i])
-				if err != nil {
-					return nil, err
-				}
-				result = append(result, param)
-			}
-			return result, nil
-		} else {
-			return nil, fmt.Errorf("require %d parameters but only got %d", len(fields), len(params))
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// If it is map, try unfold it
+// TODO custom error for non map or map name not match
+
+// For non map params, treat it as special case of multiple params
 
 func (d *wrappedProtoDescriptor) ConvertReturn(method string, returnVal interface{}) (interface{}, error) {
-	m := d.MethodDescriptor(method)
-	t := m.GetOutputType()
-	if _, ok := protobuf.WRAPPER_TYPES[t.GetFullyQualifiedName()]; ok {
-		return d.fc.DecodeField(returnVal, t.FindFieldByNumber(1), cast.STRICT)
-	} else { // MUST be a map
-		if retMap, ok := returnVal.(map[string]interface{}); ok {
-			return d.fc.DecodeMap(retMap, t, cast.CONVERT_SAMEKIND)
-		} else {
-			return nil, fmt.Errorf("fail to convert return val, must be a map but got %v", returnVal)
-		}
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// MUST be a map
+
 func (d *wrappedProtoDescriptor) ConvertReturnMessage(method string, returnVal *dynamic.Message) (interface{}, error) {
-	m := d.MethodDescriptor(method)
-	return d.fc.DecodeMessage(returnVal, m.GetOutputType()), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) ConvertReturnJson(method string, returnVal []byte) (interface{}, error) {
-	r := make(map[string]interface{})
-	err := json.Unmarshal(returnVal, &r)
-	if err != nil {
-		return nil, err
-	}
-	m := d.MethodDescriptor(method)
-	return d.fc.DecodeMap(r, m.GetOutputType(), cast.CONVERT_SAMEKIND)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) ConvertReturnText(method string, returnVal []byte) (interface{}, error) {
-	m := d.MethodDescriptor(method)
-	t := m.GetOutputType()
-	if _, ok := protobuf.WRAPPER_TYPES[t.GetFullyQualifiedName()]; ok {
-		return d.fc.DecodeField(string(returnVal), t.FindFieldByNumber(1), cast.CONVERT_ALL)
-	} else {
-		return nil, fmt.Errorf("fail to convert return val to text, return type must be primitive type but got %s", t.GetName())
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (d *wrappedProtoDescriptor) MethodDescriptor(name string) *desc.MethodDescriptor {
-	var m *desc.MethodDescriptor
-	for _, s := range d.GetServices() {
-		m = s.FindMethodByName(name)
-		if m != nil {
-			break
-		}
-	}
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *wrappedProtoDescriptor) unfoldMap(ft *desc.MessageDescriptor, i interface{}) ([]interface{}, error) {
-	fields := ft.GetFields()
-	result := make([]interface{}, len(fields))
-	if m, ok := xsql.ToMessage(i); ok {
-		for _, field := range fields {
-			v, ok := m.Value(field.GetName(), "")
-			if !ok {
-				if field.IsRequired() {
-					return nil, fmt.Errorf("field %s not found", field.GetName())
-				} else {
-					continue
-				}
-			}
-			if v == nil && !field.IsRequired() {
-				continue
-			}
-			fv, err := d.fc.EncodeField(field, v)
-			if err != nil {
-				return nil, err
-			}
-			result[field.GetNumber()-1] = fv
-		}
-	} else {
-		return nil, fmt.Errorf("not a map")
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

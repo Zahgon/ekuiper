@@ -17,16 +17,11 @@
 package http
 
 import (
-	"context"
 	"crypto/tls"
 	"net"
 	"net/http"
 
-	"github.com/openziti/sdk-golang/ziti"
 	"github.com/sirupsen/logrus"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	edgex_vault "github.com/lf-edge/ekuiper/v2/internal/edgex"
 )
 
 func init() {
@@ -40,30 +35,15 @@ type ZitiUnderlayDialer struct{}
 var netDialer = &net.Dialer{}
 
 func (d *ZitiUnderlayDialer) Dial(network, address string) (net.Conn, error) {
-	return netDialer.Dial(network, address)
+	_ = "STUB: not implemented"
+	return *new(net.Conn), nil
 }
 
 func newZeroTrustTransport(tlscfg *tls.Config, logger *logrus.Logger) *http.Transport {
-	if conf.Config != nil && conf.Config.Basic.EnableOpenZiti {
-		logger.Info("using Transport 'zerotrust'")
-		// attempt to locate an existing client for this existing token
-		if zitiTransport != nil {
-			return zitiTransport
-		} else {
-			ctx := edgex_vault.AuthenicatedContext(logger)
-
-			zitiContexts := ziti.NewSdkCollection()
-			zitiContexts.Add(ctx)
-
-			zitiTransport = http.DefaultTransport.(*http.Transport).Clone() // copy default transport
-			zitiTransport.TLSClientConfig = tlscfg
-			dialer := zitiContexts.NewDialerWithFallback(context.Background(), &ZitiUnderlayDialer{})
-			zitiTransport.DialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
-				return dialer.Dial(network, addr)
-			}
-			return zitiTransport
-		}
-	} else {
-		return getTransport(tlscfg, logger)
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// attempt to locate an existing client for this existing token
+
+// copy default transport

@@ -23,33 +23,22 @@ type NopSink struct {
 }
 
 func (ns *NopSink) Provision(ctx api.StreamContext, configs map[string]any) error {
-	var log bool
-	l, ok := configs["log"]
-	if ok {
-		log = l.(bool)
-	}
-	ns.log = log
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (ns *NopSink) Connect(ctx api.StreamContext, _ api.StatusChangeHandler) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (ns *NopSink) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	logger := ctx.GetLogger()
-	if ns.log {
-		logger.Infof("%s", item.Raw())
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (ns *NopSink) Close(ctx api.StreamContext) error {
-	return nil
-}
+func (ns *NopSink) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func GetSink() api.Sink {
-	return &NopSink{}
-}
+func GetSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 var _ api.BytesCollector = &NopSink{}

@@ -15,9 +15,7 @@
 package ast
 
 import (
-	"fmt"
 	"regexp"
-	"strings"
 )
 
 type LikePattern struct {
@@ -25,24 +23,13 @@ type LikePattern struct {
 	Pattern *regexp.Regexp
 }
 
-func (l *LikePattern) expr() {}
-func (l *LikePattern) node() {}
-func (l *LikePattern) String() string {
-	return "likePattern:" + l.Pattern.String()
-}
+func (l *LikePattern) expr()          { _ = "STUB: not implemented"; return }
+func (l *LikePattern) node()          { _ = "STUB: not implemented"; return }
+func (l *LikePattern) String() string { _ = "STUB: not implemented"; return "" }
 
 func (l *LikePattern) Compile(likestr string) (*regexp.Regexp, error) {
-	regstr := strings.ReplaceAll(strings.NewReplacer(
-		`\%`, `\%`,
-		`\_`, `\_`,
-		`%`, `.*`,
-		`_`, `.`,
-	).Replace(likestr), `\`, `\\`)
-	re, err := regexp.Compile("^" + regstr + "$")
-	if err != nil {
-		return nil, err
-	}
-	return re, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // FieldRef could be
@@ -67,53 +54,25 @@ type FieldRef struct {
 	*AliasRef
 }
 
-func (fr *FieldRef) expr() {}
-func (fr *FieldRef) node() {}
-func (fr *FieldRef) IsColumn() bool {
-	return fr.StreamName != AliasStream && fr.StreamName != ""
-}
+func (fr *FieldRef) expr()          { _ = "STUB: not implemented"; return }
+func (fr *FieldRef) node()          { _ = "STUB: not implemented"; return }
+func (fr *FieldRef) IsColumn() bool { _ = "STUB: not implemented"; return false }
 
-func (fr *FieldRef) String() string {
-	sn := ""
-	n := ""
-	if fr.StreamName != "" {
-		sn += string(fr.StreamName)
-	}
-	if fr.Name != "" {
-		if fr.StreamName != "" {
-			n += "."
-		}
-		n += fr.Name
-	}
-	if fr.AliasRef != nil {
-		n += "," + fr.AliasRef.String()
-	}
-	return sn + n
-}
+func (fr *FieldRef) String() string { _ = "STUB: not implemented"; return "" }
 
-func (fr *FieldRef) IsAlias() bool {
-	return fr.StreamName == AliasStream
-}
+func (fr *FieldRef) IsAlias() bool { _ = "STUB: not implemented"; return false }
 
 func (fr *FieldRef) RefSelection(a *AliasRef) {
-	fr.AliasRef = a
+	_ = "STUB: not implemented"
+
+	// RefSources Must call after binding or will get empty
+	return
 }
 
-// RefSources Must call after binding or will get empty
-func (fr *FieldRef) RefSources() []StreamName {
-	if fr.StreamName == AliasStream {
-		return fr.AliasRef.RefSources
-	} else if fr.StreamName != "" {
-		return []StreamName{fr.StreamName}
-	} else {
-		return nil
-	}
-}
+func (fr *FieldRef) RefSources() []StreamName { _ = "STUB: not implemented"; return nil }
 
 // SetRefSource Only call this for alias field ref
-func (fr *FieldRef) SetRefSource(names []StreamName) {
-	fr.AliasRef.RefSources = names
-}
+func (fr *FieldRef) SetRefSource(names []StreamName) { _ = "STUB: not implemented"; return }
 
 type AliasRef struct {
 	// MUST have, It is used for evaluation
@@ -124,49 +83,12 @@ type AliasRef struct {
 	IsAggregate *bool
 }
 
-func (a *AliasRef) String() string {
-	return fmt.Sprintf("aliasRef:%s", a.Expression.String())
-}
+func (a *AliasRef) String() string { _ = "STUB: not implemented"; return "" }
 
 // SetRefSource only used for unit test
-func (a *AliasRef) SetRefSource(names []string) {
-	a.RefSources = make([]StreamName, 0)
-	for _, name := range names {
-		a.RefSources = append(a.RefSources, StreamName(name))
-	}
-}
+func (a *AliasRef) SetRefSource(names []string) { _ = "STUB: not implemented"; return }
 
-func NewAliasRef(e Expr) (*AliasRef, error) {
-	r := make(map[StreamName]bool)
-	var walkErr error
-	WalkFunc(e, func(n Node) bool {
-		switch f := n.(type) {
-		case *FieldRef:
-			switch f.StreamName {
-			case AliasStream:
-				for _, name := range f.AliasRef.RefSources {
-					r[name] = true
-				}
-			default:
-				r[f.StreamName] = true
-			}
-		}
-		return true
-	})
-	if walkErr != nil {
-		return nil, walkErr
-	}
-	rs := make([]StreamName, 0)
-	for k := range r {
-		rs = append(rs, k)
-	}
-	return &AliasRef{
-		Expression: e,
-		RefSources: rs,
-	}, nil
-}
+func NewAliasRef(e Expr) (*AliasRef, error) { _ = "STUB: not implemented"; return nil, nil }
 
 // MockAliasRef is for testing only.
-func MockAliasRef(e Expr, r []StreamName, a *bool) *AliasRef {
-	return &AliasRef{e, r, a}
-}
+func MockAliasRef(e Expr, r []StreamName, a *bool) *AliasRef { _ = "STUB: not implemented"; return nil }

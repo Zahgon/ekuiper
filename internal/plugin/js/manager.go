@@ -15,13 +15,7 @@
 package js
 
 import (
-	"encoding/json"
-	"fmt"
-
-	"github.com/dop251/goja"
-
 	"github.com/lf-edge/ekuiper/v2/internal/binder"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
 )
 
@@ -30,9 +24,7 @@ var (
 	_       binder.FuncFactory = manager
 )
 
-func GetManager() *Manager {
-	return manager
-}
+func GetManager() *Manager { _ = "STUB: not implemented"; return nil }
 
 type Manager struct {
 	db             kv.KeyValue
@@ -47,77 +39,18 @@ type Script struct {
 }
 
 // InitManager initialize the manager, only called once by the server
-func InitManager() error {
-	db, err := store.GetKV("script")
-	if err != nil {
-		return fmt.Errorf("can not initialize store for the JavaScript function manager at path 'script': %v", err)
-	}
-	importStatusDb, err := store.GetKV("scriptInstallStatus")
-	if err != nil {
-		return fmt.Errorf("can not initialize store for the JavaScript function manager at path 'scriptInstallStatus': %v", err)
-	}
+func InitManager() error { _ = "STUB: not implemented"; return nil }
 
-	manager = &Manager{
-		db:             db,
-		importStatusDb: importStatusDb,
-	}
-	return nil
-}
+func (m *Manager) UpsertByJson(k string, v string) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) UpsertByJson(k string, v string) error {
-	s := &Script{Id: k}
-	err := json.Unmarshal([]byte(v), s)
-	if err != nil {
-		return fmt.Errorf("fail to unmarshal the script %s: %v", k, err)
-	}
-	if s.Id != k {
-		return fmt.Errorf("the script id %s does not match the key %s", s.Id, k)
-	}
-	return m.Update(s)
-}
+func (m *Manager) Create(script *Script) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) Create(script *Script) error {
-	err := validate(script)
-	if err != nil {
-		return err
-	}
-	return m.db.Setnx(script.Id, script)
-}
+func validate(script *Script) error { _ = "STUB: not implemented"; return nil }
 
-func validate(script *Script) error {
-	vm := goja.New()
-	_, err := vm.RunString(script.Script)
-	if err != nil {
-		return fmt.Errorf("failed to interprete script: %v", err)
-	}
-	_, ok := goja.AssertFunction(vm.Get(script.Id))
-	if !ok {
-		return fmt.Errorf("cannot find function \"%s\" in script", script.Id)
-	}
-	return nil
-}
+func (m *Manager) GetScript(id string) (*Script, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (m *Manager) GetScript(id string) (*Script, error) {
-	result := &Script{}
-	ok, err := m.db.Get(id, result)
-	if !ok && err == nil {
-		return nil, fmt.Errorf("not found")
-	}
-	return result, err
-}
+func (m *Manager) List() ([]string, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func (m *Manager) List() ([]string, error) {
-	return m.db.Keys()
-}
+func (m *Manager) Update(script *Script) error { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) Update(script *Script) error {
-	err := validate(script)
-	if err != nil {
-		return err
-	}
-	return m.db.Set(script.Id, script)
-}
-
-func (m *Manager) Delete(id string) error {
-	return m.db.Delete(id)
-}
+func (m *Manager) Delete(id string) error { _ = "STUB: not implemented"; return nil }

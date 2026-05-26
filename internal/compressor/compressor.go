@@ -15,7 +15,6 @@
 package compressor
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
@@ -26,10 +25,8 @@ type CompressorInstantiator func(name string, props map[string]any) (message.Com
 var compressors = map[string]CompressorInstantiator{}
 
 func GetCompressor(name string, props map[string]any) (message.Compressor, error) {
-	if instantiator, ok := compressors[name]; ok {
-		return instantiator(name, props)
-	}
-	return nil, fmt.Errorf("unsupported compressor: %s", name)
+	_ = "STUB: not implemented"
+	return *new(message.Compressor), nil
 }
 
 type CompressWriterIns func(reader io.Writer) (io.Writer, error)
@@ -37,8 +34,6 @@ type CompressWriterIns func(reader io.Writer) (io.Writer, error)
 var compressWriters = map[string]CompressWriterIns{}
 
 func GetCompressWriter(name string, writer io.Writer) (io.Writer, error) {
-	if instantiator, ok := compressWriters[name]; ok {
-		return instantiator(writer)
-	}
-	return nil, fmt.Errorf("unsupported compressor for file: %s", name)
+	_ = "STUB: not implemented"
+	return *new(io.Writer), nil
 }

@@ -15,23 +15,13 @@
 package context
 
 import (
-	"bytes"
 	"context"
-	"fmt"
-	"regexp"
-	"runtime/pprof"
-	"strings"
 	"sync"
 	"sync/atomic"
-	"text/template"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	"github.com/sirupsen/logrus"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/transform"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -73,355 +63,144 @@ type DefaultContext struct {
 	jpReg sync.Map
 }
 
-func RuleBackground(ruleName string) *DefaultContext {
-	if conf.Config == nil || !conf.Config.Basic.ResourceProfileConfig.Enable {
-		return Background()
-	}
-	ctx := pprof.WithLabels(context.Background(), pprof.Labels("rule", ruleName))
-	pprof.SetGoroutineLabels(ctx)
-	c := &DefaultContext{
-		ctx:            ctx,
-		isTraceEnabled: &atomic.Bool{},
-		strategy:       &TraceStrategyWrapper{Strategy: AlwaysTraceStrategy},
-	}
-	c.isTraceEnabled.Store(false)
-	return c
-}
+func RuleBackground(ruleName string) *DefaultContext { _ = "STUB: not implemented"; return nil }
 
-func Background() *DefaultContext {
-	c := &DefaultContext{
-		ctx:            context.Background(),
-		isTraceEnabled: &atomic.Bool{},
-	}
-	c.isTraceEnabled.Store(false)
-	c.strategy = &TraceStrategyWrapper{Strategy: AlwaysTraceStrategy}
-	return c
-}
+func Background() *DefaultContext { _ = "STUB: not implemented"; return nil }
 
-func WithContext(ctx context.Context) *DefaultContext {
-	c := &DefaultContext{
-		ctx:            ctx,
-		isTraceEnabled: &atomic.Bool{},
-	}
-	c.isTraceEnabled.Store(false)
-	c.strategy = &TraceStrategyWrapper{Strategy: AlwaysTraceStrategy}
-	return c
-}
+func WithContext(ctx context.Context) *DefaultContext { _ = "STUB: not implemented"; return nil }
 
 func WithValue(parent *DefaultContext, key, val interface{}) *DefaultContext {
-	parent.ctx = context.WithValue(parent.ctx, key, val)
-	return parent
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *DefaultContext) PropagateTracer(par *DefaultContext) {
-	c.isTraceEnabled = par.isTraceEnabled
-	c.strategy = par.strategy
-}
+func (c *DefaultContext) PropagateTracer(par *DefaultContext) { _ = "STUB: not implemented"; return }
 
 // Deadline Implement context interface
 func (c *DefaultContext) Deadline() (deadline time.Time, ok bool) {
-	return c.ctx.Deadline()
+	_ = "STUB: not implemented"
+	return *new(time.Time), false
 }
 
-func (c *DefaultContext) Done() <-chan struct{} {
-	return c.ctx.Done()
-}
+func (c *DefaultContext) Done() <-chan struct{} { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) Err() error {
-	if c.err != nil {
-		return c.err
-	}
-	return c.ctx.Err()
-}
+func (c *DefaultContext) Err() error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) Value(key interface{}) interface{} {
-	return c.ctx.Value(key)
-}
+func (c *DefaultContext) Value(key interface{}) interface{} { _ = "STUB: not implemented"; return nil }
 
 func (c *DefaultContext) GetContext() context.Context {
-	return c.ctx
+	_ = "STUB: not implemented"
+	return *new(context.Context)
 }
 
-func (c *DefaultContext) GetLogger() api.Logger {
-	l, ok := c.ctx.Value(LoggerKey).(*logrus.Entry)
-	if l != nil && ok {
-		return l
-	}
-	return conf.Log.WithField("caller", "default")
-}
+func (c *DefaultContext) GetLogger() api.Logger { _ = "STUB: not implemented"; return *new(api.Logger) }
 
-func (c *DefaultContext) GetRuleId() string {
-	return c.ruleId
-}
+func (c *DefaultContext) GetRuleId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *DefaultContext) GetOpId() string {
-	return c.opId
-}
+func (c *DefaultContext) GetOpId() string { _ = "STUB: not implemented"; return "" }
 
-func (c *DefaultContext) GetInstanceId() int {
-	return c.instanceId
-}
+func (c *DefaultContext) GetInstanceId() int { _ = "STUB: not implemented"; return 0 }
 
-func (c *DefaultContext) GetRunId() int {
-	return c.runId
-}
+func (c *DefaultContext) GetRunId() int { _ = "STUB: not implemented"; return 0 }
 
-func (c *DefaultContext) GetRootPath() string {
-	loc, _ := conf.GetLoc("")
-	return loc
-}
+func (c *DefaultContext) GetRootPath() string { _ = "STUB: not implemented"; return "" }
 
 func (c *DefaultContext) SetError(err error) {
-	c.err = err
+	_ = "STUB: not implemented"
+
+	// ParseTemplate parse template string against data
+	// The templates are built only once and cached in the context by its raw string as the key
+	// If the prop string is not a template, a nil template is cached to indicate it has been parsed, and it will return the original string
+	return
 }
 
-// ParseTemplate parse template string against data
-// The templates are built only once and cached in the context by its raw string as the key
-// If the prop string is not a template, a nil template is cached to indicate it has been parsed, and it will return the original string
 func (c *DefaultContext) ParseTemplate(prop string, data interface{}) (string, error) {
-	var (
-		tp  *template.Template
-		err error
-	)
-	if raw, ok := c.tpReg.Load(prop); ok {
-		if raw != nil {
-			tp = raw.(*template.Template)
-		} else {
-			return prop, nil
-		}
-	} else { // not parsed before
-		re := regexp.MustCompile(`{{(.*?)}}`)
-		// check if it is a template
-		if re.Match([]byte(prop)) {
-			tp, err = transform.GenTp(prop)
-			if err != nil {
-				return fmt.Sprintf("%v", data), fmt.Errorf("Template Invalid: %v", err)
-			}
-			c.tpReg.Store(prop, tp)
-		} else {
-			c.tpReg.Store(prop, nil)
-			return prop, nil
-		}
-	}
-	var output bytes.Buffer
-	err = tp.Execute(&output, data)
-	if err != nil {
-		return fmt.Sprintf("%v", data), err
-	}
-	return output.String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
+
+// not parsed before
+
+// check if it is a template
 
 func (c *DefaultContext) ParseJsonPath(prop string, data interface{}) (interface{}, error) {
-	var (
-		je  conf.JsonPathEval
-		err error
-	)
-	if raw, ok := c.jpReg.Load(prop); ok {
-		je = raw.(conf.JsonPathEval)
-	} else {
-		je, err = conf.GetJsonPathEval(prop)
-		if err != nil {
-			return nil, err
-		}
-		c.jpReg.Store(prop, je)
-	}
-	return je.Eval(data)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *DefaultContext) WithMeta(ruleId string, opId string, store api.Store) api.StreamContext {
-	s, err := store.GetOpState(opId)
-	if err != nil {
-		c.GetLogger().Warnf("Initialize context store error for %s: %s", opId, err)
-	}
-	return &DefaultContext{
-		ruleId:         ruleId,
-		opId:           opId,
-		runId:          c.runId,
-		instanceId:     c.instanceId,
-		ctx:            c.ctx,
-		store:          store,
-		state:          s,
-		tpReg:          sync.Map{},
-		jpReg:          sync.Map{},
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithInstance(instanceId int) api.StreamContext {
-	return &DefaultContext{
-		instanceId:     instanceId,
-		runId:          c.runId,
-		ruleId:         c.ruleId,
-		opId:           c.opId,
-		ctx:            c.ctx,
-		state:          c.state,
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithRuleId(ruleId string) api.StreamContext {
-	return &DefaultContext{
-		instanceId:     c.instanceId,
-		runId:          c.runId,
-		ruleId:         ruleId,
-		opId:           c.opId,
-		ctx:            c.ctx,
-		state:          c.state,
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithOpId(opId string) api.StreamContext {
-	return &DefaultContext{
-		instanceId:     c.instanceId,
-		runId:          c.runId,
-		ruleId:         c.ruleId,
-		opId:           opId,
-		ctx:            c.ctx,
-		state:          c.state,
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithRun(runId int) api.StreamContext {
-	return &DefaultContext{
-		instanceId:     c.instanceId,
-		runId:          runId,
-		ruleId:         c.ruleId,
-		opId:           c.opId,
-		ctx:            c.ctx,
-		state:          c.state,
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
 func (c *DefaultContext) WithCancel() (api.StreamContext, context.CancelFunc) {
-	ctx, cancel := context.WithCancel(c.ctx)
-	return &DefaultContext{
-		ruleId:         c.ruleId,
-		opId:           c.opId,
-		instanceId:     c.instanceId,
-		runId:          c.runId,
-		ctx:            ctx,
-		state:          c.state,
-		isTraceEnabled: c.isTraceEnabled,
-		strategy:       c.strategy,
-	}, cancel
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext), *new(context.CancelFunc)
 }
 
 func (c *DefaultContext) IncrCounter(key string, amount int) error {
-	for {
-		if v, ok := c.state.Load(key); ok {
-			if vi, err := cast.ToInt(v, cast.STRICT); err != nil {
-				return fmt.Errorf("state[%s] must be an int", key)
-			} else {
-				if c.state.CompareAndSwap(key, vi, vi+amount) {
-					break
-				}
-			}
-		} else {
-			if _, loaded := c.state.LoadOrStore(key, amount); !loaded {
-				break
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *DefaultContext) GetCounter(key string) (int, error) {
-	if v, ok := c.state.Load(key); ok {
-		if vi, err := cast.ToInt(v, cast.STRICT); err != nil {
-			return 0, fmt.Errorf("state[%s] is not a number, but %v", key, v)
-		} else {
-			return vi, nil
-		}
-	} else {
-		c.state.CompareAndSwap(key, nil, 0)
-		return 0, nil
-	}
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (c *DefaultContext) GetAllState() map[string]interface{} {
-	m := make(map[string]interface{})
-	c.state.Range(func(key, value interface{}) bool {
-		m[key.(string)] = value
-		return true
-	})
-	return m
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *DefaultContext) PutState(key string, value interface{}) error {
-	c.state.Store(key, value)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *DefaultContext) GetState(key string) (interface{}, error) {
-	if v, ok := c.state.Load(key); ok {
-		return v, nil
-	} else {
-		return nil, nil
-	}
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *DefaultContext) DeleteState(key string) error {
-	c.state.Delete(key)
-	return nil
-}
+func (c *DefaultContext) DeleteState(key string) error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) Snapshot() error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	c.snapshot = cast.SyncMapToMap(c.state)
-	return nil
-}
+func (c *DefaultContext) Snapshot() error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) SaveState(checkpointId int64) error {
-	if c.store != nil {
-		c.mu.Lock()
-		snap := c.snapshot
-		c.snapshot = nil
-		c.mu.Unlock()
-		if snap != nil {
-			err := c.store.SaveState(checkpointId, c.opId, snap)
-			if err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
+func (c *DefaultContext) SaveState(checkpointId int64) error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultContext) EnableTracer(enabled bool) {
-	c.isTraceEnabled.Store(enabled)
-}
+func (c *DefaultContext) EnableTracer(enabled bool) { _ = "STUB: not implemented"; return }
 
-func (c *DefaultContext) IsTraceEnabled() bool {
-	return c.isTraceEnabled.Load()
-}
+func (c *DefaultContext) IsTraceEnabled() bool { _ = "STUB: not implemented"; return false }
 
 func (c *DefaultContext) GetStrategy() TraceStrategy {
-	c.strategy.RLock()
-	defer c.strategy.RUnlock()
-	return c.strategy.Strategy
+	_ = "STUB: not implemented"
+	return *new(TraceStrategy)
 }
 
-func (c *DefaultContext) SetStrategy(s TraceStrategy) {
-	c.strategy.Lock()
-	defer c.strategy.Unlock()
-	c.strategy.Strategy = s
-}
+func (c *DefaultContext) SetStrategy(s TraceStrategy) { _ = "STUB: not implemented"; return }
 
 func StringToStrategy(s string) TraceStrategy {
-	switch strings.ToLower(s) {
-	case "always":
-		return AlwaysTraceStrategy
-	case "head":
-		return HeadTraceStrategy
-	}
-	return AlwaysTraceStrategy
+	_ = "STUB: not implemented"
+	return *new(TraceStrategy)
 }

@@ -16,16 +16,9 @@ package context
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/context"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/state"
 )
 
 func NewMockContext(ruleId string, opId string) api.StreamContext {
-	contextLogger := conf.Log.WithField("rule", ruleId)
-	ctx := context.WithValue(context.Background(), context.LoggerKey, contextLogger)
-	tempStore, _ := state.CreateStore(ruleId, def.AtMostOnce)
-	return ctx.WithMeta(ruleId, opId, tempStore)
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }

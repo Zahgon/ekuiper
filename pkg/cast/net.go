@@ -14,11 +14,4 @@
 
 package cast
 
-import (
-	"net"
-	"strconv"
-)
-
-func JoinHostPortInt(host string, port int) string {
-	return net.JoinHostPort(host, strconv.Itoa(port))
-}
+func JoinHostPortInt(host string, port int) string { _ = "STUB: not implemented"; return "" }

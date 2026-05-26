@@ -15,14 +15,8 @@
 package websocket
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/io/http/httpserver"
-	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/connection"
 )
 
@@ -34,62 +28,31 @@ type WebsocketSink struct {
 }
 
 func (w *WebsocketSink) Provision(ctx api.StreamContext, configs map[string]any) error {
-	configs = solveProps(configs)
-	cfg := &WebsocketConfig{}
-	if err := cast.MapToStruct(configs, cfg); err != nil {
-		return err
-	}
-	if !strings.HasPrefix(cfg.Endpoint, "/") {
-		return fmt.Errorf("websocket endpoint should start with /")
-	}
-	w.cfg = cfg
-	w.props = configs
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (w *WebsocketSink) Close(ctx api.StreamContext) error {
-	pubsub.RemovePub(w.topic)
-	return connection.DetachConnection(ctx, buildWebsocketEpID(w.cfg.Endpoint))
-}
+func (w *WebsocketSink) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (w *WebsocketSink) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	var err error
+	_ = "STUB: not implemented"
+
 	// Connection pool will handle status change
-	w.cw, err = connection.FetchConnection(ctx, buildWebsocketEpID(w.cfg.Endpoint), "websocket", w.props, sch)
-	if err != nil {
-		return err
-	}
-	conn, err := w.cw.Wait(ctx)
-	if err != nil {
-		return err
-	}
-	if conn == nil {
-		return fmt.Errorf("websocket endpoint not ready: %v", err)
-	}
-	c, ok := conn.(*httpserver.WebsocketConnection)
-	if !ok {
-		return fmt.Errorf("should use websocket connection")
-	}
-	w.topic = c.SendTopic
-	pubsub.CreatePub(w.topic)
-	return err
+	return nil
 }
 
 func (w *WebsocketSink) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	return w.collect(ctx, item.Raw())
-}
-
-func (w *WebsocketSink) collect(ctx api.StreamContext, data []byte) error {
-	pubsub.ProduceAny(ctx, w.topic, data)
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func GetSink() api.Sink {
-	return &WebsocketSink{}
+func (w *WebsocketSink) collect(ctx api.StreamContext, data []byte) error {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+func GetSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 var _ api.BytesCollector = &WebsocketSink{}
 
-func buildWebsocketEpID(endpoint string) string {
-	return fmt.Sprintf("$$ws/%s", endpoint)
-}
+func buildWebsocketEpID(endpoint string) string { _ = "STUB: not implemented"; return "" }

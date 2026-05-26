@@ -17,54 +17,16 @@
 package testx
 
 import (
-	"context"
-	"fmt"
-	"time"
-
-	sqle "github.com/dolthub/go-mysql-server"
 	"github.com/dolthub/go-mysql-server/memory"
 	"github.com/dolthub/go-mysql-server/server"
-	"github.com/dolthub/go-mysql-server/sql"
-	"github.com/dolthub/go-mysql-server/sql/types"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 func SetupEmbeddedMysqlServer(address string, port int) (*server.Server, error) {
-	pro := createTestDatabase()
-	engine := sqle.NewDefault(pro)
-	config := server.Config{
-		Protocol: "tcp",
-		Address:  fmt.Sprintf("%s:%d", address, port),
-	}
-	s, err := server.NewServer(config, engine, memory.NewSessionBuilder(pro), nil)
-	if err != nil {
-		return nil, err
-	}
-	go func() {
-		s.Start()
-	}()
-	// wait server Start
-	time.Sleep(500 * time.Millisecond)
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func createTestDatabase() *memory.DbProvider {
-	tableName := "t"
-	db := memory.NewDatabase("test")
-	db.BaseDatabase.EnablePrimaryKeyIndexes()
+// wait server Start
 
-	pro := memory.NewDBProvider(db)
-	session := memory.NewSession(sql.NewBaseSession(), pro)
-	ctx := sql.NewContext(context.Background(), sql.WithSession(session))
-
-	table := memory.NewTable(db, tableName, sql.NewPrimaryKeySchema(sql.Schema{
-		{Name: "a", Type: types.Int64, Nullable: false, Source: tableName},
-		{Name: "b", Type: types.Int64, Nullable: false, Source: tableName},
-	}), db.GetForeignKeyCollection())
-	db.AddTable(tableName, table)
-	err := table.Insert(ctx, sql.NewRow(int64(1), int64(1)))
-	if err != nil {
-		panic(err)
-	}
-	return pro
-}
+func createTestDatabase() *memory.DbProvider { _ = "STUB: not implemented"; return nil }

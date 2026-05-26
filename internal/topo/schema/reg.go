@@ -36,25 +36,14 @@ type SchemaContainer interface {
 
 type schemaWrapper map[string]*ast.JsonStreamField
 
-func (s schemaWrapper) GetSchemaIndex() map[string]int {
-	temp := make(map[string]int, len(s))
-	for k, v := range s {
-		temp[k] = v.Index
-	}
-	return temp
-}
+func (s schemaWrapper) GetSchemaIndex() map[string]int { _ = "STUB: not implemented"; return nil }
 
 func (s schemaWrapper) GetSchema() map[string]*ast.JsonStreamField {
-	return s
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func initStore() *SchemaStore {
-	return &SchemaStore{
-		schemaMap:   make(map[string]map[string]map[string]*ast.JsonStreamField),
-		wildcardMap: make(map[string]map[string]bool),
-		streamMap:   make(map[string]SchemaContainer),
-	}
-}
+func initStore() *SchemaStore { _ = "STUB: not implemented"; return nil }
 
 var GlobalSchemaStore = initStore()
 
@@ -66,73 +55,32 @@ type RuleSchemaResponse struct {
 }
 
 func GetRuleSchema(ruleID string) RuleSchemaResponse {
-	GlobalSchemaStore.RLock()
-	defer GlobalSchemaStore.RUnlock()
-	return RuleSchemaResponse{
-		Schema:   GlobalSchemaStore.schemaMap[ruleID],
-		Wildcard: GlobalSchemaStore.wildcardMap[ruleID],
-	}
+	_ = "STUB: not implemented"
+	return *new(RuleSchemaResponse)
 }
 
 func AddRuleSchema(ruleID, dataSource string, schema map[string]*ast.JsonStreamField, isWildcard bool) {
-	GlobalSchemaStore.Lock()
-	defer GlobalSchemaStore.Unlock()
-	if _, ok := GlobalSchemaStore.schemaMap[ruleID]; !ok {
-		GlobalSchemaStore.schemaMap[ruleID] = make(map[string]map[string]*ast.JsonStreamField)
-	}
-	if _, ok := GlobalSchemaStore.wildcardMap[ruleID]; !ok {
-		GlobalSchemaStore.wildcardMap[ruleID] = make(map[string]bool)
-	}
-	GlobalSchemaStore.schemaMap[ruleID][dataSource] = schema
-	GlobalSchemaStore.wildcardMap[ruleID][dataSource] = isWildcard
+	_ = "STUB: not implemented"
+	return
 }
 
-func RemoveRuleSchema(ruleID string) {
-	GlobalSchemaStore.Lock()
-	defer GlobalSchemaStore.Unlock()
-	delete(GlobalSchemaStore.schemaMap, ruleID)
-	delete(GlobalSchemaStore.wildcardMap, ruleID)
-}
+func RemoveRuleSchema(ruleID string) { _ = "STUB: not implemented"; return }
 
 func GetStream(name string) SchemaContainer {
-	GlobalSchemaStore.Lock()
-	defer GlobalSchemaStore.Unlock()
-	stream, ok := GlobalSchemaStore.streamMap[name]
-	if !ok {
-		stream = newSharedLayer()
-		GlobalSchemaStore.streamMap[name] = stream
-	}
-	return stream
+	_ = "STUB: not implemented"
+	return *new(SchemaContainer)
 }
 
 func GetStreamSchema(name string) (map[string]*ast.JsonStreamField, error) {
-	GlobalSchemaStore.RLock()
-	c, ok := GlobalSchemaStore.streamMap[name]
-	GlobalSchemaStore.RUnlock()
-	if !ok {
-		return nil, nil
-	}
-	return c.GetSchema(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func GetStreamSchemaIndex(streamName string) map[string]int {
-	GlobalSchemaStore.RLock()
-	c, ok := GlobalSchemaStore.streamMap[streamName]
-	GlobalSchemaStore.RUnlock()
-	if !ok {
-		return nil
-	}
-	return c.GetSchemaIndex()
-}
+func GetStreamSchemaIndex(streamName string) map[string]int { _ = "STUB: not implemented"; return nil }
 
 func AddStaticStream(streamName string, schema map[string]*ast.JsonStreamField) {
-	GlobalSchemaStore.Lock()
-	defer GlobalSchemaStore.Unlock()
-	GlobalSchemaStore.streamMap[streamName] = schemaWrapper(schema)
+	_ = "STUB: not implemented"
+	return
 }
 
-func RemoveStreamSchema(streamName string) {
-	GlobalSchemaStore.Lock()
-	defer GlobalSchemaStore.Unlock()
-	delete(GlobalSchemaStore.streamMap, streamName)
-}
+func RemoveStreamSchema(streamName string) { _ = "STUB: not implemented"; return }

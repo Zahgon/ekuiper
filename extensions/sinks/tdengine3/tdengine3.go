@@ -16,10 +16,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/tdengine3"
 )
 
-func Tdengine3() api.Sink {
-	return tdengine3.GetSink()
-}
+func Tdengine3() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }

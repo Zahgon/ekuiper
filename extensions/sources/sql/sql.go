@@ -16,14 +16,8 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/sql"
 )
 
-func Sql() api.Source {
-	return sql.GetSource()
-}
+func Sql() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }
 
-func SqlLookup() api.Source {
-	return sql.GetLookupSource()
-}
+func SqlLookup() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }

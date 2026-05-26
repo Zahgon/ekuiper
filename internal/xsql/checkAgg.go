@@ -15,78 +15,16 @@
 package xsql
 
 import (
-	"github.com/lf-edge/ekuiper/v2/internal/binder/function"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
 // IsAggregate check if an expression is aggregate with the binding alias info
-func IsAggregate(expr ast.Expr) (r bool) {
-	ast.WalkFunc(expr, func(n ast.Node) bool {
-		switch f := n.(type) {
-		case *ast.Call:
-			if ok := function.IsAggFunc(f.Name); ok {
-				r = true
-				return false
-			}
-		case *ast.FieldRef:
-			// lazy calculate
-			if getOrCalculateAgg(f) {
-				r = true
-				return false
-			}
-		}
-		return true
-	})
-	return
-}
+func IsAggregate(expr ast.Expr) (r bool) { _ = "STUB: not implemented"; return false }
 
-func getOrCalculateAgg(f *ast.FieldRef) bool {
-	if f.IsAlias() {
-		p := f.IsAggregate
-		if p == nil {
-			tr := IsAggregate(f.Expression)
-			p = &tr
-			f.IsAggregate = p
-		}
-		return *p
-	}
-	return false
-}
+// lazy calculate
 
-func WithAggFields(stmt *ast.SelectStatement) bool {
-	if stmt.Dimensions != nil {
-		ds := stmt.Dimensions.GetGroups()
-		if len(ds) > 0 {
-			return true
-		}
-	}
-	r := false
-	ast.WalkFunc(stmt.Fields, func(n ast.Node) bool {
-		switch f := n.(type) {
-		case *ast.Call:
-			if ok := function.IsAggFunc(f.Name); ok {
-				r = true
-				return false
-			}
-		}
-		return true
-	})
-	return r
-}
+func getOrCalculateAgg(f *ast.FieldRef) bool { _ = "STUB: not implemented"; return false }
 
-func HasAggFuncs(node ast.Node) bool {
-	if node == nil {
-		return false
-	}
-	r := false
-	ast.WalkFunc(node, func(n ast.Node) bool {
-		if f, ok := n.(*ast.Call); ok {
-			if ok := function.IsAggFunc(f.Name); ok {
-				r = true
-				return false
-			}
-		}
-		return true
-	})
-	return r
-}
+func WithAggFields(stmt *ast.SelectStatement) bool { _ = "STUB: not implemented"; return false }
+
+func HasAggFuncs(node ast.Node) bool { _ = "STUB: not implemented"; return false }

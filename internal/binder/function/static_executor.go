@@ -15,9 +15,6 @@
 package function
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
@@ -26,53 +23,29 @@ import (
 type funcExecutor struct{}
 
 func (f *funcExecutor) ValidateWithName(args []ast.Expr, name string) error {
-	fs, ok := builtins[name]
-	if !ok {
-		return errors.New("unknown name")
-	}
-
-	eargs := make([]ast.Expr, len(args))
-	copy(eargs, args)
-	// TODO pass in ctx
-	err := fs.val(nil, eargs)
-	if err != nil {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (f *funcExecutor) Validate(_ []interface{}) error {
-	return fmt.Errorf("unknow name")
-}
+// TODO pass in ctx
+
+func (f *funcExecutor) Validate(_ []interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func (f *funcExecutor) Exec(ctx api.FunctionContext, args []any) (interface{}, bool) {
-	return fmt.Errorf("unknow name"), false
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 func (f *funcExecutor) ExecWithName(args []interface{}, ctx api.FunctionContext, name string) (interface{}, bool) {
-	fs, ok := builtins[name]
-	if !ok {
-		return fmt.Errorf("unknow name"), false
-	}
-	if fs.check != nil {
-		r, skipExec := fs.check(args)
-		if skipExec {
-			return r, true
-		}
-	}
-	return fs.exec(ctx, args)
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (f *funcExecutor) IsAggregate() bool {
-	return false
-}
+func (f *funcExecutor) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
 func (f *funcExecutor) GetFuncType(name string) ast.FuncType {
-	fs, ok := builtins[name]
-	if !ok {
-		return ast.FuncTypeUnknown
-	}
-	return fs.fType
+	_ = "STUB: not implemented"
+	return *new(ast.FuncType)
 }
 
 var staticFuncExecutor = &funcExecutor{}

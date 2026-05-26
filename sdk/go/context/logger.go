@@ -38,5 +38,6 @@ func init() {
 }
 
 func LogEntry(key string, value interface{}) api.Logger {
-	return Log.WithField(key, value)
+	_ = "STUB: not implemented"
+	return *new(api.Logger)
 }

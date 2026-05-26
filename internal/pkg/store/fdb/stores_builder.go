@@ -19,11 +19,6 @@ package fdb
 import "github.com/lf-edge/ekuiper/v2/internal/pkg/store/definition"
 
 func BuildStores(c definition.Config, name string) (definition.StoreBuilder, definition.TsBuilder, error) {
-	db, err := NewFdbFromConf(c)
-	if err != nil {
-		return nil, nil, err
-	}
-	kvBuilder := NewStoreBuilder(db)
-	tsBuilder := NewTsBuilder(db)
-	return kvBuilder, tsBuilder, nil
+	_ = "STUB: not implemented"
+	return *new(definition.StoreBuilder), *new(definition.TsBuilder), nil
 }

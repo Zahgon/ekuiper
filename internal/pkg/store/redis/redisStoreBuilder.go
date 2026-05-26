@@ -27,11 +27,11 @@ type StoreBuilder struct {
 }
 
 func NewStoreBuilder(redis *redis.Client) StoreBuilder {
-	return StoreBuilder{
-		database: redis,
-	}
+	_ = "STUB: not implemented"
+	return *new(StoreBuilder)
 }
 
 func (b StoreBuilder) CreateStore(table string) (kv.KeyValue, error) {
-	return createRedisKvStore(b.database, table)
+	_ = "STUB: not implemented"
+	return *new(kv.KeyValue), nil
 }

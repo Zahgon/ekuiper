@@ -17,7 +17,6 @@ package httpserver
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
@@ -34,45 +33,20 @@ type sseConfig struct {
 	Datasource string `json:"datasource"`
 }
 
-func (s *SSEConnection) GetId(ctx api.StreamContext) string {
-	return s.id
-}
+func (s *SSEConnection) GetId(ctx api.StreamContext) string { _ = "STUB: not implemented"; return "" }
 
 func (s *SSEConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	cfg := &sseConfig{}
-	if err := cast.MapToStruct(props, cfg); err != nil {
-		return err
-	}
-	if cfg.Path == "" && len(cfg.Datasource) > 0 {
-		cfg.Path = cfg.Datasource
-	}
-	s.cfg = cfg
-	s.id = conId
-	s.props = props
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *SSEConnection) Dial(ctx api.StreamContext) error {
-	rTopic, sTopic, err := RegisterSSEEndpoint(ctx, s.cfg.Datasource)
-	if err != nil {
-		return err
-	}
-	s.RecvTopic = rTopic
-	s.SendTopic = sTopic
-	return nil
-}
+func (s *SSEConnection) Dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (s *SSEConnection) Ping(ctx api.StreamContext) error {
-	return nil
-}
+func (s *SSEConnection) Ping(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (s *SSEConnection) Close(ctx api.StreamContext) error {
-	if s.cfg != nil {
-		UnRegisterSSEEndpoint(s.cfg.Datasource)
-	}
-	return nil
-}
+func (s *SSEConnection) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func CreateSSEConnection(ctx api.StreamContext) modules.Connection {
-	return &SSEConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }

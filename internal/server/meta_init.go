@@ -17,18 +17,9 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/mux"
-
-	"github.com/lf-edge/ekuiper/v2/internal/meta"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/node"
-	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/validate"
 )
 
 func init() {
@@ -40,364 +31,94 @@ var metaEndpoints []restEndpoint
 type metaComp struct{}
 
 func (m metaComp) register() {
+	_ = "STUB: not implemented"
 	// do nothing
+	return
 }
 
-func (m metaComp) rest(r *mux.Router) {
-	r.HandleFunc("/metadata/functions", functionsMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/operators", operatorsMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sinks", sinksMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sinks/{name}", newSinkMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sources", sourcesMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sources/{name}", sourceMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sources/yaml/{name}", sourceConfHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sources/{name}/confKeys/{confKey}", sourceConfKeyHandler).Methods(http.MethodDelete, http.MethodPut)
-	r.HandleFunc("/metadata/sinks/yaml/{name}", sinkConfHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sinks/{name}/confKeys/{confKey}", sinkConfKeyHandler).Methods(http.MethodDelete, http.MethodPut)
-
-	r.HandleFunc("/metadata/connections", connectionsMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/connections/{name}", connectionMetaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/connections/yaml/{name}", connectionConfHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/connections/{name}/confKeys/{confKey}", connectionConfKeyHandler).Methods(http.MethodDelete, http.MethodPut)
-
-	r.HandleFunc("/metadata/resource", resourceHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/resources", resourcesHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metadata/sources/connection/{name}", sourceConnectionHandler).Methods(http.MethodPost)
-	r.HandleFunc("/metadata/sinks/connection/{name}", sinkConnectionHandler).Methods(http.MethodPost)
-	r.HandleFunc("/metadata/lookups/connection/{name}", lookupConnectionHandler).Methods(http.MethodPost)
-	for _, endpoint := range metaEndpoints {
-		endpoint(r)
-	}
-}
+func (m metaComp) rest(r *mux.Router) { _ = "STUB: not implemented"; return }
 
 // list sink plugin
-func sinksMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	sinks := meta.GetSinks()
-	jsonResponse(sinks, w, logger)
-}
+func sinksMetaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Get sink metadata when creating rules
-func newSinkMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-
-	language := getLanguage(r)
-	ptrMetadata, err := meta.GetSinkMeta(pluginName, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	jsonResponse(ptrMetadata, w, logger)
-}
+func newSinkMetaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list functions
 func functionsMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	funcs := meta.GetFunctions()
-	jsonByteResponse(funcs, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 // list operators
 func operatorsMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	ops := meta.GetOperators()
-	jsonByteResponse(ops, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 // list source plugin
-func sourcesMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	kind := r.URL.Query().Get("kind")
-	switch strings.ToLower(kind) {
-	case "lookup":
-		kind = ast.StreamKindLookup
-	default:
-		kind = ast.StreamKindScan
-	}
-	ret := meta.GetSourcesPlugins(kind)
-	if nil != ret {
-		jsonResponse(ret, w, logger)
-		return
-	}
-}
+func sourcesMetaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list shareMeta
 func connectionsMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	ret := meta.GetConnectionPlugins()
-	if nil != ret {
-		jsonResponse(ret, w, logger)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Get source metadata when creating stream
-func sourceMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	language := getLanguage(r)
-	ret, err := meta.GetSourceMeta(pluginName, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	if nil != ret {
-		jsonResponse(ret, w, logger)
-		return
-	}
-}
+func sourceMetaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Get source metadata when creating stream
 func connectionMetaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	language := getLanguage(r)
-	ret, err := meta.GetConnectionMeta(pluginName, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	if nil != ret {
-		jsonResponse(ret, w, logger)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func resourceHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	v := r.URL.Query().Get("sourceType")
-	res := meta.GetSourceResourceConf(v)
-	w.WriteHeader(http.StatusOK)
-	jsonResponse(res, w, logger)
-}
+func resourceHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Get source yaml
-func sourceConfHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	language := getLanguage(r)
-	configOperatorKey := fmt.Sprintf(meta.SourceCfgOperatorKeyTemplate, pluginName)
-	ret, err := meta.GetYamlConf(configOperatorKey, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	} else {
-		w.Header().Add(ContentType, ContentTypeJSON)
-		w.Write(ret)
-	}
-}
+func sourceConfHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Get share yaml
 func connectionConfHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	language := getLanguage(r)
-	configOperatorKey := fmt.Sprintf(meta.ConnectionCfgOperatorKeyTemplate, pluginName)
-	ret, err := meta.GetYamlConf(configOperatorKey, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-	} else {
-		w.Header().Add(ContentType, ContentTypeJSON)
-		_, _ = w.Write(ret)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Get sink yaml
-func sinkConfHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	language := getLanguage(r)
-	configOperatorKey := fmt.Sprintf(meta.SinkCfgOperatorKeyTemplate, pluginName)
-	ret, err := meta.GetYamlConf(configOperatorKey, language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	} else {
-		w.Header().Add(ContentType, ContentTypeJSON)
-		_, _ = w.Write(ret)
-	}
-}
+func sinkConfHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Add  del confkey
 func sourceConfKeyHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	var err error
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	confKey := vars["confKey"]
-	language := getLanguage(r)
-	if err := validate.ValidateID(confKey); err != nil {
-		handleError(w, err, "Invalid confKey", logger)
-		return
-	}
-	switch r.Method {
-	case http.MethodDelete:
-		err = meta.DelSourceConfKey(pluginName, confKey, language)
-	case http.MethodPut:
-		v, err1 := io.ReadAll(r.Body)
-		if err1 != nil {
-			handleError(w, err1, "Invalid body", logger)
-			return
-		}
-		err = meta.AddSourceConfKey(pluginName, confKey, language, v)
-	}
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // Add  del confkey
-func sinkConfKeyHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	var err error
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	confKey := vars["confKey"]
-	language := getLanguage(r)
-	if err := validate.ValidateID(confKey); err != nil {
-		handleError(w, err, "Invalid confKey", logger)
-		return
-	}
-	switch r.Method {
-	case http.MethodDelete:
-		err = meta.DelSinkConfKey(pluginName, confKey, language)
-	case http.MethodPut:
-		v, err1 := io.ReadAll(r.Body)
-		if err1 != nil {
-			handleError(w, err1, "Invalid body", logger)
-			return
-		}
-		err = meta.AddSinkConfKey(pluginName, confKey, language, v)
-	}
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-}
+func sinkConfKeyHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // Add  del confkey
 func connectionConfKeyHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	var err error
-	vars := mux.Vars(r)
-	pluginName := vars["name"]
-	confKey := vars["confKey"]
-	language := getLanguage(r)
-	if err := validate.ValidateID(confKey); err != nil {
-		handleError(w, err, "Invalid confKey", logger)
-		return
-	}
-	switch r.Method {
-	case http.MethodDelete:
-		err = meta.DelConnectionConfKey(pluginName, confKey, language)
-	case http.MethodPut:
-		v, err1 := io.ReadAll(r.Body)
-		if err1 != nil {
-			handleError(w, err1, "Invalid body", logger)
-			return
-		}
-		reqField := make(map[string]interface{})
-		err = json.Unmarshal(v, &reqField)
-		if err != nil {
-			handleError(w, err, "Invalid body", logger)
-			return
-		}
-		err = meta.AddConnectionConfKey(pluginName, confKey, language, reqField)
-	}
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // get updatable resources
-func resourcesHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	language := getLanguage(r)
-	ret, err := meta.GetResources(language)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	} else {
-		_, _ = w.Write(ret)
-	}
-}
+func resourcesHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func getLanguage(r *http.Request) string {
-	language := r.Header.Get("Content-Language")
-	if len(language) == 0 {
-		language = "en_US"
-	} else {
-		language = strings.ReplaceAll(language, "-", "_")
-	}
-	return language
-}
+func getLanguage(r *http.Request) string { _ = "STUB: not implemented"; return "" }
 
 func sinkConnectionHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	sinkNm := vars["name"]
-	config := map[string]interface{}{}
-	v, _ := io.ReadAll(r.Body)
-	err := json.Unmarshal(v, &config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	err = node.SinkPing(sinkNm, config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
+	_ = "STUB: not implemented"
+	return
 }
 
 func sourceConnectionHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-
-	sourceNm := vars["name"]
-	config := map[string]interface{}{}
-	v, _ := io.ReadAll(r.Body)
-	err := json.Unmarshal(v, &config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	err = node.SourcePing(sourceNm, config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+	_ = "STUB: not implemented"
+	return
 }
 
 func lookupConnectionHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-
-	sourceNm := vars["name"]
-	config := map[string]interface{}{}
-	v, _ := io.ReadAll(r.Body)
-	err := json.Unmarshal(v, &config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	err = node.LookupPing(sourceNm, config)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
+	_ = "STUB: not implemented"
+	return
 }

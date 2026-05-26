@@ -20,24 +20,23 @@ import (
 
 type MemoryStore sync.Map // The current root store of a rule
 
-func newMemoryStore() *MemoryStore {
-	return &MemoryStore{}
-}
+func newMemoryStore() *MemoryStore { _ = "STUB: not implemented"; return nil }
 
 func (s *MemoryStore) SaveState(_ int64, _ string, _ map[string]interface{}) error {
+	_ = "STUB: not implemented"
 	// do nothing
 	return nil
 }
 
 func (s *MemoryStore) SaveCheckpoint(_ int64) error {
+	_ = "STUB: not implemented"
 	// do nothing
 	return nil
 }
 
 func (s *MemoryStore) GetOpState(_ string) (*sync.Map, error) {
-	return &sync.Map{}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (s *MemoryStore) Clean() error {
-	return nil
-}
+func (s *MemoryStore) Clean() error { _ = "STUB: not implemented"; return nil }

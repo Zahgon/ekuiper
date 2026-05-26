@@ -15,19 +15,8 @@
 package trial
 
 import (
-	"fmt"
-	"time"
-
-	"github.com/google/uuid"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
 	"github.com/lf-edge/ekuiper/v2/internal/topo"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/context"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/planner"
-	"github.com/lf-edge/ekuiper/v2/pkg/connection"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 )
 
 type RunDef struct {
@@ -39,80 +28,19 @@ type RunDef struct {
 	endpoint string
 }
 
-func genTrialRuleID(def *RunDef) string {
-	return "$$_" + uuid.New().String() + def.Id
-}
+func genTrialRuleID(def *RunDef) string { _ = "STUB: not implemented"; return "" }
 
 func genTrialRule(rd *RunDef, sinkProps map[string]interface{}) *def.Rule {
-	id := genTrialRuleID(rd)
-	rt := def.GetDefaultRule(id, rd.Sql)
-	rt.Actions = []map[string]interface{}{
-		{
-			"sse": sinkProps,
-		},
-	}
-	// Let trial rule always send out error to show
-	rt.Options.SendError = true
-	return rt
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func create(def *RunDef) (*topo.Topo, error) {
-	endpoint := "/test/" + def.Id
-	def.endpoint = fmt.Sprintf("$$sse/%s", endpoint)
-	sinkProps := map[string]any{
-		"endpoint":   endpoint,
-		"sendError":  true,
-		"datasource": endpoint,
-	}
-	cw, err := connection.FetchConnection(context.Background(), def.endpoint, "sse", sinkProps, nil)
-	if err != nil {
-		return nil, err
-	}
-	_, err = cw.Wait(context.Background())
-	if err != nil {
-		return nil, err
-	}
+// Let trial rule always send out error to show
 
-	for k, v := range def.SinkProps {
-		sinkProps[k] = v
-	}
-	trialRule := genTrialRule(def, sinkProps)
-	// Add trial run prefix for rule id to avoid duplicate rule id with real rules in runtime or other trial rule
-	tp, _, err := planner.PlanSQLWithSourcesAndSinks(trialRule, def.Mock)
-	if err != nil {
-		return nil, fmt.Errorf("fail to run rule %s: %s", def.Id, err)
-	}
-	return tp, nil
-}
+func create(def *RunDef) (*topo.Topo, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func trialRun(tp *topo.Topo, endpoint string) {
-	go func() {
-		defer connection.DetachConnection(context.Background(), endpoint)
-		timeout := time.After(5 * time.Minute)
-		err := infra.SafeRun(func() error {
-			select {
-			case err := <-tp.Open():
-				if errorx.IsUnexpectedErr(err) {
-					conf.Log.Errorf("closing test run for error: %v", err)
-					tp.Cancel()
-					return err
-				} else if errorx.IsEOF(err) {
-					// If stop by EOF
-					tp.Cancel()
-					tp.GetContext().GetLogger().Debugf("trial run stops by EOF, wait for timeout")
-					<-timeout
-				} else {
-					tp.Cancel()
-					return nil
-				}
-			case <-timeout:
-				tp.GetContext().GetLogger().Debugf("trial run stops after timeout")
-				tp.Cancel()
-			}
-			return nil
-		})
-		if err != nil {
-			conf.Log.Debugf("trial run error: %v", err)
-		}
-	}()
-}
+// Add trial run prefix for rule id to avoid duplicate rule id with real rules in runtime or other trial rule
+
+func trialRun(tp *topo.Topo, endpoint string) { _ = "STUB: not implemented"; return }
+
+// If stop by EOF

@@ -15,122 +15,61 @@
 package function
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
 // ProduceErrInfo Index is starting from 0
-func ProduceErrInfo(index int, expect string) (err error) {
-	index++
-	err = fmt.Errorf("Expect %s type for parameter %d", expect, index)
-	return
-}
+func ProduceErrInfo(index int, expect string) (err error) { _ = "STUB: not implemented"; return nil }
 
-func ValidateLen(exp, actual int) error {
-	if actual != exp {
-		return fmt.Errorf("Expect %d arguments but found %d.", exp, actual)
-	}
-	return nil
-}
+func ValidateLen(exp, actual int) error { _ = "STUB: not implemented"; return nil }
 
-func ValidateAtLeast(min, actual int) error {
-	if actual < min {
-		return fmt.Errorf("At least has %d argument but found %d.", min, actual)
-	}
-	return nil
-}
+func ValidateAtLeast(min, actual int) error { _ = "STUB: not implemented"; return nil }
 
 // Shared validating functions
 
 func ValidateNoArg(_ api.FunctionContext, args []ast.Expr) error {
-	return ValidateLen(0, len(args))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ValidateOneArg(_ api.FunctionContext, args []ast.Expr) error {
-	return ValidateLen(1, len(args))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func ValidateOneNumberArg(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(1, len(args)); err != nil {
-		return err
-	}
-	if ast.IsStringArg(args[0]) || ast.IsTimeArg(args[0]) || ast.IsBooleanArg(args[0]) {
-		return ProduceErrInfo(0, "number - float or int")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateTwoNumberArg(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(2, len(args)); err != nil {
-		return err
-	}
-	if ast.IsStringArg(args[0]) || ast.IsTimeArg(args[0]) || ast.IsBooleanArg(args[0]) {
-		return ProduceErrInfo(0, "number - float or int")
-	}
-	if ast.IsStringArg(args[1]) || ast.IsTimeArg(args[1]) || ast.IsBooleanArg(args[1]) {
-		return ProduceErrInfo(1, "number - float or int")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateTwoIntArg(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(2, len(args)); err != nil {
-		return err
-	}
-	if ast.IsFloatArg(args[0]) || ast.IsStringArg(args[0]) || ast.IsTimeArg(args[0]) || ast.IsBooleanArg(args[0]) {
-		return ProduceErrInfo(0, "int")
-	}
-	if ast.IsFloatArg(args[1]) || ast.IsStringArg(args[1]) || ast.IsTimeArg(args[1]) || ast.IsBooleanArg(args[1]) {
-		return ProduceErrInfo(1, "int")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateTwoStrArg(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(2, len(args)); err != nil {
-		return err
-	}
-	for i := 0; i < 2; i++ {
-		if ast.IsNumericArg(args[i]) || ast.IsTimeArg(args[i]) || ast.IsBooleanArg(args[i]) {
-			return ProduceErrInfo(i, "string")
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateOneStrArg(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(1, len(args)); err != nil {
-		return err
-	}
-	if ast.IsNumericArg(args[0]) || ast.IsTimeArg(args[0]) || ast.IsBooleanArg(args[0]) {
-		return ProduceErrInfo(0, "string")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateOneStrOneInt(_ api.FunctionContext, args []ast.Expr) error {
-	if err := ValidateLen(2, len(args)); err != nil {
-		return err
-	}
-	if ast.IsNumericArg(args[0]) || ast.IsTimeArg(args[0]) || ast.IsBooleanArg(args[0]) {
-		return ProduceErrInfo(0, "string")
-	}
-	if ast.IsFloatArg(args[1]) || ast.IsTimeArg(args[1]) || ast.IsBooleanArg(args[1]) || ast.IsStringArg(args[1]) {
-		return ProduceErrInfo(1, "int")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func ValidateJsonFunc(_ api.FunctionContext, args []ast.Expr) error {
-	l := len(args)
-	if err := ValidateLen(2, l); err != nil {
-		return err
-	}
-	if !ast.IsStringArg(args[1]) {
-		return ProduceErrInfo(1, "string")
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

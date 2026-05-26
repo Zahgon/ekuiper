@@ -16,21 +16,5 @@
 
 package cgroup
 
-import (
-	"os"
-	"strings"
-)
-
 // InContainer returns true if the process is running in a container.
-func InContainer() bool {
-	v, err := os.ReadFile("/proc/self/cgroup")
-	if err != nil {
-		return false
-	}
-	if strings.Contains(string(v), "docker") ||
-		strings.Contains(string(v), "kubepods") ||
-		strings.Contains(string(v), "containerd") {
-		return true
-	}
-	return false
-}
+func InContainer() bool { _ = "STUB: not implemented"; return false }

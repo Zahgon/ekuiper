@@ -29,59 +29,16 @@ type IncWindowPlan struct {
 	Condition        ast.Expr
 }
 
-func (p *IncWindowPlan) BuildExplainInfo() {
-	info := "wType:"
-	info += p.WType.String()
-	if len(p.Dimensions) > 0 {
-		info += ", Dimension:["
-		for i, dimension := range p.Dimensions {
-			if dimension.Expr != nil {
-				info += dimension.Expr.String()
-				if i != len(p.Dimensions)-1 {
-					info += ", "
-				}
-			}
-		}
-		info += "]"
-	}
-	if p.Condition != nil {
-		info += ", filter:["
-		info += p.Condition.String()
-		info += "]"
-	}
-	info += ", funcs:["
-	for i, aggFunc := range p.IncAggFuncs {
-		if i > 0 {
-			info += ","
-		}
-		info += aggFunc.Expr.String()
-		info += "->"
-		info += aggFunc.Name
-	}
-	info += "]"
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *IncWindowPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 func (p *IncWindowPlan) PruneColumns(fields []ast.Expr) error {
-	for _, IncAggFunc := range p.IncAggFuncs {
-		fields = append(fields, getFields(IncAggFunc)...)
-	}
-	for _, dim := range p.Dimensions {
-		fields = append(fields, getFields(dim.Expr)...)
-	}
-
-	return p.baseLogicalPlan.PruneColumns(fields)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (p *IncWindowPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
-	return condition, p
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(LogicalPlan)
 }
 
-func (p IncWindowPlan) Init() *IncWindowPlan {
-	if p.WType == ast.TUMBLING_WINDOW {
-		p.Interval = p.Length
-	}
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(IncAggWindow)
-	return &p
-}
+func (p IncWindowPlan) Init() *IncWindowPlan { _ = "STUB: not implemented"; return nil }

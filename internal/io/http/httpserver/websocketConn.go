@@ -17,8 +17,6 @@ package httpserver
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cert"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
@@ -33,46 +31,17 @@ type WebsocketConnection struct {
 }
 
 func (w *WebsocketConnection) GetId(ctx api.StreamContext) string {
-	return w.id
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (w *WebsocketConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	cfg := &wscConfig{
-		Scheme: "ws",
-	}
-	if err := cast.MapToStruct(props, cfg); err != nil {
-		return err
-	}
-	if cfg.Path == "" && len(cfg.Datasource) > 0 {
-		cfg.Path = cfg.Datasource
-	}
-	w.cfg = cfg
-	w.id = conId
-	w.props = props
-	w.isServer = getWsType(cfg)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (w *WebsocketConnection) Dial(ctx api.StreamContext) error {
-	if w.isServer {
-		rTopic, sTopic, err := RegisterWebSocketEndpoint(ctx, w.cfg.Datasource)
-		if err != nil {
-			return err
-		}
-		w.RecvTopic = rTopic
-		w.SendTopic = sTopic
-	} else {
-		tlsConfig, err := cert.GenTLSConfig(ctx, w.props)
-		if err != nil {
-			return err
-		}
-		c := NewWebsocketClient(w.cfg.Scheme, w.cfg.Addr, w.cfg.Path, tlsConfig, w.cfg.RequestHeader)
-		if err := c.Connect(); err != nil {
-			return err
-		}
-		w.client = c
-		w.RecvTopic, w.SendTopic = c.Run(ctx)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -85,22 +54,18 @@ type wscConfig struct {
 }
 
 func (w *WebsocketConnection) Ping(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (w *WebsocketConnection) Close(ctx api.StreamContext) error {
-	if w.isServer {
-		UnRegisterWebSocketEndpoint(w.cfg.Datasource)
-	} else {
-		w.client.Close(ctx)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func CreateWebsocketConnection(ctx api.StreamContext) modules.Connection {
-	return &WebsocketConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
-func getWsType(cfg *wscConfig) bool {
-	return len(cfg.Addr) < 1
-}
+func getWsType(cfg *wscConfig) bool { _ = "STUB: not implemented"; return false }

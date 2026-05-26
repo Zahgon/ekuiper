@@ -22,76 +22,29 @@ type JoinPlan struct {
 	joins ast.Joins
 }
 
-func (p JoinPlan) Init() *JoinPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(JOIN)
-	return &p
-}
+func (p JoinPlan) Init() *JoinPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *JoinPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.joins) != 0 {
-		info += "Joins:[ "
-		for i, join := range p.joins {
-			info += "{ joinType:" + join.JoinType.String() + ", "
-			if join.Expr != nil {
-				info += join.Expr.String()
-			}
-			info += " }"
-			if i != len(p.joins)-1 {
-				info += ", "
-			}
-		}
-		info += " ]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *JoinPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 func (p *JoinPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
+	_ = "STUB: not implemented"
 	// TODO multiple join support
 	// Assume only one join
-	j := p.joins[0]
-	switch j.JoinType {
-	case ast.INNER_JOIN:
-		a := combine(condition, j.Expr)
-		multipleSourcesCondition, singleSourceCondition := extractCondition(a)
-		rest, _ := p.baseLogicalPlan.PushDownPredicate(singleSourceCondition)
-		j.Expr = combine(multipleSourcesCondition, rest) // always swallow all conditions
-		p.joins[0] = j
-		return nil, p
-	default: // TODO fine grain handling for left/right join
-		multipleSourcesCondition, singleSourceCondition := extractCondition(condition)
-		rest, _ := p.baseLogicalPlan.PushDownPredicate(singleSourceCondition)
-		// never swallow anything
-		return combine(multipleSourcesCondition, rest), p
-	}
+	return *new(ast.Expr), *new(LogicalPlan)
 }
+
+// always swallow all conditions
+
+// TODO fine grain handling for left/right join
+
+// never swallow anything
 
 // Return the unpushable condition and pushable condition
 func extractCondition(condition ast.Expr) (unpushable ast.Expr, pushable ast.Expr) {
-	s, hasDefault := getRefSources(condition)
-	l := len(s)
-	if hasDefault {
-		l += 1
-	}
-	if l == 0 || (l == 1 && s[0] != ast.DefaultStream) {
-		pushable = condition
-		return
-	}
-
-	if be, ok := condition.(*ast.BinaryExpr); ok && be.OP == ast.AND {
-		ul, pl := extractCondition(be.LHS)
-		ur, pr := extractCondition(be.RHS)
-		unpushable = combine(ul, ur)
-		pushable = combine(pl, pr)
-		return
-	}
-
-	// default case: all condition are unpushable
-	return condition, nil
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(ast.Expr)
 }
 
-func (p *JoinPlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.joins)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
-}
+// default case: all condition are unpushable
+
+func (p *JoinPlan) PruneColumns(fields []ast.Expr) error { _ = "STUB: not implemented"; return nil }

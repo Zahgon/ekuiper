@@ -15,8 +15,6 @@
 package planner
 
 import (
-	"strconv"
-
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -40,63 +38,11 @@ type ProjectPlan struct {
 	limitCount  int
 }
 
-func (p ProjectPlan) Init() *ProjectPlan {
-	p.allWildcard = false
-	p.wildcardEmitters = make(map[string]bool)
-	for _, field := range p.fields {
-		if field.AName != "" {
-			p.aliasFields = append(p.aliasFields, field)
-		} else {
-			switch ft := field.Expr.(type) {
-			case *ast.Wildcard:
-				p.allWildcard = true
-				p.exceptNames = ft.Except
-				for _, replace := range ft.Replace {
-					p.aliasFields = append(p.aliasFields, replace)
-				}
-			case *ast.FieldRef:
-				if ft.Name == "*" {
-					p.wildcardEmitters[string(ft.StreamName)] = true
-				} else {
-					if !field.Invisible {
-						p.colNames = append(p.colNames, []string{ft.Name, string(ft.StreamName)})
-					}
-				}
-			default:
-				// Invisible ExprFields must not appear in the output or in
-				// exprIndices; exclude them so both slices stay in sync.
-				if !field.Invisible {
-					p.exprFields = append(p.exprFields, field)
-				}
-			}
-		}
-	}
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(PROJECT)
-	return &p
-}
+func (p ProjectPlan) Init() *ProjectPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *ProjectPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.fields) != 0 {
-		info += "Fields:[ "
-		for i, field := range p.fields {
-			if field.Expr != nil {
-				info += field.Expr.String()
-				if i != len(p.fields)-1 {
-					info += ", "
-				}
-			}
-		}
-		info += " ]"
-	}
-	if p.enableLimit {
-		info += ", Limit:" + strconv.Itoa(p.limitCount)
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+// Invisible ExprFields must not appear in the output or in
+// exprIndices; exclude them so both slices stay in sync.
 
-func (p *ProjectPlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.fields)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
-}
+func (p *ProjectPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
+
+func (p *ProjectPlan) PruneColumns(fields []ast.Expr) error { _ = "STUB: not implemented"; return nil }

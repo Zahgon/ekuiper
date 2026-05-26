@@ -15,14 +15,7 @@
 package http
 
 import (
-	"errors"
-	"fmt"
-	"strings"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	"github.com/pingcap/failpoint"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 )
 
 type RestSink struct {
@@ -37,149 +30,26 @@ var bodyTypeFormat = map[string]string{
 }
 
 func (r *RestSink) Provision(ctx api.StreamContext, configs map[string]any) error {
-	r.ClientConf = &ClientConf{}
-	err := r.InitConf(ctx, "", configs)
-	if err != nil {
-		return err
-	}
-	if r.ClientConf.config.Format == "" {
-		r.ClientConf.config.Format = "json"
-	}
-	if rf, ok := bodyTypeFormat[r.ClientConf.config.BodyType]; ok && r.ClientConf.config.Format != rf {
-		return fmt.Errorf("format must be %s if bodyType is %s", rf, r.ClientConf.config.BodyType)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (r *RestSink) Close(ctx api.StreamContext) error {
-	return nil
-}
+func (r *RestSink) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (r *RestSink) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	err := r.Conn(ctx)
-	if err != nil {
-		return err
-	}
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *RestSink) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	logger := ctx.GetLogger()
-	bodyType := r.config.BodyType
-	method := r.config.Method
-	u := r.config.Url
-	// if auth is set, the auth is handled by the client connect
-	headers := r.config.Headers
-	if r.accessConf != nil {
-		headers = r.parsedHeaders
-	}
-	formData := r.config.FormData
-
-	if dp, ok := item.(api.HasDynamicProps); ok {
-		if !r.noHeaderTemplate {
-			r.noHeaderTemplate = true
-			headers = make(map[string]string, len(r.parsedHeaders))
-			for k, v := range r.parsedHeaders {
-				nv, ok := dp.DynamicProps(v)
-				if ok {
-					r.noHeaderTemplate = false
-					headers[k] = nv
-				} else {
-					headers[k] = v
-				}
-			}
-		}
-		nb, ok := dp.DynamicProps(bodyType)
-		if ok {
-			bodyType = nb
-		}
-		nm, ok := dp.DynamicProps(method)
-		if ok {
-			method = nm
-		}
-		nu, ok := dp.DynamicProps(u)
-		if ok {
-			u = nu
-		}
-		if bodyType == "formdata" && !r.noFormdataTemplate {
-			r.noFormdataTemplate = true
-			formData = make(map[string]string, len(r.config.FormData))
-			for k, v := range r.config.FormData {
-				nv, ok := dp.DynamicProps(v)
-				if ok {
-					formData[k] = nv
-					r.noFormdataTemplate = false
-				} else {
-					formData[k] = v
-				}
-			}
-		}
-	}
-
-	switch r.config.Compression {
-	case "zstd":
-		if headers == nil {
-			headers = make(map[string]string)
-		}
-		headers["Content-Encoding"] = "zstd"
-	case "gzip":
-		if headers == nil {
-			headers = make(map[string]string)
-		}
-		headers["Content-Encoding"] = "gzip"
-	}
-
-	resp, err := r.Send(ctx, bodyType, method, u, headers, formData, r.config.FileFieldName, item.Raw())
-	failpoint.Inject("recoverAbleErr", func() {
-		err = errors.New("connection reset by peer")
-	})
-	defer func() {
-		if resp != nil && resp.Body != nil {
-			resp.Body.Close()
-		}
-	}()
-	if err != nil {
-		originErr := err
-		recoverAble := errorx.IsRecoverAbleError(originErr)
-		if recoverAble {
-			logger.Errorf("rest sink meet error:%v, recoverAble:%v, ruleID:%v", originErr.Error(), recoverAble, ctx.GetRuleId())
-			return errorx.NewIOErr(fmt.Sprintf(`rest sink fails to send out the data:err=%s recoverAble=%v method=%s path="%s"`,
-				originErr.Error(),
-				recoverAble,
-				method,
-				u))
-		}
-		return fmt.Errorf(`rest sink fails to send out the data:err=%s recoverAble=%v method=%s path="%s"`,
-			originErr.Error(),
-			recoverAble,
-			method, u)
-	} else {
-		logger.Debugf("rest sink got response %v", resp)
-		_, b, err := r.parseResponse(ctx, resp, "", r.config.DebugResp, true)
-		// do not record response body error as it is not an error in the sink action.
-		if err != nil && !strings.HasPrefix(err.Error(), BODY_ERR) {
-			if strings.HasPrefix(err.Error(), BODY_ERR) {
-				logger.Warnf("rest sink response body error: %v", err)
-			} else {
-				return fmt.Errorf(`parse response error: %s. | method=%s path="%s" status=%d response_body="%s"`,
-					err,
-					method,
-					u,
-					resp.StatusCode,
-					b,
-				)
-			}
-		}
-		if r.config.DebugResp {
-			logger.Infof("Response raw content: %s\n", b)
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func GetSink() api.Sink {
-	return &RestSink{}
-}
+// if auth is set, the auth is handled by the client connect
+
+// do not record response body error as it is not an error in the sink action.
+
+func GetSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 var _ api.BytesCollector = &RestSink{}

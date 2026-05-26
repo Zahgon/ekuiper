@@ -18,9 +18,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 type item struct {
@@ -37,74 +35,19 @@ type Cache struct {
 }
 
 func NewCache(expireTime time.Duration, cacheMissingKey bool) *Cache {
-	c := &Cache{
-		expireTime:      expireTime,
-		cacheMissingKey: cacheMissingKey,
-		items:           make(map[string]*item),
-	}
-	if expireTime > 0 {
-		ctx, cancel := context.WithCancel(context.Background())
-		c.cancel = cancel
-		go c.run(ctx)
-	}
-	return c
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *Cache) run(ctx context.Context) {
-	ticker := timex.GetTicker(c.expireTime * 2)
-	for {
-		select {
-		case <-ticker.C:
-			c.deleteExpired()
-		case <-ctx.Done():
-			conf.Log.Infof("Lookup cache is stopped")
-			ticker.Stop()
-			return
-		}
-	}
-}
+func (c *Cache) run(ctx context.Context) { _ = "STUB: not implemented"; return }
 
-func (c *Cache) deleteExpired() {
-	now := timex.GetNow()
-	c.Lock()
-	for k, v := range c.items {
-		if !v.expiration.IsZero() && now.After(v.expiration) {
-			delete(c.items, k)
-		}
-	}
-	c.Unlock()
-}
+func (c *Cache) deleteExpired() { _ = "STUB: not implemented"; return }
 
-func (c *Cache) Set(key string, value []map[string]any) {
-	if len(value) == 0 && !c.cacheMissingKey {
-		return
-	}
-	c.Lock()
-	defer c.Unlock()
-	if c.expireTime > 0 {
-		c.items[key] = &item{data: value, expiration: timex.GetNow().Add(c.expireTime)}
-	} else {
-		c.items[key] = &item{data: value}
-	}
-}
+func (c *Cache) Set(key string, value []map[string]any) { _ = "STUB: not implemented"; return }
 
 func (c *Cache) Get(key string) ([]map[string]any, bool) {
-	c.RLock()
-	defer c.RUnlock()
-	if v, ok := c.items[key]; ok {
-		if !v.expiration.IsZero() && timex.GetNow().After(v.expiration) {
-			return nil, false
-		}
-		return v.data, true
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
-func (c *Cache) Close() {
-	if c.cancel != nil {
-		c.cancel()
-	}
-	c.Lock()
-	c.items = nil
-	c.Unlock()
-}
+func (c *Cache) Close() { _ = "STUB: not implemented"; return }

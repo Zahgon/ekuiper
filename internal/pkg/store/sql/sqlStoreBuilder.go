@@ -22,12 +22,9 @@ type StoreBuilder struct {
 	database Database
 }
 
-func NewStoreBuilder(d Database) StoreBuilder {
-	return StoreBuilder{
-		database: d,
-	}
-}
+func NewStoreBuilder(d Database) StoreBuilder { _ = "STUB: not implemented"; return *new(StoreBuilder) }
 
 func (b StoreBuilder) CreateStore(table string) (kv.KeyValue, error) {
-	return createSqlKvStore(b.database, table)
+	_ = "STUB: not implemented"
+	return *new(kv.KeyValue), nil
 }

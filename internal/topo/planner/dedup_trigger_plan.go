@@ -25,13 +25,11 @@ type DedupTriggerPlan struct {
 	expire     int64
 }
 
-func (p DedupTriggerPlan) Init() *DedupTriggerPlan {
-	p.baseLogicalPlan.self = &p
-	return &p
-}
+func (p DedupTriggerPlan) Init() *DedupTriggerPlan { _ = "STUB: not implemented"; return nil }
 
 func (p *DedupTriggerPlan) PruneColumns(fields []ast.Expr) error {
-	return p.baseLogicalPlan.PruneColumns(append(fields, p.startField, p.endField, p.nowField))
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ LogicalPlan = &DedupTriggerPlan{}

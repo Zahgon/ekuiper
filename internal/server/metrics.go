@@ -15,50 +15,17 @@
 package server
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/shirou/gopsutil/v3/process"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 )
 
 type Metrics struct {
 	kp *process.Process
 }
 
-func NewMetrics() *Metrics {
-	var (
-		kp *process.Process
-		e  error
-	)
-	// Maybe panic in android, so add to safe run.
-	err := infra.SafeRun(func() error {
-		kp, e = process.NewProcess(int32(os.Getpid()))
-		return e
-	})
-	if err != nil {
-		conf.Log.Warnf("Can not initialize process for ekuiperd : %v", err)
-	}
-	return &Metrics{kp: kp}
-}
+func NewMetrics() *Metrics { _ = "STUB: not implemented"; return nil }
 
-func (m *Metrics) GetCpuUsage() string {
-	if m.kp == nil {
-		return ""
-	}
-	percent, _ := m.kp.CPUPercent()
-	value := fmt.Sprintf("%.2f%%", percent)
-	return value
-}
+// Maybe panic in android, so add to safe run.
 
-func (m *Metrics) GetMemoryUsage() string {
-	if m.kp == nil {
-		return ""
-	}
-	mInfo, _ := m.kp.MemoryInfo()
-	used := mInfo.RSS
-	value := fmt.Sprintf("%d", used)
-	return value
-}
+func (m *Metrics) GetCpuUsage() string { _ = "STUB: not implemented"; return "" }
+
+func (m *Metrics) GetMemoryUsage() string { _ = "STUB: not implemented"; return "" }

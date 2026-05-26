@@ -17,9 +17,6 @@ package xsql
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/binder/function"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/context"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -36,43 +33,13 @@ type funcReg struct {
 	ctx api.FunctionContext
 }
 
-func NewFuncRuntime(ctx api.StreamContext) *funcRuntime {
-	return &funcRuntime{
-		parentCtx: ctx,
-	}
-}
+func NewFuncRuntime(ctx api.StreamContext) *funcRuntime { _ = "STUB: not implemented"; return nil }
 
 // Get Each funcId returns a single instance of the function
 // The funcId is assigned in operator instance level, thus each operator will have a single instance of the function
 func (fp *funcRuntime) Get(name string, funcId int) (api.Function, api.FunctionContext, error) {
-	fp.Lock()
-	defer fp.Unlock()
-	if len(fp.regs) <= funcId {
-		for i := len(fp.regs); i <= funcId; i++ {
-			fp.regs = append(fp.regs, nil)
-		}
-	}
-	if reg := fp.regs[funcId]; reg == nil {
-		var (
-			nf  api.Function
-			err error
-		)
-		// Check service extension and plugin extension if set
-		nf, err = function.Function(name)
-		if nf == nil {
-			if err == nil {
-				return nil, nil, errorx.NotFoundErr
-			} else {
-				return nil, nil, err
-			}
-		}
-		fctx := context.NewDefaultFuncContext(fp.parentCtx, funcId)
-		fp.regs[funcId] = &funcReg{
-			ins: nf,
-			ctx: fctx,
-		}
-		return nf, fctx, nil
-	} else {
-		return reg.ins, reg.ctx, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(api.Function), *new(api.FunctionContext), nil
 }
+
+// Check service extension and plugin extension if set

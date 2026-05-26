@@ -15,8 +15,6 @@
 package model
 
 import (
-	"errors"
-	"fmt"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
@@ -25,12 +23,7 @@ import (
 	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
-func (k *KuiperConf) PprofSameAsRest() bool {
-	if !k.Basic.Pprof {
-		return false
-	}
-	return k.Basic.PprofPort == k.Basic.RestPort && k.Basic.PprofIp == k.Basic.RestIp
-}
+func (k *KuiperConf) PprofSameAsRest() bool { _ = "STUB: not implemented"; return false }
 
 type KuiperConf struct {
 	Hack struct {
@@ -129,54 +122,7 @@ type SinkConf struct {
 }
 
 // Validate the configuration and reset to the default value for invalid values.
-func (sc *SinkConf) Validate(logger api.Logger) error {
-	var errs error
-	if sc.MemoryCacheThreshold < 0 {
-		sc.MemoryCacheThreshold = 1024
-		logger.Warnf("memoryCacheThreshold is less than 0, set to 1024")
-		errs = errors.Join(errs, errors.New("memoryCacheThreshold:memoryCacheThreshold must be positive"))
-	}
-	if sc.MaxDiskCache < 0 {
-		sc.MaxDiskCache = 1024000
-		logger.Warnf("maxDiskCache is less than 0, set to 1024000")
-		errs = errors.Join(errs, errors.New("maxDiskCache:maxDiskCache must be positive"))
-	}
-	if sc.BufferPageSize <= 0 {
-		sc.BufferPageSize = 256
-		logger.Warnf("bufferPageSize is less than or equal to 0, set to 256")
-		errs = errors.Join(errs, errors.New("bufferPageSize:bufferPageSize must be positive"))
-	}
-	if sc.ResendInterval < 0 {
-		errs = errors.Join(errs, errors.New("resendInterval:resendInterval must be positive"))
-	}
-
-	if sc.BufferPageSize > sc.MemoryCacheThreshold {
-		sc.MemoryCacheThreshold = sc.BufferPageSize
-		logger.Warnf("memoryCacheThreshold is less than bufferPageSize, set to %d", sc.BufferPageSize)
-		errs = errors.Join(errs, errors.New("memoryCacheThresholdTooSmall:memoryCacheThreshold must be greater than or equal to bufferPageSize"))
-	}
-	if sc.MemoryCacheThreshold%sc.BufferPageSize != 0 {
-		sc.MemoryCacheThreshold = sc.BufferPageSize * (sc.MemoryCacheThreshold/sc.BufferPageSize + 1)
-		logger.Warnf("memoryCacheThreshold is not a multiple of bufferPageSize, set to %d", sc.MemoryCacheThreshold)
-		errs = errors.Join(errs, errors.New("memoryCacheThresholdNotMultiple:memoryCacheThreshold must be a multiple of bufferPageSize"))
-	}
-	if sc.BufferPageSize > sc.MaxDiskCache {
-		sc.MaxDiskCache = sc.BufferPageSize
-		logger.Warnf("maxDiskCache is less than bufferPageSize, set to %d", sc.BufferPageSize)
-		errs = errors.Join(errs, errors.New("maxDiskCacheTooSmall:maxDiskCache must be greater than bufferPageSize"))
-	}
-	if sc.MaxDiskCache%sc.BufferPageSize != 0 {
-		sc.MaxDiskCache = sc.BufferPageSize * (sc.MaxDiskCache/sc.BufferPageSize + 1)
-		logger.Warnf("maxDiskCache is not a multiple of bufferPageSize, set to %d", sc.MaxDiskCache)
-		errs = errors.Join(errs, errors.New("maxDiskCacheNotMultiple:maxDiskCache must be a multiple of bufferPageSize"))
-	}
-	if sc.ResendPriority < -1 || sc.ResendPriority > 1 {
-		sc.ResendPriority = 0
-		logger.Warnf("resendPriority is not in [-1, 1], set to 0")
-		errs = errors.Join(errs, errors.New("resendPriority:resendPriority must be -1, 0 or 1"))
-	}
-	return errs
-}
+func (sc *SinkConf) Validate(logger api.Logger) error { _ = "STUB: not implemented"; return nil }
 
 type SourceConf struct {
 	HttpServerIp   string   `json:"httpServerIp" yaml:"httpServerIp"`
@@ -184,18 +130,7 @@ type SourceConf struct {
 	HttpServerTls  *TlsConf `json:"httpServerTls" yaml:"httpServerTls"`
 }
 
-func (sc *SourceConf) Validate(logger api.Logger) error {
-	var errs error
-	if sc.HttpServerIp == "" {
-		sc.HttpServerIp = "0.0.0.0"
-	}
-	if sc.HttpServerPort <= 0 || sc.HttpServerPort > 65535 {
-		logger.Warnf("invalid source.httpServerPort configuration %d, set to 10081", sc.HttpServerPort)
-		errs = errors.Join(errs, errors.New("invalidHttpServerPort:httpServerPort must between 0 and 65535"))
-		sc.HttpServerPort = 10081
-	}
-	return errs
-}
+func (sc *SourceConf) Validate(logger api.Logger) error { _ = "STUB: not implemented"; return nil }
 
 type SQLConf struct {
 	MaxConnections int `yaml:"maxConnections"`
@@ -209,21 +144,9 @@ type SyslogConf struct {
 	Level   string `yaml:"level"`
 }
 
-func (s *SyslogConf) Validate() error {
-	if s.Network == "" {
-		s.Network = "udp"
-	}
-	if s.Level == "" {
-		s.Level = "info"
-	}
-	switch s.Level {
-	case "debug", "info", "warn", "error":
-		// valid, do nothing
-	default:
-		return fmt.Errorf("invalid syslog level: %s", s.Level)
-	}
-	return nil
-}
+func (s *SyslogConf) Validate() error { _ = "STUB: not implemented"; return nil }
+
+// valid, do nothing
 
 type MetricsDumpConfig struct {
 	Enable           bool          `yaml:"enable"`

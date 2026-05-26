@@ -15,23 +15,15 @@
 package rule
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
 	"github.com/lf-edge/ekuiper/v2/internal/topo"
 	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/rule/machine"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -60,26 +52,13 @@ type State struct {
 // Do not plan or run as before. If the Rule is not triggered, do not plan or run.
 // When called by recover Rule, expect
 func NewState(rule *def.Rule, updateTriggerFunc func(string, bool)) *State {
-	contextLogger := conf.Log.WithField("Rule", rule.Id)
-	return &State{
-		Rule:          rule,
-		sm:            machine.NewStateMachine(contextLogger),
-		logger:        contextLogger,
-		updateTrigger: updateTriggerFunc,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (s *State) GetRule() *def.Rule {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	return s.Rule
-}
+func (s *State) GetRule() *def.Rule { _ = "STUB: not implemented"; return nil }
 
-func (s *State) SetRule(r *def.Rule) {
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	s.Rule = r
-}
+func (s *State) SetRule(r *def.Rule) { _ = "STUB: not implemented"; return }
 
 // ValidateAndRun tries to set up the rule in an atomic way
 // It is the only way to update the state rule.
@@ -90,254 +69,75 @@ func (s *State) SetRule(r *def.Rule) {
 // Notice that, the return err is VALIDATION error only. Run error is async and checked from rule status
 // Topo side effect: 1.This function will create and store a new topo if no validation error
 // 2. If there is validation error, this function will destroy the new topo
-func (s *State) ValidateAndRun(newRule *def.Rule) error {
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	return s.doValidateAndRun(newRule)
-}
+func (s *State) ValidateAndRun(newRule *def.Rule) error { _ = "STUB: not implemented"; return nil }
 
-func (s *State) Bootstrap() error {
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	s.Rule.Triggered = true
-	return s.doValidateAndRun(s.Rule)
-}
+func (s *State) Bootstrap() error { _ = "STUB: not implemented"; return nil }
 
 // Start run start or add the start action to queue
 // By check state, it assures only one Start function is running at any time. (thread safe)
 // regSchedule: whether need to handle scheduler. If call externally, set it to true
-func (s *State) Start() error {
-	done := s.sm.TriggerAction(machine.ActionSignalStart)
-	if done {
-		return nil
-	}
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	// delegate to rule patrol checker
-	if s.Rule.IsScheduleRule() {
-		s.transitState(machine.ScheduledStop, "")
-		return nil
-	}
-	return s.doStart()
-}
+func (s *State) Start() error { _ = "STUB: not implemented"; return nil }
 
-func (s *State) ScheduleStart() error {
-	done := s.sm.TriggerAction(machine.ActionSignalScheduledStart)
-	if done {
-		return nil
-	}
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	// doStart trigger the Rule run. If no trigger error, the Rule will run async and control the state by itself
-	s.logger.Infof("schedule to run rule %s", s.Rule.Id)
-	return s.doStart()
-}
+// delegate to rule patrol checker
+
+func (s *State) ScheduleStart() error { _ = "STUB: not implemented"; return nil }
+
+// doStart trigger the Rule run. If no trigger error, the Rule will run async and control the state by itself
 
 // Stop run stop action or add the stop action to queue
 // regSchedule: whether need to handle scheduler. If call externally, set it to true
-func (s *State) Stop() {
-	s.StopWithLastWill("canceled manually")
-}
+func (s *State) Stop() { _ = "STUB: not implemented"; return }
 
-func (s *State) ScheduleStop() {
-	s.logger.Debug("scheduled stop RunState")
-	done := s.sm.TriggerAction(machine.ActionSignalScheduledStop)
-	if done {
-		return
-	}
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	// do stop, stopping action and starting action are mutual exclusive. No concurrent problem here
-	s.logger.Infof("schedule to stop rule %s", s.Rule.Id)
-	s.doStop(machine.ScheduledStop, "schedule terminated")
-}
+func (s *State) ScheduleStop() { _ = "STUB: not implemented"; return }
 
-func (s *State) StopWithLastWill(msg string) {
-	done := s.sm.TriggerAction(machine.ActionSignalStop)
-	if done {
-		return
-	}
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	s.doStop(machine.Stopped, msg)
-}
+// do stop, stopping action and starting action are mutual exclusive. No concurrent problem here
 
-func (s *State) Delete() {
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	if s.topology != nil {
-		s.topology.Cancel()
-		s.topology.RemoveMetrics()
-		s.topology = nil
-	}
-}
+func (s *State) StopWithLastWill(msg string) { _ = "STUB: not implemented"; return }
+
+func (s *State) Delete() { _ = "STUB: not implemented"; return }
 
 func (s *State) GetState() machine.RunState {
-	return s.sm.CurrentState()
+	_ = "STUB: not implemented"
+	return *new(machine.RunState)
 }
 
-func (s *State) GetStartTimestamp() time.Time {
-	return time.UnixMilli(s.sm.LastStartTimestamp())
-}
+func (s *State) GetStartTimestamp() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
 func (s *State) GetSchema() (map[string]*ast.JsonStreamField, error) {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.GetSinkSchema(), nil
-	}
-	return nil, errorx.New(fmt.Sprintf("Fail to get rule %s's topo, make sure the rule has been started before", s.Rule.Id))
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetStatusMessage return the current RunState of the Rule
 // No set is provided, RunState are changed according to the action (start, stop)
-func (s *State) GetStatusMessage() string {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	var result strings.Builder
-	result.WriteString("{")
-	// Compose status line
-	result.WriteString(`"status": "`)
-	result.WriteString(s.sm.CurrentStateName())
-	result.WriteString(`",`)
-	result.WriteString(`"message": `)
-	result.WriteString(fmt.Sprintf("%q", s.sm.LastWill()))
-	result.WriteString(`,`)
-	// Compose run timing metrics
-	result.WriteString(`"lastStartTimestamp": `)
-	result.WriteString(strconv.FormatInt(s.sm.LastStartTimestamp(), 10))
-	result.WriteString(`,`)
-	result.WriteString(`"lastStopTimestamp": `)
-	result.WriteString(strconv.FormatInt(s.sm.LastStopTimestamp(), 10))
-	result.WriteString(`,`)
-	nextStartTimestamp := s.Rule.GetNextScheduleStartTime()
-	result.WriteString(`"nextStartTimestamp": `)
-	result.WriteString(strconv.FormatInt(nextStartTimestamp, 10))
-	result.WriteString(`,`)
-	// Compose metrics
-	var (
-		keys   []string
-		values []any
-	)
-	if s.topology != nil {
-		keys, values = s.topology.GetMetrics()
-	} else if len(s.stoppedMetrics) == 2 {
-		keys = s.stoppedMetrics[0].([]string)
-		values = s.stoppedMetrics[1].([]any)
-	}
-	if len(keys) > 0 {
-		for i, key := range keys {
-			result.WriteString(`"`)
-			result.WriteString(key)
-			result.WriteString(`":`)
-			value := values[i]
-			v, _ := cast.ToString(value, cast.CONVERT_ALL)
-			switch value.(type) {
-			case string:
-				result.WriteString(fmt.Sprintf("%q", v))
-			default:
-				result.WriteString(v)
-			}
-			result.WriteString(`,`)
-		}
-	}
-	stStr := result.String()
-	stStr = stStr[:len(stStr)-1] + "}"
-	dst := &bytes.Buffer{}
-	var status string
-	if err := json.Indent(dst, cast.StringToBytes(stStr), "", "  "); err != nil {
-		status = stStr
-	} else {
-		status = dst.String()
-	}
-	return status
-}
+func (s *State) GetStatusMessage() string { _ = "STUB: not implemented"; return "" }
 
-func (s *State) GetStatusMap() map[string]any {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	result := make(map[string]any, 20)
-	result["status"] = s.sm.CurrentStateName()
-	result["message"] = s.sm.LastWill()
-	result["lastStartTimestamp"] = s.sm.LastStartTimestamp()
-	result["lastStopTimestamp"] = s.sm.LastStopTimestamp()
-	nextStartTimestamp := s.Rule.GetNextScheduleStartTime()
-	result["nextStartTimestamp"] = nextStartTimestamp
-	// Compose metrics
-	var (
-		keys   []string
-		values []any
-	)
-	if s.topology != nil {
-		keys, values = s.topology.GetMetrics()
-	} else if len(s.stoppedMetrics) == 2 {
-		keys = s.stoppedMetrics[0].([]string)
-		values = s.stoppedMetrics[1].([]any)
-	}
-	if len(keys) > 0 {
-		for i, key := range keys {
-			result[key] = values[i]
-		}
-	}
-	return result
-}
+// Compose status line
 
-func (s *State) GetTopoGraph() *def.PrintableTopo {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.GetTopo()
-	} else {
-		return s.topoGraph
-	}
-}
+// Compose run timing metrics
+
+// Compose metrics
+
+func (s *State) GetStatusMap() map[string]any { _ = "STUB: not implemented"; return nil }
+
+// Compose metrics
+
+func (s *State) GetTopoGraph() *def.PrintableTopo { _ = "STUB: not implemented"; return nil }
 
 func (s *State) SetIsTraceEnabled(isEnabled bool, stra kctx.TraceStrategy) error {
-	s.ruleLock.Lock()
-	defer s.ruleLock.Unlock()
-	if s.topology != nil {
-		s.topology.EnableTracer(isEnabled, stra)
-		return nil
-	}
-	return fmt.Errorf("rule %s set trace failed due to rule didn't started", s.Rule.Name)
-}
-
-func (s *State) IsTraceEnabled() bool {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.IsTraceEnabled()
-	}
-	return false
-}
-
-func (s *State) GetMetrics() ([]string, []any) {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.GetMetrics()
-	}
-	return nil, nil
-}
-
-func (s *State) GetStreams() []string {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.GetStreams()
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *State) GetLastWill() string {
-	return s.sm.LastWill()
-}
+func (s *State) IsTraceEnabled() bool { _ = "STUB: not implemented"; return false }
+
+func (s *State) GetMetrics() ([]string, []any) { _ = "STUB: not implemented"; return nil, nil }
+
+func (s *State) GetStreams() []string { _ = "STUB: not implemented"; return nil }
+
+func (s *State) GetLastWill() string { _ = "STUB: not implemented"; return "" }
 
 func (s *State) ResetStreamOffset(name string, input map[string]any) error {
-	s.ruleLock.RLock()
-	defer s.ruleLock.RUnlock()
-	if s.topology != nil {
-		return s.topology.ResetStreamOffset(name, input)
-	}
-	return fmt.Errorf("topo is not initialized, check rule status")
+	_ = "STUB: not implemented"
+	return nil
 }

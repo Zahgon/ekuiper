@@ -14,8 +14,6 @@
 
 package file
 
-import "bytes"
-
 type writerHooks interface {
 	Header() []byte
 	Line() []byte
@@ -24,33 +22,21 @@ type writerHooks interface {
 
 type jsonWriterHooks struct{}
 
-func (j *jsonWriterHooks) Header() []byte {
-	return []byte("[")
-}
+func (j *jsonWriterHooks) Header() []byte { _ = "STUB: not implemented"; return nil }
 
-func (j *jsonWriterHooks) Line() []byte {
-	return []byte(",")
-}
+func (j *jsonWriterHooks) Line() []byte { _ = "STUB: not implemented"; return nil }
 
-func (j *jsonWriterHooks) Footer() []byte {
-	return []byte("]")
-}
+func (j *jsonWriterHooks) Footer() []byte { _ = "STUB: not implemented"; return nil }
 
 var jsonHooks = &jsonWriterHooks{}
 
 type linesWriterHooks struct{}
 
-func (l *linesWriterHooks) Header() []byte {
-	return nil
-}
+func (l *linesWriterHooks) Header() []byte { _ = "STUB: not implemented"; return nil }
 
-func (l *linesWriterHooks) Line() []byte {
-	return []byte("\n")
-}
+func (l *linesWriterHooks) Line() []byte { _ = "STUB: not implemented"; return nil }
 
-func (l *linesWriterHooks) Footer() []byte {
-	return nil
-}
+func (l *linesWriterHooks) Footer() []byte { _ = "STUB: not implemented"; return nil }
 
 var linesHooks = &linesWriterHooks{}
 
@@ -58,21 +44,10 @@ type csvWriterHooks struct {
 	header []byte
 }
 
-func (c *csvWriterHooks) Header() []byte {
-	if c.header != nil {
-		return bytes.Join([][]byte{c.header, c.Line()}, nil)
-	}
-	return nil
-}
+func (c *csvWriterHooks) Header() []byte { _ = "STUB: not implemented"; return nil }
 
-func (c *csvWriterHooks) Line() []byte {
-	return []byte("\n")
-}
+func (c *csvWriterHooks) Line() []byte { _ = "STUB: not implemented"; return nil }
 
-func (c *csvWriterHooks) Footer() []byte {
-	return nil
-}
+func (c *csvWriterHooks) Footer() []byte { _ = "STUB: not implemented"; return nil }
 
-func (c *csvWriterHooks) SetHeader(header string) {
-	c.header = []byte(header)
-}
+func (c *csvWriterHooks) SetHeader(header string) { _ = "STUB: not implemented"; return }

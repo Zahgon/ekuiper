@@ -15,14 +15,11 @@
 package function
 
 import (
-	"strings"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/binder"
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
 type (
@@ -87,124 +84,45 @@ var windowFuncs = map[string]struct{}{
 
 const AnalyticPrefix = "$$a"
 
-func IsWindowFunc(name string) bool {
-	_, ok := windowFuncs[name]
-	return ok
-}
+func IsWindowFunc(name string) bool { _ = "STUB: not implemented"; return false }
 
-func IsAnalyticFunc(name string) bool {
-	_, ok := analyticFuncs[name]
-	return ok
-}
+func IsAnalyticFunc(name string) bool { _ = "STUB: not implemented"; return false }
 
 type Manager struct{}
 
 // Function the name is converted to lowercase if needed during parsing
 func (m *Manager) Function(name string) (api.Function, error) {
-	_, ok := builtins[name]
-	if ok {
-		return staticFuncExecutor, nil
-	}
-	ff, ok := builtinStatfulFuncs[name]
-	if ok {
-		return ff(), nil
-	}
-	ff, ok = modules.Functions[name]
-	if ok {
-		return ff(), nil
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(api.Function), nil
 }
 
 func (m *Manager) FunctionPluginInfo(funcName string) (plugin.EXTENSION_TYPE, string, string) {
-	_, ok := m.ConvName(funcName)
-	if !ok {
-		return plugin.NONE_EXTENSION, "", ""
-	} else {
-		return plugin.INTERNAL, "", ""
-	}
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
-func (m *Manager) HasFunctionSet(name string) bool {
-	return name == "internal"
-}
+func (m *Manager) HasFunctionSet(name string) bool { _ = "STUB: not implemented"; return false }
 
-func (m *Manager) ConvName(n string) (string, bool) {
-	name := strings.ToLower(n)
-	_, ok := builtins[name]
-	if ok {
-		return name, true
-	}
-	_, ok = builtinStatfulFuncs[name]
-	if ok {
-		return name, true
-	}
-	_, ok = modules.Functions[name]
-	return name, ok
-}
+func (m *Manager) ConvName(n string) (string, bool) { _ = "STUB: not implemented"; return "", false }
 
 var (
 	m                    = &Manager{}
 	_ binder.FuncFactory = m
 )
 
-func GetManager() *Manager {
-	return m
-}
+func GetManager() *Manager { _ = "STUB: not implemented"; return nil }
 
 func returnNilIfHasAnyNil(args []interface{}) (returned interface{}, skipExec bool) {
-	for _, arg := range args {
-		if arg == nil {
-			return nil, true
-		}
-		switch at := arg.(type) {
-		case []interface{}:
-			if len(at) == 0 {
-				return nil, true
-			}
-		case map[string]interface{}:
-			if len(at) == 0 {
-				return nil, true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func returnFalseIfHasAnyNil(args []interface{}) (returned interface{}, skipExec bool) {
-	for _, arg := range args {
-		if arg == nil {
-			return false, true
-		}
-		switch at := arg.(type) {
-		case []interface{}:
-			if len(at) == 0 {
-				return false, true
-			}
-		case map[string]interface{}:
-			if len(at) == 0 {
-				return false, true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func return0IfHasAnyNil(args []interface{}) (returned interface{}, skipExec bool) {
-	for _, arg := range args {
-		if arg == nil {
-			return 0, true
-		}
-		switch at := arg.(type) {
-		case []interface{}:
-			if len(at) == 0 {
-				return 0, true
-			}
-		case map[string]interface{}:
-			if len(at) == 0 {
-				return 0, true
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil, false
 }

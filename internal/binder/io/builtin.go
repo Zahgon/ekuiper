@@ -70,40 +70,28 @@ func init() {
 type Manager struct{}
 
 func (m *Manager) Source(name string) (api.Source, error) {
-	if s, ok := modules.Sources[name]; ok {
-		return s(), nil
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 func (m *Manager) SourcePluginInfo(name string) (plugin2.EXTENSION_TYPE, string, string) {
-	if _, ok := modules.Sources[name]; ok {
-		return plugin2.INTERNAL, "", ""
-	} else {
-		return plugin2.NONE_EXTENSION, "", ""
-	}
+	_ = "STUB: not implemented"
+	return *new(plugin2.EXTENSION_TYPE), "", ""
 }
 
 func (m *Manager) LookupSource(name string) (api.Source, error) {
-	if s, ok := modules.LookupSources[name]; ok {
-		return s(), nil
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 func (m *Manager) Sink(name string) (api.Sink, error) {
-	if s, ok := modules.Sinks[name]; ok {
-		return s(), nil
-	}
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(api.Sink), nil
 }
 
 func (m *Manager) SinkPluginInfo(name string) (plugin2.EXTENSION_TYPE, string, string) {
-	if _, ok := modules.Sinks[name]; ok {
-		return plugin2.INTERNAL, "", ""
-	} else {
-		return plugin2.NONE_EXTENSION, "", ""
-	}
+	_ = "STUB: not implemented"
+	return *new(plugin2.EXTENSION_TYPE), "", ""
 }
 
 var (
@@ -112,6 +100,4 @@ var (
 	_ binder.SinkFactory   = m
 )
 
-func GetManager() *Manager {
-	return m
-}
+func GetManager() *Manager { _ = "STUB: not implemented"; return nil }

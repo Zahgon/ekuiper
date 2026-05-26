@@ -15,18 +15,13 @@
 package connection
 
 import (
-	"fmt"
 	"time"
 
 	"go.nanomsg.org/mangos/v3"
-	"go.nanomsg.org/mangos/v3/protocol/pull"
-	"go.nanomsg.org/mangos/v3/protocol/push"
-	"go.nanomsg.org/mangos/v3/protocol/req"
 	// introduce ipc
 	_ "go.nanomsg.org/mangos/v3/transport/ipc"
 
 	"github.com/lf-edge/ekuiper/sdk/go/api"
-	"github.com/lf-edge/ekuiper/sdk/go/context"
 )
 
 // Options Initialized in plugin.go Start according to the config
@@ -70,157 +65,45 @@ type NanomsgRepChannel struct {
 }
 
 // Run until process end
-func (r *NanomsgRepChannel) Run(f ReplyFunc) error {
-	err := r.sock.Send([]byte("handshake"))
-	if err != nil {
-		return fmt.Errorf("can't send handshake: %s", err.Error())
-	}
-	for {
-		msg, err := r.sock.Recv()
-		switch err {
-		case mangos.ErrClosed:
-			return fmt.Errorf("socket closed")
-		case mangos.ErrRecvTimeout, mangos.ErrProtoState:
-			// After timeout or protocol state error, REQ socket needs to send before recv.
-			// Re-send handshake to reset protocol state before trying to recv again.
-			if err := r.sock.Send([]byte("handshake")); err != nil {
-				return fmt.Errorf("can't send keepalive: %s", err.Error())
-			}
-			continue
-		case nil:
-			// Successfully received message
-		default:
-			return fmt.Errorf("cannot receive on rep socket: %s", err.Error())
-		}
-		reply := f(msg)
-		err = r.sock.Send(reply)
-		if err != nil {
-			return fmt.Errorf("can't send reply: %s", err.Error())
-		}
-	}
-}
+func (r *NanomsgRepChannel) Run(f ReplyFunc) error { _ = "STUB: not implemented"; return nil }
 
-func (r *NanomsgRepChannel) Close() error {
-	return r.sock.Close()
-}
+// After timeout or protocol state error, REQ socket needs to send before recv.
+// Re-send handshake to reset protocol state before trying to recv again.
+
+// Successfully received message
+
+func (r *NanomsgRepChannel) Close() error { _ = "STUB: not implemented"; return nil }
 
 func CreateControlChannel(pluginName string) (ControlChannel, error) {
-	var (
-		sock mangos.Socket
-		err  error
-	)
-	if sock, err = req.NewSocket(); err != nil {
-		return nil, fmt.Errorf("can't get new req socket: %s", err)
-	}
-	setSockOptions(sock, map[string]interface{}{
-		mangos.OptionRetryTime: 0,
-	})
-	url := fmt.Sprintf("ipc:///tmp/plugin_%s.ipc", pluginName)
-	if err = sock.DialOptions(url, dialOptions); err != nil {
-		return nil, fmt.Errorf("can't dial on req socket: %s", err.Error())
-	}
-	return &NanomsgRepChannel{sock: sock}, nil
+	_ = "STUB: not implemented"
+	return *new(ControlChannel), nil
 }
 
 func CreateSourceChannel(ctx api.StreamContext) (DataOutChannel, error) {
-	var (
-		sock mangos.Socket
-		err  error
-	)
-	if sock, err = push.NewSocket(); err != nil {
-		return nil, fmt.Errorf("can't get new push socket: %s", err)
-	}
-	setSockOptions(sock, map[string]interface{}{
-		mangos.OptionSendDeadline: 1000 * time.Millisecond,
-	})
-	url := fmt.Sprintf("ipc:///tmp/%s_%s_%d.ipc", ctx.GetRuleId(), ctx.GetOpId(), ctx.GetInstanceId())
-	if err = sock.DialOptions(url, dialOptions); err != nil {
-		return nil, fmt.Errorf("can't dial on push socket: %s", err.Error())
-	}
-	return sock, nil
+	_ = "STUB: not implemented"
+	return *new(DataOutChannel), nil
 }
 
 func CreateFuncChannel(symbolName string) (DataInOutChannel, error) {
-	var (
-		sock mangos.Socket
-		err  error
-	)
-	if sock, err = req.NewSocket(); err != nil {
-		return nil, fmt.Errorf("can't get new req socket: %s", err)
-	}
-	// Add recv timeout to prevent indefinite blocking during idle periods
-	setSockOptions(sock, map[string]interface{}{
-		mangos.OptionRecvDeadline: 5000 * time.Millisecond,
-		mangos.OptionSendDeadline: 1000 * time.Millisecond,
-		mangos.OptionRetryTime:    0,
-	})
-	url := fmt.Sprintf("ipc:///tmp/func_%s.ipc", symbolName)
-	if err = sock.DialOptions(url, dialOptions); err != nil {
-		return nil, fmt.Errorf("can't dial on req socket: %s", err.Error())
-	}
-	return &NanomsgRepChannel{sock: sock}, nil
+	_ = "STUB: not implemented"
+	return *new(DataInOutChannel), nil
 }
 
+// Add recv timeout to prevent indefinite blocking during idle periods
+
 func CreateSinkChannel(ctx api.StreamContext) (DataInChannel, error) {
-	var (
-		sock mangos.Socket
-		err  error
-	)
-	if sock, err = pull.NewSocket(); err != nil {
-		return nil, fmt.Errorf("can't get new pull socket: %s", err)
-	}
-	setSockOptions(sock, map[string]interface{}{
-		mangos.OptionRecvDeadline: 500 * time.Millisecond,
-	})
-	url := fmt.Sprintf("ipc:///tmp/%s_%s_%d.ipc", ctx.GetRuleId(), ctx.GetOpId(), ctx.GetInstanceId())
-	if err = listenWithRetry(sock, url); err != nil {
-		return nil, fmt.Errorf("can't listen on pull socket for %s: %s", url, err.Error())
-	}
-	return sock, nil
+	_ = "STUB: not implemented"
+	return *new(DataInChannel), nil
 }
 
 func CreateSinkAckChannel(ctx api.StreamContext) (DataOutChannel, error) {
-	var (
-		sock mangos.Socket
-		err  error
-	)
-	if sock, err = push.NewSocket(); err != nil {
-		return nil, fmt.Errorf("can't get new push socket: %s", err)
-	}
-	setSockOptions(sock, map[string]interface{}{
-		mangos.OptionSendDeadline: 1000 * time.Millisecond,
-	})
-	url := fmt.Sprintf("ipc:///tmp/%s_%s_%d_ack.ipc", ctx.GetRuleId(), ctx.GetOpId(), ctx.GetInstanceId())
-	if err = sock.DialOptions(url, dialOptions); err != nil {
-		return nil, fmt.Errorf("can't dial on push socket: %s", err.Error())
-	}
-	return sock, nil
+	_ = "STUB: not implemented"
+	return *new(DataOutChannel), nil
 }
 
 func setSockOptions(sock mangos.Socket, sockOptions map[string]interface{}) {
-	for k, v := range sockOptions {
-		err := sock.SetOption(k, v)
-		if err != nil && err != mangos.ErrBadOption {
-			context.Log.Errorf("can't set socket option %s: %s", k, err.Error())
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func listenWithRetry(sock mangos.Socket, url string) error {
-	var (
-		retryCount    = 300
-		retryInterval = 10
-	)
-	for {
-		err := sock.Listen(url)
-		if err == nil {
-			context.Log.Infof("plugin start to listen after %d tries", retryCount)
-			return err
-		}
-		retryCount--
-		if retryCount < 0 {
-			return err
-		}
-		time.Sleep(time.Duration(retryInterval) * time.Millisecond)
-	}
-}
+func listenWithRetry(sock mangos.Socket, url string) error { _ = "STUB: not implemented"; return nil }

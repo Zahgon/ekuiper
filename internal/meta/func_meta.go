@@ -16,62 +16,13 @@ package meta
 
 import (
 	"bytes"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
-func readFuncMetaDir() []fileContent {
-	var filesByte []fileContent
-
-	confDir, err := conf.GetConfLoc()
-	if nil != err {
-		return nil
-	}
-
-	dir := filepath.Join(confDir, "functions")
-	files, err := os.ReadDir(dir)
-	if nil != err {
-		return nil
-	}
-	for _, file := range files {
-		fname := file.Name()
-		if !strings.HasSuffix(fname, ".json") {
-			continue
-		}
-		filesByte = append(filesByte, readFuncMetaFile(filepath.Join(dir, fname)))
-	}
-
-	confDir, err = conf.GetDataLoc()
-	if nil != err {
-		return nil
-	}
-
-	dir = filepath.Join(confDir, "functions")
-	files, err = os.ReadDir(dir)
-	if nil != err {
-		return nil
-	}
-	for _, file := range files {
-		fname := file.Name()
-		if !strings.HasSuffix(fname, ".json") {
-			continue
-		}
-		filesByte = append(filesByte, readFuncMetaFile(filepath.Join(dir, fname)))
-	}
-	return filesByte
-}
+func readFuncMetaDir() []fileContent { _ = "STUB: not implemented"; return nil }
 
 func readFuncMetaFile(filePath string) fileContent {
-	fiName := filepath.Base(filePath)
-	sliByte, _ := os.ReadFile(filePath)
-	conf.Log.Infof("funcMeta file : %s", fiName)
-	return sliByte
+	_ = "STUB: not implemented"
+	return *new(fileContent)
 }
 
-func GetFunctions() bytes.Buffer {
-	files := readFuncMetaDir()
-	return ConstructJsonArray(files)
-}
+func GetFunctions() bytes.Buffer { _ = "STUB: not implemented"; return *new(bytes.Buffer) }

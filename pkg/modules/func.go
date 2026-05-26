@@ -24,6 +24,4 @@ type (
 
 var Functions = map[string]NewFuncFunc{}
 
-func RegisterFunc(name string, f NewFuncFunc) {
-	Functions[name] = f
-}
+func RegisterFunc(name string, f NewFuncFunc) { _ = "STUB: not implemented"; return }

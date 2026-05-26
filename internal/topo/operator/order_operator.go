@@ -15,8 +15,6 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
@@ -28,20 +26,6 @@ type OrderOp struct {
 }
 
 func (p *OrderOp) Apply(ctx api.StreamContext, data interface{}, fv *xsql.FunctionValuer, afv *xsql.AggregateFunctionValuer) interface{} {
-	log := ctx.GetLogger()
-	log.Debugf("order plan receive %v", data)
-	sorter := xsql.OrderedBy(p.SortFields, fv, afv)
-	switch input := data.(type) {
-	case error:
-		return input
-	case xsql.Row:
-		return input
-	case xsql.SortingData:
-		if err := sorter.Sort(input); err != nil {
-			return fmt.Errorf("run Order By error: %s", err)
-		}
-		return input
-	default:
-		return fmt.Errorf("run Order By error: expect xsql.Valuer or its array type")
-	}
+	_ = "STUB: not implemented"
+	return nil
 }

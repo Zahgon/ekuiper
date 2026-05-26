@@ -15,10 +15,6 @@
 package planner
 
 import (
-	"bytes"
-	"encoding/json"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -62,80 +58,35 @@ type PlanExplainInfo struct {
 	Info string   `json:"info"`
 }
 
-func (p *PlanExplainInfo) SetOp() {
-	p.Op = fmt.Sprintf("%s_%v", p.T, p.ID)
-}
+func (p *PlanExplainInfo) SetOp() { _ = "STUB: not implemented"; return }
 
-func (p *baseLogicalPlan) Explain() string {
-	bf := bytes.NewBuffer([]byte{})
-	jsonEncoder := json.NewEncoder(bf)
-	jsonEncoder.SetEscapeHTML(false)
-	jsonEncoder.Encode(p.ExplainInfo)
-	return bf.String()
-}
+func (p *baseLogicalPlan) Explain() string { _ = "STUB: not implemented"; return "" }
 
-func (p *baseLogicalPlan) BuildExplainInfo() {
-	p.self.BuildExplainInfo()
-}
+func (p *baseLogicalPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
-func (p *baseLogicalPlan) SetID(id int64) {
-	p.ExplainInfo.ID = id
-	p.ExplainInfo.SetOp()
-}
+func (p *baseLogicalPlan) SetID(id int64) { _ = "STUB: not implemented"; return }
 
-func (p *baseLogicalPlan) Type() string {
-	return string(p.ExplainInfo.T)
-}
+func (p *baseLogicalPlan) Type() string { _ = "STUB: not implemented"; return "" }
 
-func (p *baseLogicalPlan) ID() int64 {
-	return p.ExplainInfo.ID
-}
+func (p *baseLogicalPlan) ID() int64 { _ = "STUB: not implemented"; return 0 }
 
-func (p *baseLogicalPlan) ChildrenID() []int64 {
-	var children []int64
-	for _, child := range p.Children() {
-		children = append(children, child.ID())
-	}
-	return children
-}
+func (p *baseLogicalPlan) ChildrenID() []int64 { _ = "STUB: not implemented"; return nil }
 
-func (p *baseLogicalPlan) setPlanType(planType PlanType) {
-	if p.ExplainInfo == nil {
-		p.ExplainInfo = &PlanExplainInfo{}
-	}
-	p.ExplainInfo.T = planType
-}
+func (p *baseLogicalPlan) setPlanType(planType PlanType) { _ = "STUB: not implemented"; return }
 
-func (p *baseLogicalPlan) Children() []LogicalPlan {
-	return p.children
-}
+func (p *baseLogicalPlan) Children() []LogicalPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *baseLogicalPlan) SetChildren(children []LogicalPlan) {
-	p.children = children
-}
+func (p *baseLogicalPlan) SetChildren(children []LogicalPlan) { _ = "STUB: not implemented"; return }
 
 // PushDownPredicate By default, push down the predicate to the first child instead of the children
 // as most plan cannot have multiple children
 func (p *baseLogicalPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
-	if len(p.children) == 0 {
-		return condition, p.self
-	}
-	rest := condition
-	for i, child := range p.children {
-		var newChild LogicalPlan
-		rest, newChild = child.PushDownPredicate(rest)
-		p.children[i] = newChild
-	}
-	return rest, p.self
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(LogicalPlan)
 }
 
 func (p *baseLogicalPlan) PruneColumns(fields []ast.Expr) error {
-	for _, child := range p.children {
-		err := child.PruneColumns(fields)
-		if err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 

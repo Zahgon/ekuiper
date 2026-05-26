@@ -14,12 +14,6 @@
 
 package ast
 
-import (
-	"errors"
-	"fmt"
-	"strconv"
-)
-
 type Node interface {
 	node()
 }
@@ -62,16 +56,7 @@ type ColonExpr struct {
 	End   Expr
 }
 
-func (c *ColonExpr) ValidateExpr() error {
-	if st, ok := c.Start.(*IntegerLiteral); ok {
-		if end, ok := c.End.(*IntegerLiteral); ok {
-			if st.Val >= 0 && end.Val >= 0 && st.Val >= end.Val {
-				return errors.New("colon start value can't be greater than end value")
-			}
-		}
-	}
-	return nil
-}
+func (c *ColonExpr) ValidateExpr() error { _ = "STUB: not implemented"; return nil }
 
 type IndexExpr struct {
 	Index Expr
@@ -103,103 +88,54 @@ type Wildcard struct {
 	Except  []string
 }
 
-func (pe *ParenExpr) expr() {}
-func (pe *ParenExpr) node() {}
-func (pe *ParenExpr) String() string {
-	e := ""
-	if pe.Expr != nil {
-		e += pe.Expr.String()
-	}
-	return "parenExpr:{ " + e + " }"
-}
+func (pe *ParenExpr) expr()          { _ = "STUB: not implemented"; return }
+func (pe *ParenExpr) node()          { _ = "STUB: not implemented"; return }
+func (pe *ParenExpr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (ae *ArrowExpr) expr() {}
-func (ae *ArrowExpr) node() {}
-func (ae *ArrowExpr) String() string {
-	e := ""
-	if ae.Expr != nil {
-		e += ae.Expr.String()
-	}
-	return "arrowExpr:{ " + e + " }"
-}
+func (ae *ArrowExpr) expr()          { _ = "STUB: not implemented"; return }
+func (ae *ArrowExpr) node()          { _ = "STUB: not implemented"; return }
+func (ae *ArrowExpr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (be *BracketExpr) expr() {}
-func (be *BracketExpr) node() {}
-func (be *BracketExpr) String() string {
-	e := ""
-	if be.Expr != nil {
-		e += be.Expr.String()
-	}
-	return "bracketExpr:{ " + e + " }"
-}
+func (be *BracketExpr) expr()          { _ = "STUB: not implemented"; return }
+func (be *BracketExpr) node()          { _ = "STUB: not implemented"; return }
+func (be *BracketExpr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (be *ColonExpr) expr() {}
-func (be *ColonExpr) node() {}
-func (be *ColonExpr) String() string {
-	s := ""
-	e := ""
-	if be.Start != nil {
-		s += "start:{ " + be.Start.String() + " }"
-	}
-	if be.End != nil {
-		if be.Start != nil {
-			e += ", "
-		}
-		e += "end:{ " + be.End.String() + " }"
-	}
-	return "ColonExpr:{ " + s + e + " }"
-}
+func (be *ColonExpr) expr()          { _ = "STUB: not implemented"; return }
+func (be *ColonExpr) node()          { _ = "STUB: not implemented"; return }
+func (be *ColonExpr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (be *IndexExpr) expr() {}
-func (be *IndexExpr) node() {}
-func (be *IndexExpr) String() string {
-	i := ""
-	if be.Index != nil {
-		i += be.Index.String()
-	}
-	return i
-}
+func (be *IndexExpr) expr()          { _ = "STUB: not implemented"; return }
+func (be *IndexExpr) node()          { _ = "STUB: not implemented"; return }
+func (be *IndexExpr) String() string { _ = "STUB: not implemented"; return "" }
 
-func (w *Wildcard) expr() {}
-func (w *Wildcard) node() {}
-func (w *Wildcard) String() string {
-	return Tokens[w.Token]
-}
+func (w *Wildcard) expr()          { _ = "STUB: not implemented"; return }
+func (w *Wildcard) node()          { _ = "STUB: not implemented"; return }
+func (w *Wildcard) String() string { _ = "STUB: not implemented"; return "" }
 
-func (bl *BooleanLiteral) expr()    {}
-func (bl *BooleanLiteral) literal() {}
-func (bl *BooleanLiteral) node()    {}
-func (bl *BooleanLiteral) String() string {
-	return strconv.FormatBool(bl.Val)
-}
+func (bl *BooleanLiteral) expr()          { _ = "STUB: not implemented"; return }
+func (bl *BooleanLiteral) literal()       { _ = "STUB: not implemented"; return }
+func (bl *BooleanLiteral) node()          { _ = "STUB: not implemented"; return }
+func (bl *BooleanLiteral) String() string { _ = "STUB: not implemented"; return "" }
 
-func (tl *TimeLiteral) expr()    {}
-func (tl *TimeLiteral) literal() {}
-func (tl *TimeLiteral) node()    {}
-func (tl *TimeLiteral) String() string {
-	return Tokens[tl.Val]
-}
+func (tl *TimeLiteral) expr()          { _ = "STUB: not implemented"; return }
+func (tl *TimeLiteral) literal()       { _ = "STUB: not implemented"; return }
+func (tl *TimeLiteral) node()          { _ = "STUB: not implemented"; return }
+func (tl *TimeLiteral) String() string { _ = "STUB: not implemented"; return "" }
 
-func (il *IntegerLiteral) expr()    {}
-func (il *IntegerLiteral) literal() {}
-func (il *IntegerLiteral) node()    {}
-func (il *IntegerLiteral) String() string {
-	return strconv.FormatInt(il.Val, 10)
-}
+func (il *IntegerLiteral) expr()          { _ = "STUB: not implemented"; return }
+func (il *IntegerLiteral) literal()       { _ = "STUB: not implemented"; return }
+func (il *IntegerLiteral) node()          { _ = "STUB: not implemented"; return }
+func (il *IntegerLiteral) String() string { _ = "STUB: not implemented"; return "" }
 
-func (nl *NumberLiteral) expr()    {}
-func (nl *NumberLiteral) literal() {}
-func (nl *NumberLiteral) node()    {}
-func (nl *NumberLiteral) String() string {
-	return fmt.Sprintf("%f", nl.Val)
-}
+func (nl *NumberLiteral) expr()          { _ = "STUB: not implemented"; return }
+func (nl *NumberLiteral) literal()       { _ = "STUB: not implemented"; return }
+func (nl *NumberLiteral) node()          { _ = "STUB: not implemented"; return }
+func (nl *NumberLiteral) String() string { _ = "STUB: not implemented"; return "" }
 
-func (sl *StringLiteral) expr()    {}
-func (sl *StringLiteral) literal() {}
-func (sl *StringLiteral) node()    {}
-func (sl *StringLiteral) String() string {
-	return sl.Val
-}
+func (sl *StringLiteral) expr()          { _ = "STUB: not implemented"; return }
+func (sl *StringLiteral) literal()       { _ = "STUB: not implemented"; return }
+func (sl *StringLiteral) node()          { _ = "STUB: not implemented"; return }
+func (sl *StringLiteral) String() string { _ = "STUB: not implemented"; return "" }
 
 type FuncType int
 
@@ -231,44 +167,18 @@ type Call struct {
 	SortFields SortFields
 }
 
-func (c *Call) expr()    {}
-func (c *Call) literal() {}
-func (c *Call) node()    {}
-func (c *Call) String() string {
-	args := ""
-	if c.Args != nil {
-		args = ", args:["
-		for i, arg := range c.Args {
-			args += arg.String()
-			if i != len(c.Args)-1 {
-				args += ", "
-			}
-		}
-		args += "]"
-	}
-	when := ""
-	if c.WhenExpr != nil {
-		when += ", when:{ " + c.WhenExpr.String() + " }"
-	}
-	return "Call:{ name:" + c.Name + args + when + " }"
-}
+func (c *Call) expr()          { _ = "STUB: not implemented"; return }
+func (c *Call) literal()       { _ = "STUB: not implemented"; return }
+func (c *Call) node()          { _ = "STUB: not implemented"; return }
+func (c *Call) String() string { _ = "STUB: not implemented"; return "" }
 
 type PartitionExpr struct {
 	Exprs []Expr
 }
 
-func (pe *PartitionExpr) expr() {}
-func (pe *PartitionExpr) node() {}
-func (pe *PartitionExpr) String() string {
-	e := ""
-	for i, expr := range pe.Exprs {
-		e += expr.String()
-		if i != len(pe.Exprs)-1 {
-			e += ", "
-		}
-	}
-	return "PartitionExpr:[ " + e + " ]"
-}
+func (pe *PartitionExpr) expr()          { _ = "STUB: not implemented"; return }
+func (pe *PartitionExpr) node()          { _ = "STUB: not implemented"; return }
+func (pe *PartitionExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type BinaryExpr struct {
 	OP  Token
@@ -276,30 +186,11 @@ type BinaryExpr struct {
 	RHS Expr
 }
 
-func (be *BinaryExpr) ValidateExpr() error {
-	switch be.OP {
-	case SUBSET:
-		if colon, ok := be.RHS.(*ColonExpr); ok {
-			return colon.ValidateExpr()
-		}
-	}
-	return nil
-}
+func (be *BinaryExpr) ValidateExpr() error { _ = "STUB: not implemented"; return nil }
 
-func (be *BinaryExpr) expr() {}
-func (be *BinaryExpr) node() {}
-func (be *BinaryExpr) String() string {
-	info := ""
-	if be.LHS != nil && be.RHS != nil {
-		t := Tokens[be.OP]
-		if t == "[]" {
-			info += "binaryExpr:{ " + be.LHS.String() + "[" + be.RHS.String() + "] }"
-			return info
-		}
-		info += "binaryExpr:{ " + be.LHS.String() + " " + t + " " + be.RHS.String() + " }"
-	}
-	return info
-}
+func (be *BinaryExpr) expr()          { _ = "STUB: not implemented"; return }
+func (be *BinaryExpr) node()          { _ = "STUB: not implemented"; return }
+func (be *BinaryExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type WhenClause struct {
 	// The condition Expression
@@ -307,15 +198,9 @@ type WhenClause struct {
 	Result Expr
 }
 
-func (w *WhenClause) expr() {}
-func (w *WhenClause) node() {}
-func (w *WhenClause) String() string {
-	e := ""
-	if w.Expr != nil {
-		e += w.Expr.String()
-	}
-	return "whenClause:{ " + e + " }"
-}
+func (w *WhenClause) expr()          { _ = "STUB: not implemented"; return }
+func (w *WhenClause) node()          { _ = "STUB: not implemented"; return }
+func (w *WhenClause) String() string { _ = "STUB: not implemented"; return "" }
 
 type CaseExpr struct {
 	// The compare value Expression. It can be a value Expression or nil.
@@ -325,99 +210,39 @@ type CaseExpr struct {
 	ElseClause  Expr
 }
 
-func (c *CaseExpr) expr() {}
-func (c *CaseExpr) node() {}
-func (c *CaseExpr) String() string {
-	v := ""
-	if c.Value != nil {
-		v += "value:{ " + c.Value.String() + " }"
-	}
-	w := ""
-	if len(c.WhenClauses) != 0 {
-		if c.Value != nil {
-			w += ", "
-		}
-		w += "whenClauses:["
-		for i, clause := range c.WhenClauses {
-			if clause.Expr != nil {
-				w += "{ " + clause.String() + " }"
-				if i != len(c.WhenClauses)-1 {
-					w += ", "
-				}
-			}
-		}
-		w += "]"
-	}
-	return "caseExprValue:{ " + v + w + " }"
-}
+func (c *CaseExpr) expr()          { _ = "STUB: not implemented"; return }
+func (c *CaseExpr) node()          { _ = "STUB: not implemented"; return }
+func (c *CaseExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type ValueSetExpr struct {
 	LiteralExprs []Expr // ("A", "B", "C") or (1, 2, 3)
 	ArrayExpr    Expr
 }
 
-func (c *ValueSetExpr) expr() {}
-func (c *ValueSetExpr) node() {}
-func (c *ValueSetExpr) String() string {
-	le := ""
-	if len(c.LiteralExprs) != 0 {
-		le += "literalExprs:["
-		for i, expr := range c.LiteralExprs {
-			le += expr.String()
-			if i != len(c.LiteralExprs)-1 {
-				le += ", "
-			}
-		}
-		le += "]"
-	}
-	a := ""
-	if c.ArrayExpr != nil {
-		if len(c.LiteralExprs) > 0 {
-			a += ", "
-		}
-		a += "arrayExpr:{ " + c.ArrayExpr.String() + " }"
-	}
-	return "valueSetExpr:{ " + le + a + " }"
-}
+func (c *ValueSetExpr) expr()          { _ = "STUB: not implemented"; return }
+func (c *ValueSetExpr) node()          { _ = "STUB: not implemented"; return }
+func (c *ValueSetExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type BetweenExpr struct {
 	Lower  Expr
 	Higher Expr
 }
 
-func (b *BetweenExpr) expr() {}
-func (b *BetweenExpr) node() {}
-func (b *BetweenExpr) String() string {
-	low := ""
-	high := ""
-	if b.Lower != nil {
-		low += b.Lower.String()
-	}
-	if b.Higher != nil {
-		if b.Lower != nil {
-			high += ", "
-		}
-		high += b.Higher.String()
-	}
-	return "betweenExpr:{ " + low + high + " }"
-}
+func (b *BetweenExpr) expr()          { _ = "STUB: not implemented"; return }
+func (b *BetweenExpr) node()          { _ = "STUB: not implemented"; return }
+func (b *BetweenExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type LimitExpr struct {
 	LimitCount *IntegerLiteral
 }
 
-func (l *LimitExpr) expr() {}
-func (l *LimitExpr) node() {}
-func (l *LimitExpr) String() string {
-	if l.LimitCount != nil {
-		return "limitExpr:{ " + l.LimitCount.String() + " }"
-	}
-	return ""
-}
+func (l *LimitExpr) expr()          { _ = "STUB: not implemented"; return }
+func (l *LimitExpr) node()          { _ = "STUB: not implemented"; return }
+func (l *LimitExpr) String() string { _ = "STUB: not implemented"; return "" }
 
 type StreamName string
 
-func (sn *StreamName) node() {}
+func (sn *StreamName) node() { _ = "STUB: not implemented"; return }
 
 const (
 	DefaultStream = StreamName("$$default")
@@ -429,50 +254,23 @@ type MetaRef struct {
 	Name       string
 }
 
-func (fr *MetaRef) expr() {}
-func (fr *MetaRef) node() {}
-func (fr *MetaRef) String() string {
-	sn := ""
-	n := ""
-	if fr.StreamName != "" {
-		sn += "streamName:" + string(fr.StreamName)
-	}
-	if fr.Name != "" {
-		if fr.StreamName != "" {
-			n += ", "
-		}
-		n += "fieldName:" + fr.Name
-	}
-	return "metaRef:{ " + sn + n + " }"
-}
+func (fr *MetaRef) expr()          { _ = "STUB: not implemented"; return }
+func (fr *MetaRef) node()          { _ = "STUB: not implemented"; return }
+func (fr *MetaRef) String() string { _ = "STUB: not implemented"; return "" }
 
 type JsonFieldRef struct {
 	Name string
 }
 
-func (fr *JsonFieldRef) expr() {}
-func (fr *JsonFieldRef) node() {}
-func (fr *JsonFieldRef) String() string {
-	return "jsonFieldName:" + fr.Name
-}
+func (fr *JsonFieldRef) expr()          { _ = "STUB: not implemented"; return }
+func (fr *JsonFieldRef) node()          { _ = "STUB: not implemented"; return }
+func (fr *JsonFieldRef) String() string { _ = "STUB: not implemented"; return "" }
 
 type ColFuncField struct {
 	Name string
 	Expr Expr
 }
 
-func (fr *ColFuncField) expr() {}
-func (fr *ColFuncField) node() {}
-func (fr *ColFuncField) String() string {
-	e := ""
-	if fr.Name != "" {
-		e += "name: " + fr.Name
-	}
-	if fr.Expr != nil {
-		if fr.Name != "" {
-			e += ", "
-		}
-		e += "expr:{ " + fr.Expr.String() + " }"
-	}
-	return "colFuncField:{ " + e + " }"
-}
+func (fr *ColFuncField) expr()          { _ = "STUB: not implemented"; return }
+func (fr *ColFuncField) node()          { _ = "STUB: not implemented"; return }
+func (fr *ColFuncField) String() string { _ = "STUB: not implemented"; return "" }

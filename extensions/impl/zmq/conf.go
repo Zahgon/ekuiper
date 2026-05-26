@@ -15,11 +15,7 @@
 package zmq
 
 import (
-	"errors"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type c struct {
@@ -29,13 +25,6 @@ type c struct {
 }
 
 func validate(_ api.StreamContext, props map[string]any) (*c, error) {
-	sc := &c{}
-	err := cast.MapToStruct(props, sc)
-	if err != nil {
-		return nil, err
-	}
-	if sc.Server == "" {
-		return nil, errors.New("missing server address")
-	}
-	return sc, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

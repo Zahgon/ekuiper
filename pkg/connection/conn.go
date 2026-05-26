@@ -20,8 +20,6 @@ import (
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/context"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -37,43 +35,21 @@ type ConnWrapper struct {
 }
 
 func (cw *ConnWrapper) setConn(conn modules.Connection, err error) {
-	cw.l.Lock()
-	defer cw.l.Unlock()
-	cw.initialized = true
-	cw.conn, cw.err = conn, err
+	_ = "STUB: not implemented"
+	return
 }
 
 // Wait will wait for connection connected or the caller interrupts (like rule exit)
 func (cw *ConnWrapper) Wait(connectorCtx api.StreamContext) (modules.Connection, error) {
-	select {
-	case <-connectorCtx.Done():
-		connectorCtx.GetLogger().Infof("stop waiting connection")
-	case <-cw.readCh:
-	case <-cw.detachCh:
-	}
-	cw.l.RLock()
-	defer cw.l.RUnlock()
-	return cw.conn, cw.err
+	_ = "STUB: not implemented"
+	return *new(modules.Connection), nil
 }
 
-func (cw *ConnWrapper) IsInitialized() bool {
-	cw.l.RLock()
-	defer cw.l.RUnlock()
-	return cw.initialized
-}
+func (cw *ConnWrapper) IsInitialized() bool { _ = "STUB: not implemented"; return false }
 
 func newConnWrapper(ctx api.StreamContext, meta *Meta) *ConnWrapper {
-	cw := &ConnWrapper{
-		ID:       meta.ID,
-		readCh:   make(chan struct{}),
-		detachCh: make(chan struct{}),
-	}
-	go func() {
-		conn, err := createConnection(ctx, meta)
-		cw.setConn(conn, err)
-		close(cw.readCh)
-	}()
-	return cw
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type Meta struct {
@@ -93,76 +69,19 @@ type Meta struct {
 	lastError atomic.Value `json:"-"`
 }
 
-func (meta *Meta) NotifyStatus(status string, s string) {
-	meta.status.Store(status)
-	if s != "" {
-		meta.lastError.Store(s)
-	}
-	meta.ref.Range(func(refId, sc any) bool {
-		sch := sc.(api.StatusChangeHandler)
-		if sch != nil {
-			sch(status, s)
-		}
-		return true
-	})
-}
+func (meta *Meta) NotifyStatus(status string, s string) { _ = "STUB: not implemented"; return }
 
 func (meta *Meta) AddRef(refId string, sc api.StatusChangeHandler) {
-	s, e := meta.GetStatus()
-	if sc != nil {
-		sc(s, e)
-	}
-	meta.ref.Store(refId, sc)
-	c := meta.refCount.Add(1)
-	conf.Log.Infof("conn %s add reference %s to %d refs", meta.ID, refId, c)
-}
-
-func (meta *Meta) DeRef(refId string) {
-	meta.ref.Delete(refId)
-	c := meta.refCount.Add(-1)
-	conf.Log.Infof("conn %s dereference %s to %d refs", meta.ID, refId, c)
-}
-
-func (meta *Meta) GetRefCount() int {
-	return int(meta.refCount.Load())
-}
-
-func (meta *Meta) GetRefNames() (result []string) {
-	meta.ref.Range(func(key, _ any) bool {
-		result = append(result, key.(string))
-		return true
-	})
+	_ = "STUB: not implemented"
 	return
 }
 
-func (meta *Meta) GetStatus() (s string, e string) {
-	ee := meta.lastError.Load()
-	if ee != nil {
-		e = ee.(string)
-	}
-	ss := meta.status.Load()
-	if ss != nil {
-		s = ss.(string)
-		if s == api.ConnectionConnected {
-			if meta.cw.IsInitialized() {
-				conn, err := meta.cw.Wait(context.Background())
-				if err != nil || conn == nil {
-					return
-				}
-				e = ""
-				// if connected, cw, cw.conn should exist
-				if _, isStateful := conn.(modules.StatefulDialer); !isStateful {
-					err := conn.Ping(context.Background())
-					if err != nil {
-						s = api.ConnectionDisconnected
-						e = err.Error()
-					}
-				}
-			}
-		}
-		return
-	} else {
-		s = api.ConnectionConnecting
-		return
-	}
-}
+func (meta *Meta) DeRef(refId string) { _ = "STUB: not implemented"; return }
+
+func (meta *Meta) GetRefCount() int { _ = "STUB: not implemented"; return 0 }
+
+func (meta *Meta) GetRefNames() (result []string) { _ = "STUB: not implemented"; return nil }
+
+func (meta *Meta) GetStatus() (s string, e string) { _ = "STUB: not implemented"; return "", "" }
+
+// if connected, cw, cw.conn should exist

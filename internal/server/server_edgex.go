@@ -20,9 +20,6 @@ import (
 	"net"
 
 	"github.com/sirupsen/logrus"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	edgex_vault "github.com/lf-edge/ekuiper/v2/internal/edgex"
 )
 
 func init() {
@@ -30,12 +27,6 @@ func init() {
 }
 
 func newZitifiedNetListener(addr string, logger *logrus.Logger) (net.Listener, error) {
-	if conf.Config != nil && conf.Config.Basic.EnableOpenZiti {
-		logger.Info("using ListenMode 'zerotrust'")
-		ctx := edgex_vault.AuthenicatedContext(logger)
-		serviceName := "edgex.rules-engine"
-		return ctx.Listen(serviceName)
-	} else {
-		return newTcpListener(addr, logger)
-	}
+	_ = "STUB: not implemented"
+	return *new(net.Listener), nil
 }

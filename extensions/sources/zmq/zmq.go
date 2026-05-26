@@ -18,10 +18,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/zmq"
 )
 
-func Zmq() api.Source {
-	return zmq.GetSource()
-}
+func Zmq() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }

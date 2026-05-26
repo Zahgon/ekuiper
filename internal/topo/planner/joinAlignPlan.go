@@ -28,39 +28,12 @@ type JoinAlignPlan struct {
 	Sizes []int
 }
 
-func (p *JoinAlignPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.Emitters) != 0 {
-		info += "Emitters:[ "
-		for i, emitter := range p.Emitters {
-			info += emitter
-			if i != len(p.Emitters)-1 {
-				info += ", "
-			}
-		}
-		info += " ]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *JoinAlignPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
-func (p JoinAlignPlan) Init() *JoinAlignPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(JOINALIGN)
-	return &p
-}
+func (p JoinAlignPlan) Init() *JoinAlignPlan { _ = "STUB: not implemented"; return nil }
 
 // PushDownPredicate Push down to table first, then push to window
 func (p *JoinAlignPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
-	if len(p.children) == 0 {
-		return condition, p.self
-	}
-	rest := condition
-	for i, child := range p.children {
-		if _, ok := child.(*DataSourcePlan); ok {
-			var newChild LogicalPlan
-			rest, newChild = child.PushDownPredicate(rest)
-			p.children[i] = newChild
-		}
-	}
-	return rest, p.self
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(LogicalPlan)
 }

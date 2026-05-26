@@ -17,13 +17,8 @@
 package runtime
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/sdk/go/api"
 	"github.com/lf-edge/ekuiper/sdk/go/connection"
-	"github.com/lf-edge/ekuiper/sdk/go/context"
 )
 
 type RuntimeInstance interface {
@@ -33,37 +28,12 @@ type RuntimeInstance interface {
 }
 
 func broadcast(ctx api.StreamContext, sock connection.DataOutChannel, data interface{}) {
+	_ = "STUB: not implemented"
 	// encode
-	var (
-		result []byte
-		err    error
-	)
-	switch dt := data.(type) {
-	case error:
-		result, err = json.Marshal(fmt.Sprintf("{\"error\":\"%v\"}", dt))
-		if err != nil {
-			ctx.GetLogger().Errorf("%v", err)
-			return
-		}
-	default:
-		result, err = json.Marshal(dt)
-		if err != nil {
-			ctx.GetLogger().Errorf("%v", err)
-			return
-		}
-	}
-	if err = sock.Send(result); err != nil {
-		ctx.GetLogger().Errorf("Failed publishing: %s", err.Error())
-	}
+	return
 }
 
 func parseContext(con *Control) (api.StreamContext, error) {
-	if con.Meta.RuleId == "" || con.Meta.OpId == "" {
-		err := fmt.Sprintf("invalid arg %v, ruleId and opId are required", con)
-		context.Log.Error(err)
-		return nil, errors.New(err)
-	}
-	contextLogger := context.LogEntry("rule", con.Meta.RuleId)
-	ctx := context.WithValue(context.Background(), context.LoggerKey, contextLogger).WithMeta(con.Meta.RuleId, con.Meta.OpId)
-	return ctx, nil
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext), nil
 }

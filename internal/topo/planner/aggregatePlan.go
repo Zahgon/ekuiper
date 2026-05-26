@@ -21,31 +21,11 @@ type AggregatePlan struct {
 	dimensions ast.Dimensions
 }
 
-func (p AggregatePlan) Init() *AggregatePlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(AGGREGATE)
-	return &p
-}
+func (p AggregatePlan) Init() *AggregatePlan { _ = "STUB: not implemented"; return nil }
 
-func (p *AggregatePlan) BuildExplainInfo() {
-	info := ""
-	if len(p.dimensions) != 0 {
-		info += "Dimension:{ "
-		for i, dimension := range p.dimensions {
-			if dimension.Expr != nil {
-				info += dimension.Expr.String()
-				if i != len(p.dimensions)-1 {
-					info += ", "
-				}
-			}
-		}
-		info += " }"
-	}
-
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *AggregatePlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 func (p *AggregatePlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.dimensions)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
+	_ = "STUB: not implemented"
+	return nil
 }

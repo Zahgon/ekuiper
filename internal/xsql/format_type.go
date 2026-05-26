@@ -14,8 +14,4 @@
 
 package xsql
 
-import "github.com/lf-edge/ekuiper/v2/pkg/message"
-
-func IsTextFormat(format string) bool {
-	return format == message.FormatJson || format == message.FormatDelimited || format == message.FormatUrlEncoded
-}
+func IsTextFormat(format string) bool { _ = "STUB: not implemented"; return false }

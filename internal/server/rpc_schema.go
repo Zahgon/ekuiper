@@ -17,74 +17,25 @@
 package server
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/model"
-	"github.com/lf-edge/ekuiper/v2/internal/schema"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 func (t *Server) CreateSchema(arg *model.RPCTypedArgDesc, reply *string) error {
-	sd := &schema.Info{Type: arg.Type}
-	if arg.Json != "" {
-		if err := json.Unmarshal(cast.StringToBytes(arg.Json), sd); err != nil {
-			return fmt.Errorf("Parse service %s error : %s.", arg.Json, err)
-		}
-	}
-	if sd.Name != arg.Name {
-		return fmt.Errorf("Create schema error: name mismatch.")
-	}
-	if sd.Content != "" && sd.FilePath != "" {
-		return fmt.Errorf("Invalid body: Cannot specify both content and file")
-	}
-	err := schema.Register(sd)
-	if err != nil {
-		return fmt.Errorf("Create schema error: %s", err)
-	} else {
-		*reply = fmt.Sprintf("Schema %s is created.", arg.Name)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (t *Server) DescSchema(arg *model.RPCTypedArgDesc, reply *string) error {
-	j, err := schema.GetSchema(arg.Type, arg.Name)
-	if err != nil {
-		return fmt.Errorf("Desc schema error : %s.", err)
-	} else if j == nil {
-		return fmt.Errorf("Desc schema error : not found.")
-	} else {
-		r, err := marshalDesc(j)
-		if err != nil {
-			return fmt.Errorf("Describe service error: %v", err)
-		}
-		*reply = r
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (t *Server) DropSchema(arg *model.RPCTypedArgDesc, reply *string) error {
-	err := schema.DeleteSchema(arg.Type, arg.Name)
-	if err != nil {
-		return fmt.Errorf("Drop schema error : %s.", err)
-	}
-	*reply = fmt.Sprintf("Schema %s is dropped", arg.Name)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (t *Server) ShowSchemas(schemaType string, reply *string) error {
-	l, err := schema.GetAllForType(schemaType)
-	if err != nil {
-		return fmt.Errorf("Show schemas error: %s.", err)
-	}
-	if len(l) == 0 {
-		*reply = "No schema definitions are found."
-	} else {
-		r, err := marshalDesc(l)
-		if err != nil {
-			return fmt.Errorf("Show service error: %v", err)
-		}
-		*reply = r
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

@@ -15,15 +15,9 @@
 package props
 
 import (
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
-
 	"github.com/bwmarrin/snowflake"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 var (
@@ -36,43 +30,11 @@ type StaticConf struct {
 	props map[string]string
 }
 
-func InitProps() {
-	envVars := os.Environ()
-	for _, envVar := range envVars {
-		pair := strings.SplitN(envVar, "=", 2)
-		key := pair[0]
-		value := pair[1]
-		if strings.HasPrefix(key, "KUIPER_PROPS_") {
-			shortKey := strings.ToLower(strings.TrimPrefix(key, "KUIPER_PROPS_"))
-			SC.Set(shortKey, value)
-		}
-	}
-}
+func InitProps() { _ = "STUB: not implemented"; return }
 
 func (s *StaticConf) Get(propName string) (string, bool) {
-	switch propName {
-	case "et":
-		return strconv.FormatInt(timex.GetNowInMilli(), 10), true
-	case "snowflake":
-		if sfnode == nil {
-			var err error
-			sfnode, err = snowflake.NewNode(1)
-			if err != nil {
-				fmt.Printf("fail to create new snowflake node: %v\n", err)
-				return "", false
-			}
-		}
-		return sfnode.Generate().String(), true
-	default:
-		s.RLock()
-		defer s.RUnlock()
-		v, ok := s.props[propName]
-		return v, ok
-	}
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func (s *StaticConf) Set(propName string, value string) {
-	s.Lock()
-	defer s.Unlock()
-	s.props[propName] = value
-}
+func (s *StaticConf) Set(propName string, value string) { _ = "STUB: not implemented"; return }

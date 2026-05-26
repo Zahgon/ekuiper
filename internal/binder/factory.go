@@ -62,14 +62,8 @@ type FactoryEntry struct {
 
 type Entries []FactoryEntry
 
-func (e Entries) Len() int {
-	return len(e)
-}
+func (e Entries) Len() int { _ = "STUB: not implemented"; return 0 }
 
-func (e Entries) Less(i, j int) bool {
-	return e[i].Weight > e[j].Weight
-}
+func (e Entries) Less(i, j int) bool { _ = "STUB: not implemented"; return false }
 
-func (e Entries) Swap(i, j int) {
-	e[i], e[j] = e[j], e[i]
-}
+func (e Entries) Swap(i, j int) { _ = "STUB: not implemented"; return }

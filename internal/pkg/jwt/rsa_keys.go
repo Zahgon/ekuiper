@@ -16,14 +16,7 @@ package jwt
 
 import (
 	"crypto/rsa"
-	"fmt"
-	"os"
-	"path"
-	"strings"
 
-	"github.com/golang-jwt/jwt/v5"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -35,83 +28,26 @@ var (
 const RSAKeyDir = "mgmt"
 
 func GetPrivateKeyWithKeyName(keyName string) (*rsa.PrivateKey, error) {
-	repositoryLock.Lock()
-	defer repositoryLock.Unlock()
-
-	key, ok := privateKeyRepository[keyName]
-	if ok {
-		return key, nil
-	}
-
-	privateKey, err := privateKeyFromFile(keyName)
-	if err != nil {
-		return nil, err
-	}
-
-	privateKeyRepository[keyName] = privateKey
-
-	return privateKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func GetPublicKey(keyName string) (*rsa.PublicKey, error) {
-	publicKey, err := publicKeyFromFile(keyName)
-	if err != nil {
-		return nil, err
-	}
-
-	return publicKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func insensitiveGetFilePath(prikeyName string) (string, error) {
-	confDir, err := conf.GetConfLoc()
-	if nil != err {
-		return "", err
-	}
-
-	dir := path.Join(confDir, RSAKeyDir)
-	dirEntries, err := os.ReadDir(dir)
-	if nil != err {
-		return "", err
-	}
-
-	for _, entry := range dirEntries {
-		fileName := entry.Name()
-		if strings.EqualFold(fileName, prikeyName) {
-			filePath := path.Join(dir, fileName)
-			return filePath, nil
-		}
-	}
-	return "", fmt.Errorf("not found target key file %s in /etc/%s", prikeyName, RSAKeyDir)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func privateKeyFromFile(keyName string) (*rsa.PrivateKey, error) {
-	keyPath, err := insensitiveGetFilePath(keyName)
-	if err != nil {
-		return nil, err
-	}
-	keyBytes, err := os.ReadFile(keyPath)
-	if err != nil {
-		return nil, err
-	}
-	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(keyBytes)
-	if err != nil {
-		return nil, err
-	}
-	return signKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func publicKeyFromFile(keyName string) (*rsa.PublicKey, error) {
-	keyPath, err := insensitiveGetFilePath(keyName)
-	if err != nil {
-		return nil, err
-	}
-	keyBytes, err := os.ReadFile(keyPath)
-	if err != nil {
-		return nil, err
-	}
-	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(keyBytes)
-	if err != nil {
-		return nil, err
-	}
-	return pubKey, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -14,33 +14,7 @@
 
 package conf
 
-import (
-	"errors"
-
-	"github.com/pingcap/failpoint"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-)
-
 func OverwriteByConnectionConf(connType string, props map[string]interface{}) (map[string]interface{}, error) {
-	connSelector, ok := props[ConnectionSelector].(string)
-	if !ok {
-		return props, nil
-	}
-	yamlOps, err := conf.NewConfigOperatorFromConnectionStorage(connType)
-	failpoint.Inject("overwriteErr", func() {
-		err = errors.New("overwriteErr")
-	})
-	if err != nil {
-		return nil, err
-	}
-	cfg := yamlOps.CopyConfContent()
-	connProps, ok := cfg[connSelector]
-	if !ok {
-		return props, nil
-	}
-	for k, v := range connProps {
-		props[k] = v
-	}
-	return props, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

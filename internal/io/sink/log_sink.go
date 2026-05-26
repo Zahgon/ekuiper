@@ -15,24 +15,16 @@
 package sink
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/topo/collector"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
 // NewLogSink log action, no properties now
 // example: {"log":{}}
-func NewLogSink() api.Sink {
-	return collector.Func(func(ctx api.StreamContext, data any) error {
-		ctx.GetLogger().Infof("sink result for rule %s: %s", ctx.GetRuleId(), data)
-		return nil
-	})
-}
+func NewLogSink() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }
 
 type QueryResult struct {
 	Results   []string
@@ -42,16 +34,4 @@ type QueryResult struct {
 
 var QR = &QueryResult{LastFetch: time.Now()}
 
-func NewLogSinkToMemory() api.Sink {
-	QR.Results = make([]string, 0, 10)
-	return collector.Func(func(ctx api.StreamContext, data any) error {
-		r, err := cast.ToString(data, cast.CONVERT_SAMEKIND)
-		if err != nil {
-			return fmt.Errorf("result is not a string but got %v", data)
-		}
-		QR.Mux.Lock()
-		QR.Results = append(QR.Results, r)
-		QR.Mux.Unlock()
-		return nil
-	})
-}
+func NewLogSinkToMemory() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }

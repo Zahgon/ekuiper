@@ -19,7 +19,6 @@ import (
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -36,50 +35,28 @@ type sConfig struct {
 }
 
 func (s *SimulatorSource) Provision(ctx api.StreamContext, configs map[string]any) error {
-	cfg := &sConfig{}
-	if err := cast.MapToStruct(configs, cfg); err != nil {
-		return err
-	}
-	s.cfg = cfg
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *SimulatorSource) Close(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	// Allow to reset in close rule trial run
-	s.Lock()
-	defer s.Unlock()
-	s.index = 0
 	return nil
 }
 
 func (s *SimulatorSource) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (s *SimulatorSource) SetEofIngest(eof api.EOFIngest) {
-	s.eof = eof
-}
+func (s *SimulatorSource) SetEofIngest(eof api.EOFIngest) { _ = "STUB: not implemented"; return }
 
 func (s *SimulatorSource) Pull(ctx api.StreamContext, trigger time.Time, ingest api.TupleIngest, _ api.ErrorIngest) {
-	s.Lock()
-	defer s.Unlock()
-	if s.index >= len(s.cfg.Data) {
-		if s.cfg.Loop {
-			s.index = 0
-		} else {
-			if s.eof != nil {
-				s.eof(ctx, "")
-			}
-			return
-		}
-	}
-	ingest(ctx, s.cfg.Data[s.index], nil, trigger)
-	s.index++
+	_ = "STUB: not implemented"
+	return
 }
 
-func GetSource() api.Source {
-	return &SimulatorSource{}
-}
+func GetSource() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }
 
 var _ api.PullTupleSource = &SimulatorSource{}

@@ -14,52 +14,36 @@
 
 package sqlgen
 
-import (
-	"fmt"
-)
-
 type SqlServerQueryGenerator struct {
 	*InternalSqlQueryCfg
 }
 
 func (q *SqlServerQueryGenerator) quoteIdentifier(identifier string) string {
-	return "'" + identifier + "'"
+	_ = "STUB: not implemented"
+	return ""
 }
 
-func (q *SqlServerQueryGenerator) getSelect() string {
-	if q.Limit != 0 {
-		return fmt.Sprintf("select top %d * from %s ", q.Limit, q.Table)
-	} else {
-		return "select * from " + q.Table + " "
-	}
-}
+func (q *SqlServerQueryGenerator) getSelect() string { _ = "STUB: not implemented"; return "" }
 
 func (q *SqlServerQueryGenerator) getCondition() (string, error) {
-	return getCondition(q.InternalSqlQueryCfg, q.quoteIdentifier)
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func (q *SqlServerQueryGenerator) getOrderby() string {
-	return getOrderBy(q.InternalSqlQueryCfg, func(s string) string {
-		return s
-	})
-}
+func (q *SqlServerQueryGenerator) getOrderby() string { _ = "STUB: not implemented"; return "" }
 
 func NewSqlServerQuery(cfg *InternalSqlQueryCfg) SqlQueryGenerator {
-	in := &SqlServerQueryGenerator{
-		InternalSqlQueryCfg: cfg,
-	}
-	return in
+	_ = "STUB: not implemented"
+	return *new(SqlQueryGenerator)
 }
 
 func (q *SqlServerQueryGenerator) SqlQueryStatement() (string, error) {
-	con, err := q.getCondition()
-	if err != nil {
-		return "", err
-	}
-	return q.getSelect() + con + q.getOrderby(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (q *SqlServerQueryGenerator) UpdateMaxIndexValue(row map[string]interface{}) {
+	_ = "STUB: not implemented"
 	// since internal sql have asc clause, so the last element is largest
-	updateMaxIndexValue(q.InternalSqlQueryCfg, row)
+	return
 }

@@ -14,159 +14,19 @@
 
 package ast
 
-import (
-	"reflect"
-)
-
 type Visitor interface {
 	Visit(Node) bool
 }
 
-func Walk(v Visitor, node Node) {
-	if node == nil || reflect.ValueOf(node).IsNil() {
-		return
-	}
+func Walk(v Visitor, node Node) { _ = "STUB: not implemented"; return }
 
-	if !v.Visit(node) {
-		return
-	}
+// case *Table:
 
-	switch n := node.(type) {
-	case *SelectStatement:
-		Walk(v, n.Fields)
-		Walk(v, n.Sources)
-		Walk(v, n.Joins)
-		Walk(v, n.Condition)
-		Walk(v, n.Dimensions)
-		Walk(v, n.Having)
-		Walk(v, n.SortFields)
-		Walk(v, n.Limit)
-
-	case Fields:
-		for _, f := range n {
-			Walk(v, &f)
-		}
-
-	case *Field:
-		Walk(v, n.Expr)
-		if fr, ok := n.Expr.(*FieldRef); ok && fr.IsAlias() {
-			Walk(v, fr.Expression)
-		}
-
-	case *Wildcard:
-		for _, replace := range n.Replace {
-			Walk(v, &replace)
-		}
-
-	case Sources:
-		for _, s := range n {
-			Walk(v, s)
-		}
-
-	// case *Table:
-
-	case Joins:
-		for _, s := range n {
-			Walk(v, &s)
-		}
-
-	case *Join:
-		Walk(v, n.Expr)
-
-	case Dimensions:
-		Walk(v, n.GetWindow())
-		for _, dimension := range n.GetGroups() {
-			Walk(v, dimension.Expr)
-		}
-
-	case *Window:
-		Walk(v, n.Length)
-		Walk(v, n.Interval)
-		Walk(v, n.Filter)
-		Walk(v, n.TriggerCondition)
-		Walk(v, n.BeginCondition)
-		Walk(v, n.EmitCondition)
-
-	case SortFields:
-		for _, sf := range n {
-			Walk(v, sf.FieldExpr)
-		}
-
-	// case *SortField:
-
-	case *BinaryExpr:
-		Walk(v, n.LHS)
-		Walk(v, n.RHS)
-
-	case *Call:
-		for _, expr := range n.Args {
-			Walk(v, expr)
-		}
-
-		if n.Partition != nil {
-			for _, expr := range n.Partition.Exprs {
-				Walk(v, expr)
-			}
-		}
-
-		if len(n.SortFields) > 0 {
-			Walk(v, n.SortFields)
-		}
-
-		if n.WhenExpr != nil {
-			Walk(v, n.WhenExpr)
-		}
-
-	case *ParenExpr:
-		Walk(v, n.Expr)
-
-	case *ArrowExpr:
-		Walk(v, n.Expr)
-
-	case *BracketExpr:
-		Walk(v, n.Expr)
-
-	case *ColonExpr:
-		Walk(v, n.Start)
-		Walk(v, n.End)
-
-	case *IndexExpr:
-		Walk(v, n.Index)
-
-	case *CaseExpr:
-		Walk(v, n.Value)
-		for _, w := range n.WhenClauses {
-			Walk(v, w)
-		}
-		Walk(v, n.ElseClause)
-
-	case *ColFuncField:
-		Walk(v, n.Expr)
-
-	case *ValueSetExpr:
-		for _, l := range n.LiteralExprs {
-			Walk(v, l)
-		}
-		Walk(v, n.ArrayExpr)
-
-	case *BetweenExpr:
-		Walk(v, n.Lower)
-		Walk(v, n.Higher)
-
-	case *LikePattern:
-		Walk(v, n.Expr)
-
-	case *WhenClause:
-		Walk(v, n.Expr)
-		Walk(v, n.Result)
-	}
-}
+// case *SortField:
 
 // WalkFunc traverses a node hierarchy in depth-first order.
-func WalkFunc(node Node, fn func(Node) bool) {
-	Walk(walkFuncVisitor(fn), node)
-}
+func WalkFunc(node Node, fn func(Node) bool) { _ = "STUB: not implemented"; return }
 
 type walkFuncVisitor func(Node) bool
 
-func (fn walkFuncVisitor) Visit(n Node) bool { return fn(n) }
+func (fn walkFuncVisitor) Visit(n Node) bool { _ = "STUB: not implemented"; return false }

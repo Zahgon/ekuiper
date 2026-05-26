@@ -15,8 +15,6 @@
 package collector
 
 import (
-	"errors"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 )
 
@@ -37,32 +35,24 @@ type FuncCollector struct {
 // Func creates a new value *FuncCollector that
 // will use the specified function parameter to
 // collect streaming data.
-func Func(f CollectorFunc) *FuncCollector {
-	return &FuncCollector{f: f}
-}
+func Func(f CollectorFunc) *FuncCollector { _ = "STUB: not implemented"; return nil }
 
 func (c *FuncCollector) Provision(ctx api.StreamContext, configs map[string]any) error {
+	_ = "STUB: not implemented"
 	// do nothing
 	return nil
 }
 
 func (c *FuncCollector) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	ctx.GetLogger().Info("Opening func collector")
-	if c.f == nil {
-		err := errors.New("func collector missing function")
-		sch(api.ConnectionDisconnected, err.Error())
-		return err
-	}
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *FuncCollector) Collect(ctx api.StreamContext, item api.RawTuple) error {
-	return c.f(ctx, item.Raw())
-}
-
-func (c *FuncCollector) Close(api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
+
+func (c *FuncCollector) Close(api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 var _ api.BytesCollector = &FuncCollector{}

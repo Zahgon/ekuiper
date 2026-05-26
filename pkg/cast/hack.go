@@ -1,7 +1,3 @@
 package cast
 
-import "unsafe"
-
-func StringToBytes(str string) []byte {
-	return unsafe.Slice(unsafe.StringData(str), len(str))
-}
+func StringToBytes(str string) []byte { _ = "STUB: not implemented"; return nil }

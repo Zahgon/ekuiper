@@ -15,10 +15,7 @@
 package tracer
 
 import (
-	"encoding/json"
 	"time"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 type TracerConfig struct {
@@ -27,13 +24,7 @@ type TracerConfig struct {
 	RemoteEndpoint        string `json:"remoteEndpoint"`
 }
 
-func TracerConfigFromConf() *TracerConfig {
-	return &TracerConfig{
-		EnableRemoteCollector: conf.Config.OpenTelemetry.EnableRemoteCollector,
-		ServiceName:           conf.Config.OpenTelemetry.ServiceName,
-		RemoteEndpoint:        conf.Config.OpenTelemetry.RemoteEndpoint,
-	}
-}
+func TracerConfigFromConf() *TracerConfig { _ = "STUB: not implemented"; return nil }
 
 type LocalSpan struct {
 	Name         string                 `json:"name"`
@@ -53,6 +44,4 @@ type LocalLink struct {
 	TraceID string `yaml:"traceID"`
 }
 
-func (span *LocalSpan) ToBytes() ([]byte, error) {
-	return json.Marshal(span)
-}
+func (span *LocalSpan) ToBytes() ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }

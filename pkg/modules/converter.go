@@ -30,14 +30,9 @@ var Converters = map[string]ConverterProvider{}
 type ConverterProvider func(ctx api.StreamContext, schemaId string, logicalSchema map[string]*ast.JsonStreamField, props map[string]any) (message.Converter, error)
 
 // RegisterConverter registers a converter with the given name.
-func RegisterConverter(name string, provider ConverterProvider) {
-	Converters[name] = provider
-}
+func RegisterConverter(name string, provider ConverterProvider) { _ = "STUB: not implemented"; return }
 
-func IsFormatSupported(format string) bool {
-	_, ok := Converters[format]
-	return ok
-}
+func IsFormatSupported(format string) bool { _ = "STUB: not implemented"; return false }
 
 // ConvertWriters are sink converter to use together with batch
 var ConvertWriters = map[string]ConvertWriterProvider{}
@@ -45,7 +40,8 @@ var ConvertWriters = map[string]ConvertWriterProvider{}
 type ConvertWriterProvider func(ctx api.StreamContext, schemaId string, logicalSchema map[string]*ast.JsonStreamField, props map[string]any) (message.ConvertWriter, error)
 
 func RegisterWriterConverter(name string, provider ConvertWriterProvider) {
-	ConvertWriters[name] = provider
+	_ = "STUB: not implemented"
+	return
 }
 
 // Merger is used to merge multiple frames. It is currently called by rate limiter only
@@ -63,12 +59,8 @@ type MergerProvider func(ctx api.StreamContext, payloadSchema string, logicalSch
 var Mergers = map[string]MergerProvider{}
 
 // RegisterMerger registers a merger with the format name and payload format name such as "jsoncan"
-func RegisterMerger(name string, provider MergerProvider) {
-	Mergers[name] = provider
-}
+func RegisterMerger(name string, provider MergerProvider) { _ = "STUB: not implemented"; return }
 
 var ConverterSchemas = map[string]string{}
 
-func RegisterConverterSchemas(name string, schemaType string) {
-	ConverterSchemas[name] = schemaType
-}
+func RegisterConverterSchemas(name string, schemaType string) { _ = "STUB: not implemented"; return }

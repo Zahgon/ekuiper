@@ -15,15 +15,7 @@
 package server
 
 import (
-	"encoding/json"
-	"errors"
 	"net/http"
-
-	"github.com/gorilla/mux"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/rule"
 )
 
 type RuleTagRequest struct {
@@ -35,197 +27,28 @@ type RuleTagResponse struct {
 }
 
 func resetRuleTags(ruleJson string, newTags []string) (string, error) {
-	m := make(map[string]any)
-	if err := json.Unmarshal([]byte(ruleJson), &m); err != nil {
-		return "", err
-	}
-	m["tags"] = newTags
-	v, err := json.Marshal(m)
-	if err != nil {
-		return "", err
-	}
-	return string(v), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func updateRuleTags(ruleJson string, tags []string, addOrRemove bool) (string, []string, error) {
-	m := make(map[string]any)
-	if err := json.Unmarshal([]byte(ruleJson), &m); err != nil {
-		return "", nil, err
-	}
-	ruleTags, ok := m["tags"]
-	if !ok {
-		m["tags"] = [][]interface{}{}
-		ruleTags = make([]interface{}, 0)
-	}
-	tmpTags, ok := ruleTags.([]interface{})
-	var newTags []string
-	if ok {
-		etags := make([]string, 0)
-		for _, tag := range tmpTags {
-			etags = append(etags, tag.(string))
-		}
-		if addOrRemove {
-			newTags = addNewTagsIntoExistTags(tags, etags)
-			m["tags"] = newTags
-		} else {
-			newTags = removeTagsFromExistTags(tags, etags)
-			m["tags"] = newTags
-		}
-	}
-	v, err := json.Marshal(m)
-	if err != nil {
-		return "", nil, err
-	}
-	return string(v), newTags, nil
+	_ = "STUB: not implemented"
+	return "", nil, nil
 }
 
 func addNewTagsIntoExistTags(newTags []string, existTags []string) []string {
-	mTags := make(map[string]struct{})
-	for _, tag := range existTags {
-		mTags[tag] = struct{}{}
-	}
-	for _, tag := range newTags {
-		_, ok := mTags[tag]
-		if !ok {
-			existTags = append(existTags, tag)
-		}
-	}
-	return existTags
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func removeTagsFromExistTags(rTags []string, existTags []string) []string {
-	mTags := make(map[string]struct{})
-	for _, tag := range rTags {
-		mTags[tag] = struct{}{}
-	}
-	res := make([]string, 0)
-	for _, tag := range existTags {
-		_, ok := mTags[tag]
-		if !ok {
-			res = append(res, tag)
-		}
-	}
-	return res
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func ruleTagHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	ruleID := vars["name"]
-	defer r.Body.Close()
-	tagsReq := &RuleTagRequest{Tags: []string{}}
-	if err := json.NewDecoder(r.Body).Decode(&tagsReq); err != nil {
-		handleError(w, err, "decode body error", logger)
-		return
-	}
-	switch r.Method {
-	case http.MethodPut:
-		ruleJson, err := ruleProcessor.GetRuleJson(ruleID)
-		if err != nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		rs, ok := registry.load(ruleID)
-		if !ok || rs == nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		newRuleJson, err := resetRuleTags(ruleJson, tagsReq.Tags)
-		if err != nil {
-			handleError(w, err, "update rule labels error", logger)
-			return
-		}
+func ruleTagHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-		rule := rs.GetRule()
-		newRule := *rule
-		newRule.Tags = tagsReq.Tags
-		rs.SetRule(&newRule)
-
-		if err := registry.update(ruleID, newRuleJson, rs); err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	case http.MethodPatch:
-		ruleJson, err := ruleProcessor.GetRuleJson(ruleID)
-		if err != nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		rs, ok := registry.load(ruleID)
-		if !ok || rs == nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		newRuleJson, newTags, err := updateRuleTags(ruleJson, tagsReq.Tags, true)
-		if err != nil {
-			handleError(w, err, "update rule labels error", logger)
-			return
-		}
-
-		rule := rs.GetRule()
-		newRule := *rule
-		newRule.Tags = newTags
-		rs.SetRule(&newRule)
-
-		if err := registry.update(ruleID, newRuleJson, rs); err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	case http.MethodDelete:
-		ruleJson, err := ruleProcessor.GetRuleJson(ruleID)
-		if err != nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		rs, ok := registry.load(ruleID)
-		if !ok || rs == nil {
-			handleError(w, err, "Get rule error", logger)
-			return
-		}
-		newRuleJson, newTags, err := updateRuleTags(ruleJson, tagsReq.Tags, false)
-		if err != nil {
-			handleError(w, err, "update rule labels error", logger)
-			return
-		}
-
-		rule := rs.GetRule()
-		newRule := *rule
-		newRule.Tags = newTags
-		rs.SetRule(&newRule)
-
-		if err := registry.update(ruleID, newRuleJson, rs); err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-	}
-}
-
-func rulesTagsHandler(w http.ResponseWriter, r *http.Request) {
-	tagsReq := &RuleTagRequest{Tags: []string{}}
-	if err := json.NewDecoder(r.Body).Decode(&tagsReq); err != nil {
-		handleError(w, err, "decode body error", logger)
-		return
-	}
-	kv, err := ruleProcessor.GetAllRulesJson()
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	res := make([]string, 0)
-	for ruleID, ruleJson := range kv {
-		rr, err := ruleProcessor.GetRuleByJsonValidated(ruleID, ruleJson)
-		if err != nil {
-			continue
-		}
-		if rr.IsTagsMatch(tagsReq.Tags) {
-			res = append(res, ruleID)
-		}
-	}
-	resp := &RuleTagResponse{Rules: res}
-	jsonResponse(resp, w, logger)
-}
+func rulesTagsHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type BulkOperationResponse struct {
 	RuleID  string `json:"ruleId"`
@@ -234,110 +57,13 @@ type BulkOperationResponse struct {
 }
 
 func rulesBulkStartHandler(w http.ResponseWriter, r *http.Request) {
-	tags := &RuleTagRequest{Tags: []string{}}
-	if err := json.NewDecoder(r.Body).Decode(tags); err != nil {
-		handleError(w, err, "decode body error", logger)
-		return
-	}
-
-	resultSet, err := findRules(tags)
-	if err != nil {
-		handleError(w, err, "bulk start failed", logger)
-		return
-	}
-
-	payload := make([]BulkOperationResponse, 0)
-	for _, ruleID := range resultSet {
-		err := registry.StartRule(ruleID)
-		if err != nil {
-			payload = append(payload, BulkOperationResponse{
-				RuleID:  ruleID,
-				Success: false,
-				Error:   err.Error(),
-			})
-			continue
-		}
-
-		payload = append(payload, BulkOperationResponse{
-			RuleID:  ruleID,
-			Success: true,
-		})
-	}
-
-	jsonResponse(payload, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 func rulesBulkStopHandler(w http.ResponseWriter, r *http.Request) {
-	tags := &RuleTagRequest{Tags: []string{}}
-	if err := json.NewDecoder(r.Body).Decode(tags); err != nil {
-		handleError(w, err, "decode body error", logger)
-		return
-	}
-
-	resultSet, err := findRules(tags)
-	if err != nil {
-		handleError(w, err, "bulk stop failed", logger)
-		return
-	}
-
-	payload := make([]BulkOperationResponse, 0)
-	for _, ruleID := range resultSet {
-		err := registry.StopRule(ruleID)
-		if err != nil {
-			payload = append(payload, BulkOperationResponse{
-				RuleID:  ruleID,
-				Success: false,
-				Error:   err.Error(),
-			})
-			continue
-		}
-
-		payload = append(payload, BulkOperationResponse{
-			RuleID:  ruleID,
-			Success: true,
-		})
-	}
-
-	jsonResponse(payload, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
-func findRules(tags *RuleTagRequest) ([]string, error) {
-	rules, err := ruleProcessor.GetAllRulesJson()
-	if err != nil {
-		return nil, err
-	}
-
-	resultSet := make([]string, 0)
-	fetchedRules := make(map[string]*def.Rule)
-	for ruleID, ruleJson := range rules {
-		rule, err := ruleProcessor.GetRuleByJsonValidated(ruleID, ruleJson)
-		if err != nil {
-			continue
-		}
-
-		fetchedRules[ruleID] = rule
-		if rule.IsTagsMatch(tags.Tags) {
-			resultSet = append(resultSet, ruleID)
-		}
-	}
-
-	if len(resultSet) == 0 {
-		return nil, errors.New("no matching rules")
-	}
-
-	for _, ruleID := range resultSet {
-		if _, ok := registry.load(ruleID); !ok {
-			rr := fetchedRules[ruleID]
-
-			rs := rule.NewState(rr, func(id string, b bool) {
-				err := registry.updateTrigger(id, b)
-				if err != nil {
-					conf.Log.Warnf("update trigger error: %v", err)
-				}
-			})
-			registry.register(ruleID, rs)
-		}
-	}
-
-	return resultSet, nil
-}
+func findRules(tags *RuleTagRequest) ([]string, error) { _ = "STUB: not implemented"; return nil, nil }

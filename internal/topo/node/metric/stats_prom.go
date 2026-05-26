@@ -15,52 +15,16 @@
 package metric
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 	"github.com/prometheus/client_golang/prometheus"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 func getStatManager(ctx api.StreamContext, dsm *DefaultStatManager) (StatManager, error) {
-	ctx.GetLogger().Debugf("Create prometheus stat manager")
-	var sm StatManager
-	if conf.Config != nil && conf.Config.Basic.Prometheus {
-		psm := &PrometheusStatManager{
-			DefaultStatManager: dsm,
-		}
-		// assign prometheus
-		mg := GetPrometheusMetrics().GetMetricsGroup(dsm.opType)
-		strInId := strconv.Itoa(dsm.instanceId)
-		mg.TotalRecordsIn.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.TotalMessagesProcessed.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.TotalRecordsOut.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.TotalExceptions.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.ProcessLatency.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.ProcessLatencyHist.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		mg.BufferLength.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		if mg.ConnectionStatus != nil {
-			mg.ConnectionStatus.DeleteLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		}
-
-		psm.pTotalRecordsIn = mg.TotalRecordsIn.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pTotalMessagesProcessed = mg.TotalMessagesProcessed.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pTotalRecordsOut = mg.TotalRecordsOut.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pTotalExceptions = mg.TotalExceptions.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pProcessLatency = mg.ProcessLatency.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pProcessLatencyHist = mg.ProcessLatencyHist.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		psm.pBufferLength = mg.BufferLength.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		if dsm.opType != "op" {
-			psm.pConnectionStatus = mg.ConnectionStatus.WithLabelValues(ctx.GetRuleId(), dsm.opType, dsm.opId, strInId)
-		}
-		sm = psm
-	} else {
-		sm = dsm
-	}
-	return sm, nil
+	_ = "STUB: not implemented"
+	return *new(StatManager), nil
 }
+
+// assign prometheus
 
 type PrometheusStatManager struct {
 	*DefaultStatManager
@@ -75,78 +39,24 @@ type PrometheusStatManager struct {
 	pConnectionStatus       prometheus.Gauge
 }
 
-func (sm *PrometheusStatManager) IncTotalRecordsIn() {
-	sm.Lock()
-	defer sm.Unlock()
-	sm.totalRecordsIn++
-	sm.pTotalRecordsIn.Inc()
-}
+func (sm *PrometheusStatManager) IncTotalRecordsIn() { _ = "STUB: not implemented"; return }
 
 func (sm *PrometheusStatManager) IncTotalMessagesProcessed(n int64) {
-	sm.Lock()
-	defer sm.Unlock()
-	sm.totalMessagesProcessed++
-	sm.pTotalMessagesProcessed.Add(float64(n))
+	_ = "STUB: not implemented"
+	return
 }
 
-func (sm *PrometheusStatManager) IncTotalRecordsOut() {
-	sm.Lock()
-	defer sm.Unlock()
-	sm.totalRecordsOut++
-	sm.pTotalRecordsOut.Inc()
-}
+func (sm *PrometheusStatManager) IncTotalRecordsOut() { _ = "STUB: not implemented"; return }
 
-func (sm *PrometheusStatManager) IncTotalExceptions(err string) {
-	sm.Lock()
-	defer sm.Unlock()
-	sm.pTotalExceptions.Inc()
-	sm.DefaultStatManager.incTotalExceptions(err)
-}
+func (sm *PrometheusStatManager) IncTotalExceptions(err string) { _ = "STUB: not implemented"; return }
 
-func (sm *PrometheusStatManager) ProcessTimeEnd() {
-	sm.Lock()
-	defer sm.Unlock()
-	if !sm.processTimeStart.IsZero() {
-		sm.processLatency = int64(time.Since(sm.processTimeStart) / time.Microsecond)
-		sm.pProcessLatency.Set(float64(sm.processLatency))
-		sm.pProcessLatencyHist.Observe(float64(sm.processLatency))
-	}
-}
+func (sm *PrometheusStatManager) ProcessTimeEnd() { _ = "STUB: not implemented"; return }
 
-func (sm *PrometheusStatManager) SetBufferLength(l int64) {
-	sm.Lock()
-	defer sm.Unlock()
-	sm.bufferLength = l
-	sm.pBufferLength.Set(float64(l))
-}
+func (sm *PrometheusStatManager) SetBufferLength(l int64) { _ = "STUB: not implemented"; return }
 
-func (sm *PrometheusStatManager) Clean(ruleId string) {
-	if conf.Config != nil && conf.Config.Basic.Prometheus {
-		mg := GetPrometheusMetrics().GetMetricsGroup(sm.opType)
-		strInId := strconv.Itoa(sm.instanceId)
-		mg.TotalRecordsIn.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		mg.TotalRecordsOut.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		mg.TotalMessagesProcessed.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		mg.TotalExceptions.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		mg.ProcessLatency.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		mg.BufferLength.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		if mg.ConnectionStatus != nil {
-			mg.ConnectionStatus.DeleteLabelValues(ruleId, sm.opType, sm.opId, strInId)
-		}
-		conf.Log.Debugf("finish removing rule:%v, opType:%v, opId:%v, InId:%v prometheus metrics", ruleId, sm.opType, sm.opId, strInId)
-	}
-}
+func (sm *PrometheusStatManager) Clean(ruleId string) { _ = "STUB: not implemented"; return }
 
 func (sm *PrometheusStatManager) SetConnectionState(state string, message string) {
-	sm.Lock()
-	defer sm.Unlock()
-	switch state {
-	case api.ConnectionDisconnected:
-		sm.pConnectionStatus.Set(-1)
-	case api.ConnectionConnecting:
-		sm.pConnectionStatus.Set(0)
-	case api.ConnectionConnected:
-		sm.pConnectionStatus.Set(1)
-	}
-	setMemConnState(sm.connectionState, state, message)
+	_ = "STUB: not implemented"
+	return
 }

@@ -15,11 +15,8 @@
 package sqlgen
 
 import (
-	"bytes"
-	"fmt"
 	"text/template"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/store"
 )
 
@@ -29,16 +26,8 @@ type templateSqlQuery struct {
 }
 
 func NewTemplateSqlQuery(cfg *TemplateSqlQueryCfg) (SqlQueryGenerator, error) {
-	t := &templateSqlQuery{
-		tp:                  nil,
-		TemplateSqlQueryCfg: cfg,
-	}
-
-	if err := t.init(); err != nil {
-		return nil, err
-	} else {
-		return t, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(SqlQueryGenerator), nil
 }
 
 func (t *templateSqlQuery) init() error {
@@ -51,44 +40,13 @@ func (t *templateSqlQuery) init() error {
 }
 
 func (t *templateSqlQuery) SqlQueryStatement() (string, error) {
-	var val string
-	input := make(map[string]interface{})
-	fieldMap := t.store.GetFieldMap()
-	for _, w := range fieldMap {
-		if w.IndexFieldDataType == DATETIME_TYPE && w.IndexFieldDateTimeFormat != "" {
-			time, err := cast.InterfaceToTime(w.IndexFieldValue, w.IndexFieldDateTimeFormat)
-			if err != nil {
-				err = fmt.Errorf("SqlQueryStatement InterfaceToTime datetime convert got error %v", err)
-				return "", err
-			}
-			val, err = cast.FormatTime(time, w.IndexFieldDateTimeFormat)
-			if err != nil {
-				err = fmt.Errorf("SqlQueryStatement FormatTime datetime convert got error %v", err)
-				return "", err
-			}
-		} else {
-			val = fmt.Sprintf("%v", w.IndexFieldValue)
-		}
-		input[w.IndexFieldName] = val
-	}
-
-	var output bytes.Buffer
-	err := t.tp.Execute(&output, input)
-	if err != nil {
-		return "", err
-	}
-	return output.String(), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
 func (t *templateSqlQuery) UpdateMaxIndexValue(row map[string]interface{}) {
-	fieldMap := t.store.GetFieldMap()
-	for _, w := range fieldMap {
-		v, found := row[w.IndexFieldName]
-		if !found {
-			return
-		}
-		t.store.UpdateFieldValue(w.IndexFieldName, v)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 type TemplateSqlQueryCfg struct {
@@ -97,25 +55,13 @@ type TemplateSqlQueryCfg struct {
 	store       *store.IndexFieldStoreWrap
 }
 
-func (t *TemplateSqlQueryCfg) InitIndexFieldStore() {
-	t.store = &store.IndexFieldStoreWrap{}
-	t.store.Init(t.IndexFields...)
-}
+func (t *TemplateSqlQueryCfg) InitIndexFieldStore() { _ = "STUB: not implemented"; return }
 
-func (t *TemplateSqlQueryCfg) SetIndexValue(v interface{}) {
-	switch vv := v.(type) {
-	case *store.IndexFieldStore:
-		t.store.InitByStore(vv)
-		t.store.LoadFromList()
-	default:
-		t.InitIndexFieldStore()
-	}
-}
+func (t *TemplateSqlQueryCfg) SetIndexValue(v interface{}) { _ = "STUB: not implemented"; return }
 
-func (t *TemplateSqlQueryCfg) GetIndexValue() interface{} {
-	return t.store.GetStore()
-}
+func (t *TemplateSqlQueryCfg) GetIndexValue() interface{} { _ = "STUB: not implemented"; return nil }
 
 func (t *TemplateSqlQueryCfg) GetIndexValueWrap() *store.IndexFieldStoreWrap {
-	return t.store
+	_ = "STUB: not implemented"
+	return nil
 }

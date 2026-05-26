@@ -15,8 +15,6 @@
 package context
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 )
 
@@ -26,36 +24,32 @@ type DefaultFuncContext struct {
 }
 
 func NewDefaultFuncContext(ctx api.StreamContext, id int) *DefaultFuncContext {
-	return &DefaultFuncContext{
-		StreamContext: ctx,
-		funcId:        id,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *DefaultFuncContext) IncrCounter(key string, amount int) error {
-	return c.StreamContext.IncrCounter(c.convertKey(key), amount)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *DefaultFuncContext) GetCounter(key string) (int, error) {
-	return c.StreamContext.GetCounter(c.convertKey(key))
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (c *DefaultFuncContext) PutState(key string, value interface{}) error {
-	return c.StreamContext.PutState(c.convertKey(key), value)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *DefaultFuncContext) GetState(key string) (interface{}, error) {
-	return c.StreamContext.GetState(c.convertKey(key))
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *DefaultFuncContext) DeleteState(key string) error {
-	return c.StreamContext.DeleteState(c.convertKey(key))
-}
+func (c *DefaultFuncContext) DeleteState(key string) error { _ = "STUB: not implemented"; return nil }
 
-func (c *DefaultFuncContext) GetFuncId() int {
-	return c.funcId
-}
+func (c *DefaultFuncContext) GetFuncId() int { _ = "STUB: not implemented"; return 0 }
 
-func (c *DefaultFuncContext) convertKey(key string) string {
-	return fmt.Sprintf("$$func%d_%s", c.funcId, key)
-}
+func (c *DefaultFuncContext) convertKey(key string) string { _ = "STUB: not implemented"; return "" }

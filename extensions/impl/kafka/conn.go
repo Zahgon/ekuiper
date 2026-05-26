@@ -16,16 +16,10 @@ package kafka
 
 import (
 	"crypto/tls"
-	"fmt"
-	"strings"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	kafkago "github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/sasl"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cert"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
@@ -37,68 +31,17 @@ type kafkaConnectionConf struct {
 }
 
 func newKafkaConnectionConf(ctx api.StreamContext, props map[string]any) (*kafkaConnectionConf, error) {
-	c := &kafkaConnectionConf{}
-	if err := cast.MapToStruct(props, c); err != nil {
-		return nil, err
-	}
-	if err := c.validate(); err != nil {
-		return nil, err
-	}
-	tlsConfig, err := cert.GenTLSConfig(ctx, props)
-	if err != nil {
-		return nil, err
-	}
-	saslConf, err := getSaslConf(props)
-	if err != nil {
-		return nil, err
-	}
-	if err := saslConf.Validate(); err != nil {
-		return nil, err
-	}
-	mechanism, err := saslConf.GetMechanism()
-	if err != nil {
-		return nil, err
-	}
-	c.tlsConfig = tlsConfig
-	c.mechanism = mechanism
-	return c, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *kafkaConnectionConf) validate() error {
-	if strings.TrimSpace(c.Brokers) == "" {
-		return fmt.Errorf("brokers can not be empty")
-	}
-	return nil
-}
+func (c *kafkaConnectionConf) validate() error { _ = "STUB: not implemented"; return nil }
 
-func (c *kafkaConnectionConf) ping() error {
-	hasBroker := false
-	for _, broker := range strings.Split(c.Brokers, ",") {
-		broker = strings.TrimSpace(broker)
-		if broker == "" {
-			continue
-		}
-		hasBroker = true
-		if err := c.pingBroker(broker); err != nil {
-			return err
-		}
-	}
-	if !hasBroker {
-		return fmt.Errorf("brokers can not be empty")
-	}
-	return nil
-}
+func (c *kafkaConnectionConf) ping() error { _ = "STUB: not implemented"; return nil }
 
 func (c *kafkaConnectionConf) pingBroker(address string) error {
-	d := &kafkago.Dialer{
-		TLS:           c.tlsConfig,
-		SASLMechanism: c.mechanism,
-	}
-	conn, err := d.Dial("tcp", address)
-	if err != nil {
-		return errorx.NewIOErr(fmt.Sprintf("found error when connecting to kafka broker %s: %s", address, err))
-	}
-	return conn.Close()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type KafkaConnection struct {
@@ -111,36 +54,21 @@ func init() {
 }
 
 func CreateConnection(_ api.StreamContext) modules.Connection {
-	return &KafkaConnection{}
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
 func (k *KafkaConnection) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	c, err := newKafkaConnectionConf(ctx, props)
-	if err != nil {
-		return err
-	}
-	k.id = conId
-	k.conf = c
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (k *KafkaConnection) Dial(ctx api.StreamContext) error {
-	return k.Ping(ctx)
-}
+func (k *KafkaConnection) Dial(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (k *KafkaConnection) GetId(_ api.StreamContext) string {
-	return k.id
-}
+func (k *KafkaConnection) GetId(_ api.StreamContext) string { _ = "STUB: not implemented"; return "" }
 
-func (k *KafkaConnection) Ping(ctx api.StreamContext) error {
-	if k.conf == nil {
-		return fmt.Errorf("kafka connection is not provisioned")
-	}
-	return k.conf.ping()
-}
+func (k *KafkaConnection) Ping(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
-func (k *KafkaConnection) Close(_ api.StreamContext) error {
-	return nil
-}
+func (k *KafkaConnection) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 var _ modules.Connection = &KafkaConnection{}

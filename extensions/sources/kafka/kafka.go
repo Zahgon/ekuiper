@@ -16,10 +16,8 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/kafka"
 )
 
-func Kafka() api.Source { return kafka.GetSource() }
+func Kafka() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }
 
-func KafkaLookup() api.Source { return kafka.GetSource() }
+func KafkaLookup() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }

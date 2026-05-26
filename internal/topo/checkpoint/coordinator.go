@@ -15,7 +15,6 @@
 package checkpoint
 
 import (
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -24,10 +23,7 @@ import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 type pendingCheckpoint struct {
@@ -37,36 +33,19 @@ type pendingCheckpoint struct {
 }
 
 func newPendingCheckpoint(checkpointId int64, tasksToWaitFor []Responder) *pendingCheckpoint {
-	pc := &pendingCheckpoint{checkpointId: checkpointId}
-	nyat := make(map[string]bool)
-	for _, r := range tasksToWaitFor {
-		nyat[r.GetName()] = true
-	}
-	pc.notYetAckTasks = nyat
-	return pc
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *pendingCheckpoint) ack(opId string) bool {
-	if c.isDiscarded {
-		return false
-	}
-	delete(c.notYetAckTasks, opId)
-	// TODO serialize state
-	return true
-}
+func (c *pendingCheckpoint) ack(opId string) bool { _ = "STUB: not implemented"; return false }
 
-func (c *pendingCheckpoint) isFullyAck() bool {
-	return len(c.notYetAckTasks) == 0
-}
+// TODO serialize state
 
-func (c *pendingCheckpoint) finalize() *completedCheckpoint {
-	ccp := &completedCheckpoint{checkpointId: c.checkpointId}
-	return ccp
-}
+func (c *pendingCheckpoint) isFullyAck() bool { _ = "STUB: not implemented"; return false }
 
-func (c *pendingCheckpoint) dispose(_ bool) {
-	c.isDiscarded = true
-}
+func (c *pendingCheckpoint) finalize() *completedCheckpoint { _ = "STUB: not implemented"; return nil }
+
+func (c *pendingCheckpoint) dispose(_ bool) { _ = "STUB: not implemented"; return }
 
 type completedCheckpoint struct {
 	checkpointId int64
@@ -78,29 +57,11 @@ type checkpointStore struct {
 	checkpoints []*completedCheckpoint
 }
 
-func (s *checkpointStore) add(c *completedCheckpoint) {
-	s.Lock()
-	defer s.Unlock()
-	s.checkpoints = append(s.checkpoints, c)
-	if len(s.checkpoints) > s.maxNum {
-		s.checkpoints = s.checkpoints[1:]
-	}
-}
+func (s *checkpointStore) add(c *completedCheckpoint) { _ = "STUB: not implemented"; return }
 
-func (s *checkpointStore) getLatest() *completedCheckpoint {
-	s.RLock()
-	defer s.RUnlock()
-	if len(s.checkpoints) > 0 {
-		return s.checkpoints[len(s.checkpoints)-1]
-	}
-	return nil
-}
+func (s *checkpointStore) getLatest() *completedCheckpoint { _ = "STUB: not implemented"; return nil }
 
-func (s *checkpointStore) getCount() int {
-	s.RLock()
-	defer s.RUnlock()
-	return len(s.checkpoints)
-}
+func (s *checkpointStore) getCount() int { _ = "STUB: not implemented"; return 0 }
 
 type Coordinator struct {
 	toBeClean               int
@@ -124,231 +85,56 @@ type Coordinator struct {
 }
 
 func NewCoordinator(ruleId string, sources []StreamTask, operators []NonSourceTask, sinks []SinkTask, qos def.Qos, store api.Store, interval time.Duration, ctx api.StreamContext) *Coordinator {
-	logger := ctx.GetLogger()
-	logger.Infof("create new coordinator for rule %s", ruleId)
-	signal := make(chan *Signal, 1024)
-	var allResponders, sourceResponders []Responder
-	for _, r := range sources {
-		r.SetQos(qos)
-		re := NewResponderExecutor(signal, r)
-		allResponders = append(allResponders, re)
-		sourceResponders = append(sourceResponders, re)
-	}
-	for _, r := range operators {
-		r.SetQos(qos)
-		re := NewResponderExecutor(signal, r)
-		handler := createBarrierHandler(re, r.GetInputCount(), qos)
-		r.SetBarrierHandler(handler)
-		allResponders = append(allResponders, re)
-	}
-	for _, r := range sinks {
-		r.SetQos(qos)
-		re := NewResponderExecutor(signal, r)
-		handler := NewBarrierTracker(re, r.GetInputCount())
-		r.SetBarrierHandler(handler)
-		allResponders = append(allResponders, re)
-	}
-	// 5 minutes by default
-	if interval <= 0 {
-		interval = 5 * time.Minute
-	}
-	return &Coordinator{
-		tasksToTrigger:     sourceResponders,
-		tasksToWaitFor:     allResponders,
-		sinkTasks:          sinks,
-		pendingCheckpoints: new(sync.Map),
-		completedCheckpoints: &checkpointStore{
-			maxNum: 3,
-		},
-		ruleId:               ruleId,
-		signal:               signal,
-		baseInterval:         interval,
-		store:                store,
-		ctx:                  ctx,
-		cleanThreshold:       100,
-		forceSaveStateNotify: make(chan any, 2),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// 5 minutes by default
 
 func createBarrierHandler(re Responder, inputCount int, qos def.Qos) BarrierHandler {
-	switch qos {
-	case def.AtLeastOnce:
-		return NewBarrierTracker(re, inputCount)
-	case def.ExactlyOnce:
-		return NewBarrierAligner(re, inputCount)
-	default:
-		return nil
-	}
+	_ = "STUB: not implemented"
+	return *new(BarrierHandler)
 }
 
-func (c *Coordinator) Activate() error {
-	logger := c.ctx.GetLogger()
-	logger.Infof("Start checkpoint coordinator for rule %s at %d", c.ruleId, timex.GetNowInMilli())
-	if c.ticker != nil {
-		c.ticker.Stop()
-	}
-	c.ticker = timex.GetTicker(c.baseInterval)
-	tc := c.ticker.C
-	go func() {
-		err := infra.SafeRun(func() error {
-			c.activated.Store(true)
-			for {
-				select {
-				case n := <-tc:
-					if c.inForceSaveState.Load() {
-						continue
-					}
-					c.saveState(n, logger)
-				case s := <-c.signal:
-					switch s.Message {
-					case ForceSaveState:
-						c.inForceSaveState.Store(true)
-						c.saveState(time.Now(), logger)
-					case STOP:
-						logger.Infof("Stop checkpoint scheduler")
-						if c.ticker != nil {
-							c.ticker.Stop()
-						}
-						return nil
-					case ACK:
-						logger.Debugf("Receive ack from %s for checkpoint %d", s.OpId, s.CheckpointId)
-						if cp, ok := c.pendingCheckpoints.Load(s.CheckpointId); ok {
-							checkpoint := cp.(*pendingCheckpoint)
-							checkpoint.ack(s.OpId)
-							if checkpoint.isFullyAck() {
-								c.complete(s.CheckpointId)
-								if c.inForceSaveState.Load() {
-									c.FinishForceSaveState()
-								}
-							}
-						} else {
-							logger.Debugf("Receive ack from %s for non existing checkpoint %d", s.OpId, s.CheckpointId)
-						}
-					case DEC:
-						logger.Debugf("Receive dec from %s for checkpoint %d, cancel it", s.OpId, s.CheckpointId)
-						c.cancel(s.CheckpointId)
-						if c.inForceSaveState.Load() {
-							c.FinishForceSaveState()
-						}
-					}
-				case <-c.ctx.Done():
-					logger.Info("Cancelling coordinator....")
-					if c.ticker != nil {
-						c.ticker.Stop()
-						logger.Info("Stop coordinator ticker")
-					}
-					return nil
-				}
-			}
-		})
-		logger.Error(err)
-	}()
-	return nil
-}
+func (c *Coordinator) Activate() error { _ = "STUB: not implemented"; return nil }
 
 func (c *Coordinator) saveState(n time.Time, logger api.Logger) {
+	_ = "STUB: not implemented"
 	// trigger checkpoint
 	// TODO pose max attempt and min pause check for consequent pendingCheckpoints
-
-	// TODO Check if all tasks are running
-
-	// Create a pending checkpoint
-	checkpointId := cast.TimeToUnixMilli(n)
-	checkpoint := newPendingCheckpoint(checkpointId, c.tasksToWaitFor)
-	logger.Debugf("Create checkpoint %d", checkpointId)
-	c.pendingCheckpoints.Store(checkpointId, checkpoint)
-	// Let the sources send out a barrier
-	for _, r := range c.tasksToTrigger {
-		go func(t Responder) {
-			if err := t.TriggerCheckpoint(checkpointId); err != nil {
-				logger.Infof("Fail to trigger checkpoint for source %s with error %v, cancel it", t.GetName(), err)
-				c.cancel(checkpointId)
-			}
-		}(r)
-	}
-	c.toBeClean++
-	if c.toBeClean >= c.cleanThreshold {
-		c.store.Clean()
-		c.toBeClean = 0
-	}
+	return
 }
 
-func (c *Coordinator) Deactivate() error {
-	if c.ticker != nil {
-		c.ticker.Stop()
-	}
-	c.signal <- &Signal{Message: STOP}
-	return nil
-}
+// TODO Check if all tasks are running
+
+// Create a pending checkpoint
+
+// Let the sources send out a barrier
+
+func (c *Coordinator) Deactivate() error { _ = "STUB: not implemented"; return nil }
 
 func (c *Coordinator) ForceSaveState() (chan any, error) {
-	if c.inForceSaveState.Load() {
-		return nil, fmt.Errorf("duplicated force save state")
-	}
-	c.signal <- &Signal{Message: ForceSaveState}
-	return c.forceSaveStateNotify, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (c *Coordinator) FinishForceSaveState() {
-	c.inForceSaveState.Store(false)
-	c.forceSaveStateNotify <- struct{}{}
-}
+func (c *Coordinator) FinishForceSaveState() { _ = "STUB: not implemented"; return }
 
-func (c *Coordinator) cancel(checkpointId int64) {
-	logger := c.ctx.GetLogger()
-	if checkpoint, ok := c.pendingCheckpoints.Load(checkpointId); ok {
-		c.pendingCheckpoints.Delete(checkpointId)
-		checkpoint.(*pendingCheckpoint).dispose(true)
-	} else {
-		logger.Debugf("Cancel for non existing checkpoint %d. Just ignored", checkpointId)
-	}
-}
+func (c *Coordinator) cancel(checkpointId int64) { _ = "STUB: not implemented"; return }
 
-func (c *Coordinator) complete(checkpointId int64) {
-	logger := c.ctx.GetLogger()
+func (c *Coordinator) complete(checkpointId int64) { _ = "STUB: not implemented"; return }
 
-	if ccp, ok := c.pendingCheckpoints.Load(checkpointId); ok {
-		err := c.store.SaveCheckpoint(checkpointId)
-		if err != nil {
-			logger.Infof("Cannot save checkpoint %d due to storage error: %v", checkpointId, err)
-			// TODO handle checkpoint error
-			return
-		}
-		c.completedCheckpoints.add(ccp.(*pendingCheckpoint).finalize())
-		c.pendingCheckpoints.Delete(checkpointId)
-		// Drop the previous pendingCheckpoints
-		c.pendingCheckpoints.Range(func(a1 interface{}, a2 interface{}) bool {
-			cid := a1.(int64)
-			cp := a2.(*pendingCheckpoint)
-			if cid < checkpointId {
-				// TODO revisit how to abort a checkpoint, discard callback
-				cp.isDiscarded = true
-				c.pendingCheckpoints.Delete(cid)
-			}
-			return true
-		})
-		logger.Debugf("Totally complete checkpoint %d", checkpointId)
-	} else {
-		logger.Infof("Cannot find checkpoint %d to complete", checkpointId)
-	}
-}
+// TODO handle checkpoint error
+
+// Drop the previous pendingCheckpoints
+
+// TODO revisit how to abort a checkpoint, discard callback
 
 // For testing
-func (c *Coordinator) GetCompleteCount() int {
-	return c.completedCheckpoints.getCount()
-}
+func (c *Coordinator) GetCompleteCount() int { _ = "STUB: not implemented"; return 0 }
 
-func (c *Coordinator) GetLatest() int64 {
-	return c.completedCheckpoints.getLatest().checkpointId
-}
+func (c *Coordinator) GetLatest() int64 { _ = "STUB: not implemented"; return 0 }
 
-func (c *Coordinator) IsActivated() bool {
-	if c == nil {
-		return false
-	}
-	return c.activated.Load()
-}
+func (c *Coordinator) IsActivated() bool { _ = "STUB: not implemented"; return false }
 
-func (c *Coordinator) ActiveForceSaveState() {
-	c.inForceSaveState.Store(true)
-}
+func (c *Coordinator) ActiveForceSaveState() { _ = "STUB: not implemented"; return }

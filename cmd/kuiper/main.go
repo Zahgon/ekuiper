@@ -43,22 +43,11 @@ type clientConf struct {
 const ClientYaml = "client.yaml"
 
 func streamProcessValue(client *rpc.Client, args string) (string, error) {
-	var reply string
-	if args == "" {
-		args = strings.Join(os.Args[1:], " ")
-	}
-	err := client.Call("Server.Stream", args, &reply)
-	return reply, err
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func streamProcess(client *rpc.Client, args string) {
-	s, err := streamProcessValue(client, args)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(s)
-	}
-}
+func streamProcess(client *rpc.Client, args string) { _ = "STUB: not implemented"; return }
 
 var (
 	Version      = "unknown"
@@ -1381,37 +1370,8 @@ func main() {
 	}
 }
 
-func getPluginType(arg string) (ptype int, err error) {
-	switch arg {
-	case "source":
-		ptype = 0
-	case "sink":
-		ptype = 1
-	case "function":
-		ptype = 2
-	case "portable":
-		ptype = 3
-	case "wasm":
-		ptype = 4
-	default:
-		err = fmt.Errorf("Invalid plugin type %s, should be \"source\", \"sink\", \"function\" or \"portable\" or \"wasm\".\n", arg)
-	}
-	return
-}
+func getPluginType(arg string) (ptype int, err error) { _ = "STUB: not implemented"; return 0, nil }
 
-func fileExists(file string) bool {
-	_, err := os.Stat(file)
-	return !os.IsNotExist(err)
-}
+func fileExists(file string) bool { _ = "STUB: not implemented"; return false }
 
-func readDef(sfile string, t string) ([]byte, error) {
-	if !fileExists(sfile) {
-		return nil, fmt.Errorf("The specified %s defenition file %s is not existed.\n", t, sfile)
-	}
-	fmt.Printf("Creating a new %s from file %s.\n", t, sfile)
-	if rule, err := os.ReadFile(sfile); err != nil {
-		return nil, fmt.Errorf("Failed to read from %s definition file %s.\n", t, sfile)
-	} else {
-		return rule, nil
-	}
-}
+func readDef(sfile string, t string) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }

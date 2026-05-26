@@ -17,15 +17,10 @@ package httpserver
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
-	"net/url"
 	"sync"
-	"time"
 
 	"github.com/gorilla/websocket"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
 )
 
 type WebsocketClient struct {
@@ -43,67 +38,25 @@ type WebsocketClient struct {
 }
 
 func NewWebsocketClient(scheme, addr, path string, tlsConfig *tls.Config, requestHeader map[string][]string) *WebsocketClient {
-	if scheme == "" {
-		scheme = "ws"
-	}
-	return &WebsocketClient{
-		requestHeader: requestHeader,
-		scheme:        scheme,
-		addr:          addr,
-		path:          path,
-		tlsConfig:     tlsConfig,
-		wg:            &sync.WaitGroup{},
-	}
-}
-
-func (c *WebsocketClient) Connect() error {
-	d := &websocket.Dialer{
-		HandshakeTimeout: 3 * time.Second,
-		TLSClientConfig:  c.tlsConfig,
-	}
-	if len(c.addr) < 1 {
-		return fmt.Errorf("addr should be defined")
-	}
-	path, rawQuery, err := extractPathAndQuery(c.path)
-	if err != nil {
-		return err
-	}
-	u := url.URL{Scheme: c.scheme, Host: c.addr, Path: path, RawQuery: rawQuery}
-	conn, _, err := d.Dial(u.String(), c.requestHeader)
-	if err != nil {
-		return err
-	}
-	c.conn = conn
+	_ = "STUB: not implemented"
 	return nil
 }
 
+func (c *WebsocketClient) Connect() error { _ = "STUB: not implemented"; return nil }
+
 func (c *WebsocketClient) Run(ctx api.StreamContext) (string, string) {
-	c.RecvTopic = recvTopic(c.path, false)
-	c.SendTopic = sendTopic(c.path, false)
-	pubsub.CreatePub(c.RecvTopic)
-	c.handleProcess(ctx)
-	return c.RecvTopic, c.SendTopic
+	_ = "STUB: not implemented"
+	return "", ""
 }
 
 func (c *WebsocketClient) handleProcess(parCtx api.StreamContext) {
-	ctx, cancel := parCtx.WithCancel()
-	c.cancel = cancel
-	c.wg.Add(2)
-	go recvProcess(ctx, c.RecvTopic, c.conn, cancel, c.wg)
-	go sendProcess(ctx, c.SendTopic, "", c.conn, cancel, c.wg)
+	_ = "STUB: not implemented"
+	return
 }
 
-func (c *WebsocketClient) Close(ctx api.StreamContext) error {
-	pubsub.RemovePub(c.RecvTopic)
-	c.cancel()
-	c.wg.Wait()
-	return nil
-}
+func (c *WebsocketClient) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func extractPathAndQuery(rawURL string) (string, string, error) {
-	parsedURL, err := url.Parse(rawURL)
-	if err != nil {
-		return "", "", err
-	}
-	return parsedURL.Path, parsedURL.RawQuery, nil
+	_ = "STUB: not implemented"
+	return "", "", nil
 }

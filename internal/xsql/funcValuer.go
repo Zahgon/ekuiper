@@ -14,48 +14,37 @@
 
 package xsql
 
-import (
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-)
-
 // FunctionValuer ONLY use NewFunctionValuer function to initialize
 type FunctionValuer struct {
 	runtime *funcRuntime
 }
 
 // Should only be called by stream to make sure a single instance for an operation
-func NewFunctionValuer(p *funcRuntime) *FunctionValuer {
-	fv := &FunctionValuer{
-		runtime: p,
-	}
-	return fv
-}
+func NewFunctionValuer(p *funcRuntime) *FunctionValuer { _ = "STUB: not implemented"; return nil }
 
 func (*FunctionValuer) Value(_, _ string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (*FunctionValuer) Meta(_, _ string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (*FunctionValuer) AppendAlias(string, interface{}) bool {
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (*FunctionValuer) AliasValue(string) (interface{}, bool) {
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
 func (fv *FunctionValuer) Call(name string, funcId int, args []interface{}) (interface{}, bool) {
-	nf, fctx, err := fv.runtime.Get(name, funcId)
-	switch err {
-	case errorx.NotFoundErr:
-		return nil, false
-	case nil:
-		// do nothing, continue
-	default:
-		return err, false
-	}
-	return ExecFunc(name, nf, args, fctx)
+	_ = "STUB: not implemented"
+	return nil, false
 }
+
+// do nothing, continue

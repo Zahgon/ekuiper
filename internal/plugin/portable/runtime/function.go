@@ -15,15 +15,7 @@
 package runtime
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	nerrors "go.nanomsg.org/mangos/v3/errors"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
 )
 
 // PortableFunc each function symbol only has a singleton
@@ -41,173 +33,38 @@ type PortableFunc struct {
 }
 
 func NewPortableFunc(symbolName string, reg *PluginMeta) (_ *PortableFunc, e error) {
+	_ = "STUB: not implemented"
 	// Setup channel and route the data
-	conf.Log.Infof("Start running portable function meta %+v", reg)
-	pm := GetPluginInsManager()
-	ins, err := pm.GetOrStartProcess(reg, PortbleConf)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create function channel
-	conf.Log.Infof("creating function channel for symbol %s", symbolName)
-	dataCh, err := CreateFunctionChannel(symbolName)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if e != nil {
-			dataCh.Close()
-		}
-	}()
-
-	// Start symbol
-	c := &Control{
-		SymbolName: symbolName,
-		PluginType: TYPE_FUNC,
-	}
-	ctx := kctx.WithValue(kctx.Background(), kctx.LoggerKey, conf.Log)
-	conf.Log.Infof("starting symbol %s", symbolName)
-	err = ins.StartSymbol(ctx, c)
-	if err != nil {
-		return nil, err
-	}
-
-	return &PortableFunc{
-		symbolName: reg.Name,
-		reg:        reg,
-		dataCh:     dataCh,
-	}, nil
+	return nil, nil
 }
 
+// Create function channel
+
+// Start symbol
+
 func (f *PortableFunc) Validate(args []interface{}) error {
+	_ = "STUB: not implemented"
 	// TODO function arg encoding
-	jsonArg, err := encode("Validate", args)
-	if err != nil {
-		return err
-	}
-	res, err := f.dataCh.Req(jsonArg)
-	if err != nil {
-		e := handleTimeout(err, f.reg.Name)
-		return e
-	}
-	fr := &FuncReply{}
-	err = json.Unmarshal(res, fr)
-	if err != nil {
-		return err
-	}
-	if fr.State {
-		return nil
-	} else {
-		return fmt.Errorf("validate return state is false, got %+v", fr)
-	}
+	return nil
 }
 
 func (f *PortableFunc) Exec(ctx api.FunctionContext, args []any) (interface{}, bool) {
-	ctx.GetLogger().Debugf("running portable func with args %+v", args)
-	ctxRaw, err := encodeCtx(ctx)
-	if err != nil {
-		return err, false
-	}
-	jsonArg, err := encode("Exec", append(args, ctxRaw))
-	if err != nil {
-		return err, false
-	}
-	res, err := f.dataCh.Req(jsonArg)
-	if err != nil {
-		e := handleTimeout(err, f.reg.Name)
-		return e, false
-	}
-	fr := &FuncReply{}
-	err = json.Unmarshal(res, fr)
-	if err != nil {
-		return fmt.Errorf("Failed to unmarshal function result %s", string(res)), false
-	}
-	if !fr.State {
-		if fr.Result != nil {
-			return fmt.Errorf("%s", fr.Result), false
-		} else {
-			return nil, false
-		}
-	}
-	return fr.Result, fr.State
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func handleTimeout(err error, pname string) error {
-	if errors.Is(err, nerrors.ErrRecvTimeout) {
-		pm := GetPluginInsManager()
-		status, ok := pm.GetPluginInsStatus(pname)
-		if !ok {
-			return fmt.Errorf("plugin %s was removed", pname)
-		} else {
-			return fmt.Errorf("time out, plugin %s status %s, message: %s", pname, status.Status, status.ErrMsg)
-		}
-	}
-	return err
-}
+func handleTimeout(err error, pname string) error { _ = "STUB: not implemented"; return nil }
 
-func (f *PortableFunc) IsAggregate() bool {
-	if f.isAgg > 0 {
-		return f.isAgg > 1
-	}
-	jsonArg, err := encode("IsAggregate", nil)
-	if err != nil {
-		conf.Log.Error(err)
-		return false
-	}
-	res, err := f.dataCh.Req(jsonArg)
-	if err != nil {
-		conf.Log.Error(err)
-		return false
-	}
-	fr := &FuncReply{}
-	err = json.Unmarshal(res, fr)
-	if err != nil {
-		conf.Log.Error(err)
-		return false
-	}
-	if fr.State {
-		r, ok := fr.Result.(bool)
-		if !ok {
-			conf.Log.Errorf("IsAggregate result is not bool, got %s", string(res))
-			return false
-		} else {
-			if r {
-				f.isAgg = 2
-			} else {
-				f.isAgg = 1
-			}
-			return r
-		}
-	} else {
-		conf.Log.Errorf("IsAggregate return state is false, got %+v", fr)
-		return false
-	}
-}
+func (f *PortableFunc) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
-func (f *PortableFunc) Close() error {
-	return f.dataCh.Close()
-	// Symbol must be closed by instance manager
-	//		ins.StopSymbol(ctx, c)
-}
+func (f *PortableFunc) Close() error { _ = "STUB: not implemented"; return nil }
+
+// Symbol must be closed by instance manager
+//		ins.StopSymbol(ctx, c)
 
 func encode(funcName string, arg interface{}) ([]byte, error) {
-	c := FuncData{
-		Func: funcName,
-		Arg:  arg,
-	}
-	return json.Marshal(c)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func encodeCtx(ctx api.FunctionContext) (string, error) {
-	m := FuncMeta{
-		Meta: Meta{
-			RuleId:     ctx.GetRuleId(),
-			OpId:       ctx.GetOpId(),
-			InstanceId: ctx.GetInstanceId(),
-		},
-		FuncId: ctx.GetFuncId(),
-	}
-	bs, err := json.Marshal(m)
-	return string(bs), err
-}
+func encodeCtx(ctx api.FunctionContext) (string, error) { _ = "STUB: not implemented"; return "", nil }

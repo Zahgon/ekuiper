@@ -17,6 +17,4 @@
 package cgroup
 
 // InContainer returns true if the process is running in a container.
-func InContainer() bool {
-	return false
-}
+func InContainer() bool { _ = "STUB: not implemented"; return false }

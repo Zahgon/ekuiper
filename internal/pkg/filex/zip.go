@@ -16,64 +16,16 @@ package filex
 
 import (
 	"archive/zip"
-	"errors"
-	"io"
-	"os"
-	"path/filepath"
-
-	"github.com/pingcap/failpoint"
 )
 
-func UnzipTo(f *zip.File, folder, name string) (err error) {
-	defer func() {
-		failpoint.Inject("UnzipToErr", func() {
-			err = errors.New("UnzipToErr")
-		})
-	}()
+func UnzipTo(f *zip.File, folder, name string) (err error) { _ = "STUB: not implemented"; return nil }
 
-	// Ensure destination folder exists (restore previous behavior)
-	if err := os.MkdirAll(folder, os.ModePerm); err != nil {
-		return err
-	}
+// Ensure destination folder exists (restore previous behavior)
 
-	// Open the folder as a sandboxed root first to prevent path traversal
-	root, err := os.OpenRoot(folder)
-	if err != nil {
-		return err
-	}
-	defer root.Close()
+// Open the folder as a sandboxed root first to prevent path traversal
 
-	if f.FileInfo().IsDir() {
-		// Make Folder using sandboxed root
-		if err := root.Mkdir(name, os.ModePerm); err != nil && !os.IsExist(err) {
-			return err
-		}
-		return nil
-	}
+// Make Folder using sandboxed root
 
-	// For files, create parent directory if needed
-	dir := filepath.Dir(name)
-	if dir != "." && dir != "" {
-		if err := root.Mkdir(dir, os.ModePerm); err != nil && !os.IsExist(err) {
-			return err
-		}
-	}
+// For files, create parent directory if needed
 
-	// Remove existing file if present
-	_ = root.Remove(name)
-
-	outFile, err := root.OpenFile(name, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-	if err != nil {
-		return err
-	}
-	defer outFile.Close()
-
-	rc, err := f.Open()
-	if err != nil {
-		return err
-	}
-	defer rc.Close()
-
-	_, err = io.Copy(outFile, rc)
-	return err
-}
+// Remove existing file if present

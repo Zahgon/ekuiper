@@ -20,12 +20,9 @@ type StoreBuilder struct {
 	database KVDatabase
 }
 
-func NewStoreBuilder(d KVDatabase) *StoreBuilder {
-	return &StoreBuilder{
-		database: d,
-	}
-}
+func NewStoreBuilder(d KVDatabase) *StoreBuilder { _ = "STUB: not implemented"; return nil }
 
 func (b StoreBuilder) CreateStore(name string) (kv.KeyValue, error) {
-	return createPebbleKvStore(b.database, name)
+	_ = "STUB: not implemented"
+	return *new(kv.KeyValue), nil
 }

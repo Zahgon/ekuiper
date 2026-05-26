@@ -21,27 +21,15 @@ import (
 )
 
 func (m *Manager) Function(name string) (api.Function, error) {
-	f, err := NewJSFunc(name)
-	if err != nil {
-		return nil, err
-	}
-	return f, nil
+	_ = "STUB: not implemented"
+	return *new(api.Function), nil
 }
 
-func (m *Manager) HasFunctionSet(_ string) bool {
-	return false
-}
+func (m *Manager) HasFunctionSet(_ string) bool { _ = "STUB: not implemented"; return false }
 
 func (m *Manager) FunctionPluginInfo(funcName string) (plugin.EXTENSION_TYPE, string, string) {
-	_, ok := m.ConvName(funcName)
-	if !ok {
-		return plugin.NONE_EXTENSION, "", ""
-	} else {
-		return plugin.JS_EXTENSION, "", ""
-	}
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
-func (m *Manager) ConvName(n string) (string, bool) {
-	_, err := m.GetScript(n)
-	return n, err == nil
-}
+func (m *Manager) ConvName(n string) (string, bool) { _ = "STUB: not implemented"; return "", false }

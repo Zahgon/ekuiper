@@ -29,13 +29,9 @@ type TsBuilder struct {
 	namespace string
 }
 
-func NewTsBuilder(d *fdb.Database) TsBuilder {
-	return TsBuilder{
-		database:  d,
-		namespace: TSNamespace,
-	}
-}
+func NewTsBuilder(d *fdb.Database) TsBuilder { _ = "STUB: not implemented"; return *new(TsBuilder) }
 
 func (b TsBuilder) CreateTs(table string) (kv.Tskv, error) {
-	return CreateFdbTs(b.database, b.namespace, table)
+	_ = "STUB: not implemented"
+	return *new(kv.Tskv), nil
 }

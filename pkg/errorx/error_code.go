@@ -14,8 +14,6 @@
 
 package errorx
 
-import "errors"
-
 type ErrorCode int
 
 const (
@@ -39,49 +37,19 @@ const (
 
 var NotFoundErr = NewWithCode(NOT_FOUND, "not found")
 
-func NewIOErr(msg string) error {
-	return &Error{
-		code: IOErr,
-		msg:  msg,
-	}
-}
+func NewIOErr(msg string) error { _ = "STUB: not implemented"; return nil }
 
-func NewEOF(msg string) error {
-	return &Error{
-		code: EOF,
-		msg:  msg,
-	}
-}
+func NewEOF(msg string) error { _ = "STUB: not implemented"; return nil }
 
-func IsIOError(err error) bool {
-	if withCode, ok := err.(ErrorWithCode); ok {
-		return withCode.Code() == IOErr
-	}
-	return false
-}
+func IsIOError(err error) bool { _ = "STUB: not implemented"; return false }
 
-func IsEOF(err error) bool {
-	var withCode ErrorWithCode
-	if errors.As(err, &withCode) {
-		return withCode.Code() == EOF
-	}
-	return false
-}
+func IsEOF(err error) bool { _ = "STUB: not implemented"; return false }
 
-func IsUnexpectedErr(err error) bool {
-	return err != nil && !IsEOF(err)
-}
+func IsUnexpectedErr(err error) bool { _ = "STUB: not implemented"; return false }
 
-func NewParserError(msg string) error {
-	return &Error{
-		code: ParserError,
-		msg:  msg,
-	}
-}
+func NewParserError(msg string) error { _ = "STUB: not implemented"; return nil }
 
 func GetErrorCode(err error) (ErrorCode, bool) {
-	if code, ok := err.(ErrorWithCode); ok {
-		return code.Code(), true
-	}
-	return 0, false
+	_ = "STUB: not implemented"
+	return *new(ErrorCode), false
 }

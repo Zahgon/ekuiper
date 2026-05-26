@@ -15,7 +15,6 @@
 package nexmark
 
 import (
-	"fmt"
 	"math/rand"
 	"strings"
 
@@ -56,53 +55,13 @@ type Person struct {
 	Extra        string `json:"extra"`
 }
 
-func (p Person) ToMap() map[string]interface{} {
-	m := make(map[string]interface{}, 8)
-	m["id"] = p.ID
-	m["name"] = p.Name
-	m["emailAddress"] = p.EmailAddress
-	m["creditCard"] = p.CreditCard
-	m["city"] = p.City
-	m["state"] = p.State
-	m["datetime"] = p.Datetime
-	m["extra"] = p.Extra
-	return m
-}
+func (p Person) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
-func genPersonID(r *rand.Rand) uint64 {
-	id := uint64(r.Int())
-	mu.Lock()
-	defer mu.Unlock()
-	PersonIDs = append(PersonIDs, id)
-	return id
-}
+func genPersonID(r *rand.Rand) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func pickPersonID(r *rand.Rand) uint64 {
-	mu.RLock()
-	defer mu.RUnlock()
-	return PersonIDs[r.Int()%len(PersonIDs)]
-}
+func pickPersonID(r *rand.Rand) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func NewPerson(eventID int64, time uint64) Person {
-	r := rand.New(rand.NewSource(eventID))
-	seed := r.Int()
-	name := fmt.Sprintf("%s %s", firstNames[seed%len(firstNames)], lastNames[seed%len(lastNames)])
-	emailAddress := fmt.Sprintf("%s@%s.com", randString(7), randString(5))
-	creditCard := fmt.Sprintf("%s %s %s %s", randNumber(4), randNumber(4), randNumber(4), randNumber(4))
-	city := cities[seed%len(cities)]
-	state := states[seed%len(states)]
-	extra := randString(r.Intn(20) + 10)
-	return Person{
-		ID:           genPersonID(r),
-		Name:         name,
-		EmailAddress: emailAddress,
-		CreditCard:   creditCard,
-		City:         city,
-		State:        state,
-		Datetime:     time,
-		Extra:        extra,
-	}
-}
+func NewPerson(eventID int64, time uint64) Person { _ = "STUB: not implemented"; return *new(Person) }
 
 type Auction struct {
 	ID          uint64 `json:"id"`
@@ -117,59 +76,16 @@ type Auction struct {
 	Extra       string `json:"extra"`
 }
 
-func (a Auction) ToMap() map[string]interface{} {
-	m := make(map[string]interface{}, 10)
-	m["id"] = a.ID
-	m["itemName"] = a.ItemName
-	m["description"] = a.Description
-	m["initialBid"] = a.InitialBid
-	m["reserve"] = a.Reserve
-	m["datetime"] = a.Datetime
-	m["expires"] = a.Expires
-	m["seller"] = a.Seller
-	m["category"] = a.Category
-	m["extra"] = a.Extra
-	return m
-}
+func (a Auction) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
 func NewAuction(eventID int64, time uint64) Auction {
-	r := rand.New(rand.NewSource(eventID))
-	itemName := randString(20)
-	description := randString(100)
-	initialBid := r.Intn(10000)
-	reverse := initialBid + r.Intn(10000)
-	expires := time + r.Uint64()
-	seller := pickPersonID(r)
-	category := r.Intn(categoriesCount)
-	currentSize := 8 + len(itemName) + len(description) + 8 + 8 + 8 + 8 + 8
-	extra := randString(currentSize)
-	return Auction{
-		ID:          genAuctionID(r),
-		ItemName:    itemName,
-		Description: description,
-		InitialBid:  uint64(initialBid),
-		Reserve:     uint64(reverse),
-		Datetime:    time,
-		Expires:     expires,
-		Seller:      seller,
-		Category:    uint64(category),
-		Extra:       extra,
-	}
+	_ = "STUB: not implemented"
+	return *new(Auction)
 }
 
-func genAuctionID(r *rand.Rand) uint64 {
-	id := uint64(r.Int())
-	mu.Lock()
-	defer mu.Unlock()
-	AuctionIDs = append(AuctionIDs, id)
-	return id
-}
+func genAuctionID(r *rand.Rand) uint64 { _ = "STUB: not implemented"; return 0 }
 
-func pickAuctionID(r *rand.Rand) uint64 {
-	mu.RLock()
-	defer mu.RUnlock()
-	return AuctionIDs[r.Int()%len(AuctionIDs)]
-}
+func pickAuctionID(r *rand.Rand) uint64 { _ = "STUB: not implemented"; return 0 }
 
 type Bid struct {
 	Auction  uint64 `json:"auction"`
@@ -181,56 +97,12 @@ type Bid struct {
 	Extra    string `json:"extra"`
 }
 
-func (b Bid) ToMap() map[string]interface{} {
-	m := make(map[string]interface{}, 7)
-	m["auction"] = b.Auction
-	m["bidder"] = b.Bidder
-	m["price"] = b.Price
-	m["channel"] = b.Channel
-	m["url"] = b.Url
-	m["datetime"] = b.Datetime
-	m["extra"] = b.Extra
-	return m
-}
+func (b Bid) ToMap() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
-func NewBid(eventID int64, time uint64) Bid {
-	r := rand.New(rand.NewSource(eventID))
-	auction := pickAuctionID(r)
-	bidder := pickPersonID(r)
-	price := r.Intn(1000)
-	channel := hotChannels[r.Int()%len(hotChannels)]
-	url := randUrl()
-	currentSize := 32
-	extra := randString(currentSize)
-	return Bid{
-		Auction:  auction,
-		Bidder:   bidder,
-		Price:    uint64(price),
-		Channel:  channel,
-		Url:      url,
-		Datetime: time,
-		Extra:    extra,
-	}
-}
+func NewBid(eventID int64, time uint64) Bid { _ = "STUB: not implemented"; return *new(Bid) }
 
-func randString(length int) string {
-	letters := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	b := make([]rune, length)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
-}
+func randString(length int) string { _ = "STUB: not implemented"; return "" }
 
-func randNumber(length int) string {
-	letters := []rune("0123456789")
-	b := make([]rune, length)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
-}
+func randNumber(length int) string { _ = "STUB: not implemented"; return "" }
 
-func randUrl() string {
-	return fmt.Sprintf("https://www.nexmark.com/%s/%s/%s/item.htm?query=1", randString(5), randString(5), randString(5))
-}
+func randUrl() string { _ = "STUB: not implemented"; return "" }

@@ -15,7 +15,6 @@
 package encryptor
 
 import (
-	"errors"
 	"sync"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
@@ -31,19 +30,10 @@ var (
 )
 
 // InitConf run in server start up
-func InitConf(enc *model.EncryptionConf, k []byte) {
-	dconf = enc
-	dKey = k
-}
+func InitConf(enc *model.EncryptionConf, k []byte) { _ = "STUB: not implemented"; return }
 
 // GetDefaultDecryptor returns the singleton of the decryptor
 func GetDefaultDecryptor() (message.Decryptor, error) {
-	once.Do(func() {
-		if dconf != nil {
-			ddec, derr = GetDecryptorWithKey(dconf.Algorithm, dKey, dconf.Properties)
-		} else {
-			derr = errors.New("default encryption is not configured")
-		}
-	})
-	return ddec, derr
+	_ = "STUB: not implemented"
+	return *new(message.Decryptor), nil
 }

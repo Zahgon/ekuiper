@@ -15,66 +15,23 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strconv"
 	"time"
-
-	"github.com/lf-edge/ekuiper/v2/metrics"
 )
 
 func dumpMetricsEnabledHandler(w http.ResponseWriter, r *http.Request) {
-	if metrics.IsMetricsDumpEnabled() {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("enabled"))
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("disabled"))
+	_ = "STUB: not implemented"
+	return
 }
 
-func dumpMetricsHandler(w http.ResponseWriter, r *http.Request) {
-	startTime, endTime := extractStartEndTime(r)
-	zipFilePath, err := metrics.GetMetricsZipFile(startTime, endTime)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	defer os.Remove(zipFilePath)
-	downloadHandler(zipFilePath, w, r)
-}
+func dumpMetricsHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 func extractStartEndTime(r *http.Request) (time.Time, time.Time) {
-	st := r.URL.Query().Get("startTime")
-	et := r.URL.Query().Get("endTime")
-	sti, err1 := strconv.ParseInt(st, 10, 64)
-	eti, err2 := strconv.ParseInt(et, 10, 64)
-	if err1 != nil || err2 != nil {
-		return time.Now().Add(-1 * time.Hour), time.Now()
-	}
-	return time.Unix(sti, 0), time.Unix(eti, 0)
+	_ = "STUB: not implemented"
+	return *new(time.Time), *new(time.Time)
 }
 
 func downloadHandler(targetFilePath string, w http.ResponseWriter, r *http.Request) {
-	if _, err := os.Stat(targetFilePath); os.IsNotExist(err) {
-		http.Error(w, "File not found", http.StatusNotFound)
-		return
-	}
-	file, err := os.Open(targetFilePath)
-	if err != nil {
-		http.Error(w, "Failed to open file", http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-	fileInfo, err := file.Stat()
-	if err != nil {
-		http.Error(w, "Failed to get file info", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", filepath.Base(targetFilePath)))
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Set("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
-	http.ServeContent(w, r, fileInfo.Name(), fileInfo.ModTime(), file)
+	_ = "STUB: not implemented"
+	return
 }

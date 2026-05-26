@@ -37,77 +37,37 @@ type IndexFieldStore struct {
 }
 
 func NewIndexFieldWrap(fields ...*IndexField) *IndexFieldStoreWrap {
-	wrap := &IndexFieldStoreWrap{}
-	wrap.store = &IndexFieldStore{}
-	wrap.store.IndexFieldValueList = make([]*IndexField, 0)
-	wrap.store.IndexFieldValueList = append(wrap.store.IndexFieldValueList, fields...)
-	wrap.LoadFromList()
-	return wrap
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wrap *IndexFieldStoreWrap) InitByStore(store *IndexFieldStore) {
-	wrap.store = store
+	_ = "STUB: not implemented"
+	return
 }
 
-func (wrap *IndexFieldStoreWrap) GetStore() *IndexFieldStore {
-	wrap.RLock()
-	defer wrap.RUnlock()
-	return wrap.store
-}
+func (wrap *IndexFieldStoreWrap) GetStore() *IndexFieldStore { _ = "STUB: not implemented"; return nil }
 
-func (wrap *IndexFieldStoreWrap) Init(fields ...*IndexField) {
-	store := &IndexFieldStore{}
-	wrap.store = store
-	store.IndexFieldValueList = make([]*IndexField, 0)
-	store.IndexFieldValueMap = make(map[string]*IndexField)
-	for _, field := range fields {
-		if field.IndexFieldName == "" {
-			continue
-		}
-		store.IndexFieldValueList = append(store.IndexFieldValueList, field)
-		store.IndexFieldValueMap[field.IndexFieldName] = field
-	}
-}
+func (wrap *IndexFieldStoreWrap) Init(fields ...*IndexField) { _ = "STUB: not implemented"; return }
 
 func (wrap *IndexFieldStoreWrap) GetFieldList() []*IndexField {
-	wrap.RLock()
-	defer wrap.RUnlock()
-	return wrap.store.IndexFieldValueList
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wrap *IndexFieldStoreWrap) GetFieldMap() map[string]*IndexField {
-	wrap.RLock()
-	defer wrap.RUnlock()
-	return wrap.store.IndexFieldValueMap
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (wrap *IndexFieldStoreWrap) UpdateFieldValue(name string, value interface{}) {
-	wrap.Lock()
-	defer wrap.Unlock()
-	w, ok := wrap.store.IndexFieldValueMap[name]
-	if !ok {
-		return
-	}
-	w.IndexFieldValue = value
+	_ = "STUB: not implemented"
+	return
 }
 
 func (wrap *IndexFieldStoreWrap) UpdateByInput(input map[string]interface{}) {
-	wrap.Lock()
-	defer wrap.Unlock()
-	for k, v := range input {
-		w, ok := wrap.store.IndexFieldValueMap[k]
-		if !ok {
-			continue
-		}
-		w.IndexFieldValue = v
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (wrap *IndexFieldStoreWrap) LoadFromList() {
-	wrap.Lock()
-	defer wrap.Unlock()
-	wrap.store.IndexFieldValueMap = make(map[string]*IndexField)
-	for _, field := range wrap.store.IndexFieldValueList {
-		wrap.store.IndexFieldValueMap[field.IndexFieldName] = field
-	}
-}
+func (wrap *IndexFieldStoreWrap) LoadFromList() { _ = "STUB: not implemented"; return }

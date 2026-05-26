@@ -16,8 +16,6 @@ package simulator
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type SimulatorLookupSource struct {
@@ -25,39 +23,23 @@ type SimulatorLookupSource struct {
 }
 
 func (s *SimulatorLookupSource) Provision(ctx api.StreamContext, configs map[string]any) error {
-	cfg := &sLookupConfig{
-		Data: make([]map[string]any, 0),
-	}
-	if err := cast.MapToStruct(configs, cfg); err != nil {
-		return err
-	}
-	s.cfg = cfg
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *SimulatorLookupSource) Close(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *SimulatorLookupSource) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (s *SimulatorLookupSource) Lookup(ctx api.StreamContext, lookupFields []string, cmpKeys []string, cmpValues []any) ([]map[string]any, error) {
-	res := make([]map[string]any, 0)
-	for _, d := range s.cfg.Data {
-		for index, key := range cmpKeys {
-			value, ok := d[key]
-			if ok && value == cmpValues[index] {
-				selectedRow := make(map[string]any)
-				for _, field := range lookupFields {
-					selectedRow[field] = d[field]
-				}
-				res = append(res, selectedRow)
-			}
-		}
-	}
-	return res, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 type sLookupConfig struct {

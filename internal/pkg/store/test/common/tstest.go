@@ -15,7 +15,6 @@
 package common
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
@@ -26,99 +25,14 @@ var (
 	Values = []string{"bar1", "bar15", "bar2", "bar3"}
 )
 
-func TestTsSet(ks kv.Tskv, t *testing.T) {
-	load(ks, t)
+func TestTsSet(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }
 
-	if ok, err := ks.Set(2500, "bar25"); nil != err {
-		t.Error(err)
-	} else if ok {
-		t.Errorf("should deny key 2500 while last one is 3000")
-	}
-}
+func TestTsLast(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }
 
-func TestTsLast(ks kv.Tskv, t *testing.T) {
-	load(ks, t)
+func TestTsGet(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }
 
-	var v string
-	if k, err := ks.Last(&v); err != nil {
-		t.Error(err)
-	} else if k != 3000 || v != "bar3" {
-		t.Errorf("Last expect 3000/bar3 but got %d/%s", k, v)
-	}
-}
+func TestTsDelete(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }
 
-func TestTsGet(ks kv.Tskv, t *testing.T) {
-	load(ks, t)
+func TestTsDeleteBefore(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }
 
-	var value string
-	if ok, _ := ks.Get(2000, &value); ok {
-		if !reflect.DeepEqual("bar2", value) {
-			t.Error("expect:bar", "get:", value)
-		}
-	} else {
-		t.Errorf("Should find key 2000.")
-	}
-}
-
-func TestTsDelete(ks kv.Tskv, t *testing.T) {
-	load(ks, t)
-
-	if err := ks.Delete(1500); nil != err {
-		t.Error(err)
-	}
-
-	var value string
-	if ok, _ := ks.Get(1500, &value); ok {
-		t.Errorf("Should not find deleted key 1500.")
-	}
-}
-
-func TestTsDeleteBefore(ks kv.Tskv, t *testing.T) {
-	load(ks, t)
-
-	if ok, err := ks.Set(3500, "bar35"); nil != err {
-		t.Error(err)
-	} else if !ok {
-		t.Error("should allow key 3500")
-	}
-
-	if err := ks.DeleteBefore(2999); nil != err {
-		t.Error(err)
-	}
-
-	var value string
-	if ok, _ := ks.Get(1000, &value); ok {
-		t.Errorf("Should not find deleted key 1000.")
-	}
-	if ok, _ := ks.Get(2000, &value); ok {
-		t.Errorf("Should not find deleted key 2000.")
-	}
-
-	if ok, _ := ks.Get(3000, &value); ok {
-		if !reflect.DeepEqual("bar3", value) {
-			t.Error("expect:bar3", "get:", value)
-		}
-	} else {
-		t.Errorf("Should find key 3000.")
-	}
-
-	if ok, _ := ks.Get(3500, &value); ok {
-		if !reflect.DeepEqual("bar35", value) {
-			t.Error("expect:bar35", "get:", value)
-		}
-	} else {
-		t.Errorf("Should find key 3500.")
-	}
-}
-
-func load(ks kv.Tskv, t *testing.T) {
-	for i := 0; i < len(Keys); i++ {
-		k := Keys[i]
-		v := Values[i]
-		if ok, err := ks.Set(k, v); nil != err {
-			t.Error(err)
-		} else if !ok {
-			t.Errorf("should allow key %d", k)
-		}
-	}
-}
+func load(ks kv.Tskv, t *testing.T) { _ = "STUB: not implemented"; return }

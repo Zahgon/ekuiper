@@ -18,23 +18,12 @@ package server
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"html/template"
-	"io"
 	"net/http"
-	"runtime"
-	"strings"
 
 	"github.com/gorilla/mux"
 
-	"github.com/lf-edge/ekuiper/v2/internal/binder"
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
 	"github.com/lf-edge/ekuiper/v2/internal/plugin/native"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-	"github.com/lf-edge/ekuiper/v2/pkg/validate"
 )
 
 var nativeManager *native.Manager
@@ -45,170 +34,51 @@ func init() {
 
 type pluginComp struct{}
 
-func (p pluginComp) register() {
-	var err error
-	nativeManager, err = native.InitManager()
-	if err != nil {
-		panic(err)
-	}
-	entries = append(entries, binder.FactoryEntry{Name: "native plugin", Factory: nativeManager, Weight: 9})
-}
+func (p pluginComp) register() { _ = "STUB: not implemented"; return }
 
-func (p pluginComp) rest(r *mux.Router) {
-	r.HandleFunc("/plugins/sources/prebuild", prebuildSourcePlugins).Methods(http.MethodGet)
-	r.HandleFunc("/plugins/sinks/prebuild", prebuildSinkPlugins).Methods(http.MethodGet)
-	r.HandleFunc("/plugins/functions/prebuild", prebuildFuncsPlugins).Methods(http.MethodGet)
-	r.HandleFunc("/plugins/sources", sourcesHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/plugins/sources/{name}", sourceHandler).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
-	r.HandleFunc("/plugins/sinks", sinksHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/plugins/sinks/{name}", sinkHandler).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
-	r.HandleFunc("/plugins/functions", functionsHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/plugins/functions/{name}", functionHandler).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
-	r.HandleFunc("/plugins/functions/{name}/register", functionRegisterHandler).Methods(http.MethodPost)
-	r.HandleFunc("/plugins/udfs", functionsListHandler).Methods(http.MethodGet)
-	r.HandleFunc("/plugins/udfs/{name}", functionsGetHandler).Methods(http.MethodGet)
-}
+func (p pluginComp) rest(r *mux.Router) { _ = "STUB: not implemented"; return }
 
-func (p pluginComp) exporter() ConfManager {
-	return pluginExporter{}
-}
+func (p pluginComp) exporter() ConfManager { _ = "STUB: not implemented"; return *new(ConfManager) }
 
 func pluginsHandler(w http.ResponseWriter, r *http.Request, t plugin.PluginType) {
-	defer func(Body io.ReadCloser) { _ = Body.Close() }(r.Body)
-	switch r.Method {
-	case http.MethodGet:
-		content := nativeManager.List(t)
-		jsonResponse(content, w, logger)
-	case http.MethodPost:
-		sd := plugin.NewPluginByType(t)
-		err := json.NewDecoder(r.Body).Decode(sd)
-		// Problems decoding
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("Invalid body: Error decoding the %s plugin json", plugin.PluginTypes[t]), logger)
-			return
-		}
-
-		if err := validate.ValidateID(sd.GetName()); err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-
-		err = nativeManager.Register(t, sd)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("%s plugins create command error", plugin.PluginTypes[t]), logger)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		_, _ = fmt.Fprintf(w, "%s plugin %s is created", plugin.PluginTypes[t], sd.GetName())
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Problems decoding
 
 func pluginHandler(w http.ResponseWriter, r *http.Request, t plugin.PluginType) {
-	defer func(Body io.ReadCloser) { _ = Body.Close() }(r.Body)
-	vars := mux.Vars(r)
-	name := vars["name"]
-	if err := validate.ValidateID(name); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	cb := r.URL.Query().Get("stop")
-	switch r.Method {
-	case http.MethodDelete:
-		r := cb == "1"
-		err := nativeManager.Delete(t, name, r)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("delete %s plugin %s error", plugin.PluginTypes[t], name), logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		result := fmt.Sprintf("%s plugin %s is deleted", plugin.PluginTypes[t], name)
-		if r {
-			result = fmt.Sprintf("%s and eKuiper will be stopped", result)
-		} else {
-			result = fmt.Sprintf("%s and eKuiper must restart for the change to take effect.", result)
-		}
-		escapedContent := template.HTMLEscapeString(result)
-		w.Write([]byte(escapedContent))
-	case http.MethodGet:
-		j, ok := nativeManager.GetPluginInfo(t, name)
-		if !ok {
-			handleError(w, errorx.NewWithCode(errorx.NOT_FOUND, "not found"), fmt.Sprintf("describe %s plugin %s error", plugin.PluginTypes[t], name), logger)
-			return
-		}
-		jsonResponse(j, w, logger)
-	case http.MethodPut:
-		sd := plugin.NewPluginByType(t)
-		err := json.NewDecoder(r.Body).Decode(sd)
-		// Problems decoding
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("Invalid body: Error decoding the %s plugin json", plugin.PluginTypes[t]), logger)
-			return
-		}
-		err = nativeManager.Delete(t, name, false)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("update %s plugin %s error, cannot delete old version", plugin.PluginTypes[t], name), logger)
-			return
-		}
-		err = nativeManager.Register(t, sd)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("%s plugins create command error", plugin.PluginTypes[t]), logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, "plugin %s is updated and eKuiper must restart for the change to take effect.", sd.GetName())
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Problems decoding
 
 // list or create source plugin
-func sourcesHandler(w http.ResponseWriter, r *http.Request) {
-	pluginsHandler(w, r, plugin.SOURCE)
-}
+func sourcesHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // delete a source plugin
-func sourceHandler(w http.ResponseWriter, r *http.Request) {
-	pluginHandler(w, r, plugin.SOURCE)
-}
+func sourceHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list or create sink plugin
-func sinksHandler(w http.ResponseWriter, r *http.Request) {
-	pluginsHandler(w, r, plugin.SINK)
-}
+func sinksHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // delete a sink plugin
-func sinkHandler(w http.ResponseWriter, r *http.Request) {
-	pluginHandler(w, r, plugin.SINK)
-}
+func sinkHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list or create function plugin
-func functionsHandler(w http.ResponseWriter, r *http.Request) {
-	pluginsHandler(w, r, plugin.FUNCTION)
-}
+func functionsHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list all user-defined functions in all function plugins
 func functionsListHandler(w http.ResponseWriter, _ *http.Request) {
-	content := nativeManager.ListSymbols()
-	jsonResponse(content, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
-func functionsGetHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	name := vars["name"]
-	if err := validate.ValidateID(name); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	j, ok := nativeManager.GetPluginBySymbol(plugin.FUNCTION, name)
-	if !ok {
-		handleError(w, errorx.NewWithCode(errorx.NOT_FOUND, "not found"), fmt.Sprintf("describe function %s error", name), logger)
-		return
-	}
-	jsonResponse(map[string]string{"name": name, "plugin": j}, w, logger)
-}
+func functionsGetHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // delete a function plugin
-func functionHandler(w http.ResponseWriter, r *http.Request) {
-	pluginHandler(w, r, plugin.FUNCTION)
-}
+func functionHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type functionList struct {
 	Functions []string `json:"functions,omitempty"`
@@ -218,125 +88,50 @@ type functionList struct {
 // either by create or register. If the function plugin has been loaded because of auto load through so file, the function
 // list MUST be registered by this API or only the function with the same name as the plugin can be used.
 func functionRegisterHandler(w http.ResponseWriter, r *http.Request) {
-	defer func(Body io.ReadCloser) { _ = Body.Close() }(r.Body)
-	vars := mux.Vars(r)
-	name := vars["name"]
-	if err := validate.ValidateID(name); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	_, ok := nativeManager.GetPluginInfo(plugin.FUNCTION, name)
-	if !ok {
-		handleError(w, errorx.NewWithCode(errorx.NOT_FOUND, "not found"), fmt.Sprintf("register %s plugin %s error", plugin.PluginTypes[plugin.FUNCTION], name), logger)
-		return
-	}
-	sd := functionList{}
-	err := json.NewDecoder(r.Body).Decode(&sd)
-	// Problems decoding
-	if err != nil {
-		handleError(w, err, fmt.Sprintf("Invalid body: Error decoding the function list json %s", r.Body), logger)
-		return
-	}
-	err = nativeManager.RegisterFuncs(name, sd.Functions)
-	if err != nil {
-		handleError(w, err, fmt.Sprintf("function plugins %s regiser functions error", name), logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "function plugin %s function list is registered", name)
+	_ = "STUB: not implemented"
+	return
 }
+
+// Problems decoding
 
 func prebuildSourcePlugins(w http.ResponseWriter, r *http.Request) {
-	prebuildPluginsHandler(w, r, plugin.SOURCE)
+	_ = "STUB: not implemented"
+	return
 }
 
-func prebuildSinkPlugins(w http.ResponseWriter, r *http.Request) {
-	prebuildPluginsHandler(w, r, plugin.SINK)
-}
+func prebuildSinkPlugins(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 func prebuildFuncsPlugins(w http.ResponseWriter, r *http.Request) {
-	prebuildPluginsHandler(w, r, plugin.FUNCTION)
+	_ = "STUB: not implemented"
+	return
 }
 
 func prebuildPluginsHandler(w http.ResponseWriter, _ *http.Request, t plugin.PluginType) {
-	emsg := "It's strongly recommended to install plugins at linux. If you choose to proceed to install plugin, please make sure the plugin is already validated in your own build."
-	if runtime.GOOS == "linux" {
-		osrelease, err := Read()
-		if err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-		prettyName := strings.ToUpper(osrelease["PRETTY_NAME"])
-		os := "debian"
-		if strings.Contains(prettyName, "ALPINE") {
-			os = "alpine"
-		}
-
-		hosts := conf.Config.Basic.PluginHosts
-		if plugins, err := fetchPluginList(t, hosts, os, runtime.GOARCH); err != nil {
-			handleError(w, err, "", logger)
-		} else {
-			jsonResponse(plugins, w, logger)
-		}
-	} else {
-		handleError(w, errors.New(emsg), "", logger)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func fetchPluginList(t plugin.PluginType, hosts, os, arch string) (result map[string]string, err error) {
-	var (
-		ptype   string
-		plugins []string
-	)
-	switch t {
-	case plugin.SINK:
-		ptype = "sinks"
-		plugins = NativeSinkPlugin
-	case plugin.FUNCTION:
-		ptype = "functions"
-		plugins = NativeFunctionPlugin
-	default:
-		ptype = "sources"
-		plugins = NativeSourcePlugin
-	}
-
-	if hosts == "" || ptype == "" || os == "" {
-		logger.Errorf("Invalid parameter value: hosts %s, ptype %s or os: %s should not be empty.", hosts, ptype, os)
-		return nil, fmt.Errorf("invalid configuration for plugin host in kuiper.yaml")
-	}
-	result = make(map[string]string)
-	hostsArr := strings.Split(hosts, ",")
-	for _, host := range hostsArr {
-		host := strings.Trim(host, " ")
-		tmp := []string{host, "kuiper-plugins", version, os, ptype}
-		// The url is similar to http://host:port/kuiper-plugins/0.9.1/debian/sinks/
-		url := strings.Join(tmp, "/")
-
-		for _, p := range plugins {
-			result[p] = url + "/" + p + "_" + arch + ".zip"
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// The url is similar to http://host:port/kuiper-plugins/0.9.1/debian/sinks/
 
 type pluginExporter struct{}
 
 func (e pluginExporter) Import(ctx context.Context, plugins map[string]string) map[string]string {
-	return nativeManager.PluginImport(ctx, plugins)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (e pluginExporter) PartialImport(ctx context.Context, plugins map[string]string) map[string]string {
-	return nativeManager.PluginPartialImport(ctx, plugins)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (e pluginExporter) Export() map[string]string {
-	return nativeManager.GetAllPlugins()
-}
+func (e pluginExporter) Export() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (e pluginExporter) Status() map[string]string {
-	return nativeManager.GetAllPluginsStatus()
-}
+func (e pluginExporter) Status() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (e pluginExporter) Reset() {
-	nativeManager.UninstallAllPlugins()
-}
+func (e pluginExporter) Reset() { _ = "STUB: not implemented"; return }

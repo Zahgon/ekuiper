@@ -15,14 +15,10 @@
 package io
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/binder"
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
-	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
 var ( // init once and read only
@@ -40,93 +36,28 @@ func init() {
 	applyFactory(f)
 }
 
-func Initialize(factories []binder.FactoryEntry) error {
-	for _, f := range factories {
-		applyFactory(f)
-	}
-	return nil
-}
+func Initialize(factories []binder.FactoryEntry) error { _ = "STUB: not implemented"; return nil }
 
-func applyFactory(f binder.FactoryEntry) {
-	if s, ok := f.Factory.(binder.SourceFactory); ok {
-		sourceFactories = append(sourceFactories, s)
-		sourceFactoriesNames = append(sourceFactoriesNames, f.Name)
-	}
-	if s, ok := f.Factory.(binder.SinkFactory); ok {
-		sinkFactories = append(sinkFactories, s)
-		sinkFactoriesNames = append(sinkFactoriesNames, f.Name)
-	}
-}
+func applyFactory(f binder.FactoryEntry) { _ = "STUB: not implemented"; return }
 
 func Source(name string) (api.Source, error) {
-	var errs error
-	for i, sf := range sourceFactories {
-		r, err := sf.Source(name)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s:%v", sourceFactoriesNames[i], err))
-		}
-		if r != nil {
-			if !modules.IsStreamSource(r) {
-				return nil, fmt.Errorf("got non stream source %s", name)
-			}
-			return r, errs
-		}
-	}
-	return nil, errs
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 func GetSourcePlugin(name string) (plugin.EXTENSION_TYPE, string, string) {
-	for _, sf := range sourceFactories {
-		t, s1, s2 := sf.SourcePluginInfo(name)
-		if t == plugin.NONE_EXTENSION {
-			continue
-		}
-		return t, s1, s2
-	}
-	return plugin.NONE_EXTENSION, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
-func Sink(name string) (api.Sink, error) {
-	var errs error
-	for i, sf := range sinkFactories {
-		r, err := sf.Sink(name)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s:%v", sinkFactoriesNames[i], err))
-		}
-		if r != nil {
-			return r, errs
-		}
-	}
-	return nil, errs
-}
+func Sink(name string) (api.Sink, error) { _ = "STUB: not implemented"; return *new(api.Sink), nil }
 
 func GetSinkPlugin(name string) (plugin.EXTENSION_TYPE, string, string) {
-	for _, sf := range sinkFactories {
-		t, s1, s2 := sf.SinkPluginInfo(name)
-		if t == plugin.NONE_EXTENSION {
-			continue
-		}
-		return t, s1, s2
-	}
-	return plugin.NONE_EXTENSION, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
 func LookupSource(name string) (api.Source, error) {
-	var errs error
-	for i, sf := range sourceFactories {
-		r, err := sf.LookupSource(name)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s:%v", sourceFactoriesNames[i], err))
-		}
-		if r != nil {
-			if !modules.IsLookupSource(r) {
-				return nil, fmt.Errorf("got non lookup source %s", name)
-			}
-			return r, errs
-		}
-	}
-	if errs == nil {
-		errs = fmt.Errorf("lookup source type %s not found", name)
-	}
-	return nil, errs
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }

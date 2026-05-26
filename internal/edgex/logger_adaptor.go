@@ -17,9 +17,6 @@
 package edgex
 
 import (
-	"fmt"
-	"io"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,19 +26,11 @@ const (
 )
 
 func adaptLogging(log *logrus.Logger) {
+	_ = "STUB: not implemented"
 	// with EdgeX enabled as of 2024, it includes OpenZiti support. OpenZiti uses the default
 	// logrus logger. This quiets duplicative logging
 	// Check if the hook is already added
-	for _, hook := range log.Hooks[logrus.InfoLevel] {
-		if _, ok := hook.(*LogrusAdaptor); ok {
-			return
-		}
-	}
-	hook := &LogrusAdaptor{
-		lc: log,
-	}
-	logrus.StandardLogger().SetOutput(io.Discard)
-	logrus.AddHook(hook)
+	return
 }
 
 type LogrusAdaptor struct {
@@ -49,31 +38,11 @@ type LogrusAdaptor struct {
 }
 
 func (f *LogrusAdaptor) Format(entry *logrus.Entry) ([]byte, error) {
+	_ = "STUB: not implemented"
 	// Implement your custom formatting logic here
-	return []byte(fmt.Sprintf("[%s] %s\n", entry.Level, entry.Message)), nil
+	return nil, nil
 }
 
-func (f *LogrusAdaptor) Levels() []logrus.Level {
-	return logrus.AllLevels
-}
+func (f *LogrusAdaptor) Levels() []logrus.Level { _ = "STUB: not implemented"; return nil }
 
-func (f *LogrusAdaptor) Fire(e *logrus.Entry) error {
-	switch e.Level {
-	case logrus.DebugLevel:
-		f.lc.Debugf(OPENZITI_LOG_FORMAT, e.Message)
-	case logrus.InfoLevel:
-		f.lc.Infof(OPENZITI_LOG_FORMAT, e.Message)
-	case logrus.WarnLevel:
-		f.lc.Warnf(OPENZITI_LOG_FORMAT, e.Message)
-	case logrus.ErrorLevel:
-		f.lc.Errorf(OPENZITI_LOG_FORMAT, e.Message)
-	case logrus.FatalLevel:
-		f.lc.Errorf(OPENZITI_LOG_FORMAT, e.Message)
-	case logrus.PanicLevel:
-		f.lc.Errorf(OPENZITI_LOG_FORMAT, e.Message)
-	default:
-		f.lc.Errorf(OPENZITI_DEFAULT_LOG_FORMAT, e.Message)
-	}
-
-	return nil
-}
+func (f *LogrusAdaptor) Fire(e *logrus.Entry) error { _ = "STUB: not implemented"; return nil }

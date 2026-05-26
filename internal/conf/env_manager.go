@@ -14,23 +14,14 @@
 
 package conf
 
-import (
-	"os"
-	"strings"
-)
-
 func init() {
 	globalEnvManager = &EnvManager{}
 	SetupEnv()
 }
 
-func SetupEnv() {
-	globalEnvManager.Setup()
-}
+func SetupEnv() { _ = "STUB: not implemented"; return }
 
-func GetEnv() map[string]string {
-	return globalEnvManager.GetEnv()
-}
+func GetEnv() map[string]string { _ = "STUB: not implemented"; return nil }
 
 var globalEnvManager *EnvManager
 
@@ -39,27 +30,8 @@ type EnvManager struct {
 	connectionProps map[string]map[string]map[string]interface{}
 }
 
-func (e *EnvManager) Setup() {
-	e.loadEnv()
-}
+func (e *EnvManager) Setup() { _ = "STUB: not implemented"; return }
 
-func (e *EnvManager) GetEnv() map[string]string {
-	if len(e.env) < 1 {
-		e.loadEnv()
-	}
-	return e.env
-}
+func (e *EnvManager) GetEnv() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (e *EnvManager) loadEnv() {
-	got := os.Environ()
-	e.env = make(map[string]string)
-	for _, v := range got {
-		ss := strings.Split(v, "=")
-		if len(ss) != 2 {
-			continue
-		}
-		key := ss[0]
-		value := ss[1]
-		e.env[key] = value
-	}
-}
+func (e *EnvManager) loadEnv() { _ = "STUB: not implemented"; return }

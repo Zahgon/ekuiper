@@ -14,41 +14,8 @@
 
 package bump
 
-import (
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/replace"
-)
+func bumpFrom3TO4() error { _ = "STUB: not implemented"; return nil }
 
-func bumpFrom3TO4() error {
-	return rewriteReplacedProps()
-}
+func rewriteReplacedProps() error { _ = "STUB: not implemented"; return nil }
 
-func rewriteReplacedProps() error {
-	if err := rewritePlugProps("sources"); err != nil {
-		return err
-	}
-	if err := rewritePlugProps("sinks"); err != nil {
-		return err
-	}
-	if err := rewritePlugProps("connections"); err != nil {
-		return err
-	}
-	return nil
-}
-
-func rewritePlugProps(typ string) error {
-	keyProps, err := conf.GetCfgFromKVStorage(typ, "", "")
-	if err != nil {
-		return err
-	}
-	for key, props := range keyProps {
-		_, plug, confKey, valid := extractKey(key)
-		if valid {
-			changed, newProps := replace.ReplacePropsWithPlug(plug, props)
-			if changed {
-				return conf.WriteCfgIntoKVStorage(typ, plug, confKey, newProps)
-			}
-		}
-	}
-	return nil
-}
+func rewritePlugProps(typ string) error { _ = "STUB: not implemented"; return nil }

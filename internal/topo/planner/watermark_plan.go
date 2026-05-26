@@ -15,8 +15,6 @@
 package planner
 
 import (
-	"strconv"
-
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -26,36 +24,12 @@ type WatermarkPlan struct {
 	SendWatermark bool
 }
 
-func (p WatermarkPlan) Init() *WatermarkPlan {
-	p.baseLogicalPlan.self = &p
-	p.setPlanType(WATERMARK)
-	return &p
-}
+func (p WatermarkPlan) Init() *WatermarkPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *WatermarkPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.Emitters) != 0 {
-		info += "Emitters:[ "
-		for i, emitter := range p.Emitters {
-			info += emitter
-			if i != len(p.Emitters)-1 {
-				info += ", "
-			}
-		}
-		info += " ], "
-	}
-	info += "SendWatermark:" + strconv.FormatBool(p.SendWatermark)
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *WatermarkPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 // PushDownPredicate watermark plan can not push down predicate. It must receive all tuples to process watermark
 func (p *WatermarkPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
-	if condition != nil {
-		f := FilterPlan{
-			condition: condition,
-		}.Init()
-		f.SetChildren([]LogicalPlan{p})
-		return nil, f
-	}
-	return nil, p.self
+	_ = "STUB: not implemented"
+	return *new(ast.Expr), *new(LogicalPlan)
 }

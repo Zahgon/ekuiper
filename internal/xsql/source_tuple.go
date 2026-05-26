@@ -16,22 +16,14 @@ package xsql
 
 import (
 	"time"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 type ErrorSourceTuple struct {
 	Error error `json:"error"`
 }
 
-func (t *ErrorSourceTuple) Message() map[string]interface{} {
-	return nil
-}
+func (t *ErrorSourceTuple) Message() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
-func (t *ErrorSourceTuple) Meta() map[string]interface{} {
-	return nil
-}
+func (t *ErrorSourceTuple) Meta() map[string]interface{} { _ = "STUB: not implemented"; return nil }
 
-func (t *ErrorSourceTuple) Timestamp() time.Time {
-	return timex.GetNow()
-}
+func (t *ErrorSourceTuple) Timestamp() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }

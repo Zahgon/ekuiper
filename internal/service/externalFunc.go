@@ -23,18 +23,11 @@ type ExternalFunc struct {
 	exe        executor
 }
 
-func (f *ExternalFunc) Validate(_ []interface{}) error {
-	return nil
-}
+func (f *ExternalFunc) Validate(_ []interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func (f *ExternalFunc) Exec(ctx api.FunctionContext, args []any) (interface{}, bool) {
-	if r, err := f.exe.InvokeFunction(ctx, f.methodName, args); err != nil {
-		return err, false
-	} else {
-		return r, true
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (f *ExternalFunc) IsAggregate() bool {
-	return false
-}
+func (f *ExternalFunc) IsAggregate() bool { _ = "STUB: not implemented"; return false }

@@ -40,8 +40,4 @@ var (
 	}, []string{LblType, LblRuleIDType, LblOpIDType})
 )
 
-func RegisterSyncCache() {
-	prometheus.MustRegister(SyncCacheCounter)
-	prometheus.MustRegister(SyncCacheHist)
-	prometheus.MustRegister(SyncCacheGauge)
-}
+func RegisterSyncCache() { _ = "STUB: not implemented"; return }

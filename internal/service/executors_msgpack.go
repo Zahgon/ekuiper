@@ -18,12 +18,9 @@ package service
 
 import (
 	"fmt"
-	"net"
 	"net/rpc"
-	"reflect"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	"github.com/ugorji/go/codec"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -53,45 +50,10 @@ type msgpackExecutor struct {
 
 // InvokeFunction flat the params and result
 func (m *msgpackExecutor) InvokeFunction(_ api.FunctionContext, name string, params []interface{}) (interface{}, error) {
-	if !m.connected {
-		m.Lock()
-		if !m.connected {
-			h := &codec.MsgpackHandle{}
-			h.MapType = reflect.TypeOf(map[string]interface{}(nil))
-
-			conn, err := net.Dial(m.addr.Scheme, m.addr.Host)
-			if err != nil {
-				return nil, err
-			}
-			rpcCodec := codec.MsgpackSpecRpc.ClientCodec(conn, h)
-			m.conn = rpc.NewClientWithCodec(rpcCodec)
-		}
-		m.connected = true
-		m.Unlock()
-	}
-	ps, err := m.descriptor.ConvertParams(name, params)
-	if err != nil {
-		return nil, err
-	}
-	var (
-		reply interface{}
-		args  interface{}
-	)
-	// TODO argument flat
-	switch len(ps) {
-	case 0:
-		// do nothing
-	case 1:
-		args = ps[0]
-	default:
-		args = codec.MsgpackSpecRpcMultiArgs(ps)
-	}
-	err = m.conn.Call(name, args, &reply)
-	if err != nil {
-		if err == rpc.ErrShutdown {
-			m.connected = false
-		}
-		return nil, err
-	}
-	return m.descriptor.ConvertReturn(name, reply)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// TODO argument flat
+
+// do nothing

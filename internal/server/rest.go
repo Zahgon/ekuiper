@@ -16,45 +16,15 @@ package server
 
 import (
 	"bytes"
-	"context"
-	"encoding/json"
-	"errors"
-	"fmt"
-	"html/template"
 	"io"
 	"net/http"
-	"net/http/httptest"
-	"net/http/pprof"
-	"os"
-	"path/filepath"
-	"runtime"
-	"strconv"
-	"strings"
-	"time"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-	"go.opentelemetry.io/otel/propagation"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/httpx"
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
-	"github.com/lf-edge/ekuiper/v2/internal/processor"
-	"github.com/lf-edge/ekuiper/v2/internal/server/middleware"
 	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/planner"
-	"github.com/lf-edge/ekuiper/v2/internal/trial"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
-	"github.com/lf-edge/ekuiper/v2/pkg/memory"
-	"github.com/lf-edge/ekuiper/v2/pkg/tracer"
-	"github.com/lf-edge/ekuiper/v2/pkg/validate"
 )
 
 const (
@@ -73,205 +43,53 @@ type statementDescriptor struct {
 }
 
 func decodeStatementDescriptor(reader io.ReadCloser) (statementDescriptor, error) {
-	sd := statementDescriptor{}
-	err := json.NewDecoder(reader).Decode(&sd)
-	// Problems decoding
-	if err != nil {
-		return sd, fmt.Errorf("Error decoding the statement descriptor: %v", err)
-	}
-	return sd, nil
+	_ = "STUB: not implemented"
+	return *new(statementDescriptor), nil
 }
+
+// Problems decoding
 
 // Handle applies the specified error and error concept to the HTTP response writer
 func handleError(w http.ResponseWriter, err error, prefix string, logger api.Logger) {
-	message := prefix
-	if message != "" {
-		message += ": "
-	}
-	message += err.Error()
-	logger.Error(message)
-	var ec int
-	switch e := err.(type) {
-	case *errorx.Error:
-		switch e.Code() {
-		case errorx.NOT_FOUND:
-			ec = http.StatusNotFound
-		default:
-			ec = http.StatusBadRequest
-		}
-	default:
-		ec = http.StatusBadRequest
-	}
-
-	http.Error(w, packageInternalErrorCode(err, message), ec)
+	_ = "STUB: not implemented"
+	return
 }
 
-func packageInternalErrorCode(err error, msg string) string {
-	errCode := errorx.Undefined_Err
-	if errWithCode, ok := err.(errorx.ErrorWithCode); ok {
-		errCode = errWithCode.Code()
-	}
-	return fmt.Sprintf(`{"error":%v,"message":%q}`, errCode, msg)
-}
+func packageInternalErrorCode(err error, msg string) string { _ = "STUB: not implemented"; return "" }
 
 func jsonResponse(i interface{}, w http.ResponseWriter, logger api.Logger) {
-	w.Header().Add(ContentType, ContentTypeJSON)
-
-	jsonByte, err := json.Marshal(i)
-	if err != nil {
-		handleError(w, err, "", logger)
-	}
-	w.Header().Add("Content-Length", strconv.Itoa(len(jsonByte)))
-
-	_, err = w.Write(jsonByte)
-	// Problems encoding
-	if err != nil {
-		handleError(w, err, "", logger)
-	}
+	_ = "STUB: not implemented"
+	return
 }
+
+// Problems encoding
 
 func jsonByteResponse(buffer bytes.Buffer, w http.ResponseWriter, logger api.Logger) {
-	w.Header().Add(ContentType, ContentTypeJSON)
-
-	w.Header().Add("Content-Length", strconv.Itoa(buffer.Len()))
-
-	_, err := w.Write(buffer.Bytes())
-	// Problems encoding
-	if err != nil {
-		handleError(w, err, "", logger)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
+// Problems encoding
+
 func traceMiddleware(next http.Handler) http.Handler {
-	t := tracer.GetTracer()
-	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		propagator := propagation.TraceContext{}
-		originCtx := context.Background()
-		ctx := propagator.Extract(originCtx, propagation.HeaderCarrier(req.Header))
-		if ctx != originCtx {
-			_, span := t.Start(ctx, req.URL.Path)
-			defer span.End()
-		}
-		next.ServeHTTP(w, req)
-	})
+	_ = "STUB: not implemented"
+	return *new(http.Handler)
 }
 
 var router *mux.Router
 
 func createRestServer(ip string, port int, needToken bool) *http.Server {
-	dataDir, err := conf.GetDataLoc()
-	if err != nil {
-		panic(err)
-	}
-	uploadDir = filepath.Join(dataDir, "uploads")
-	uploadsDb, err = store.GetKV("uploads")
-	if err != nil {
-		panic(err)
-	}
-	uploadsStatusDb, err = store.GetKV("uploadsStatusDb")
-	if err != nil {
-		panic(err)
-	}
-
-	r := mux.NewRouter()
-	router = r
-	r.Use(traceMiddleware)
-
-	r.HandleFunc("/", rootHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/stop", stopHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/ping", pingHandler).Methods(http.MethodGet)
-	r.HandleFunc("/streams", streamsHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/streamdetails", streamDetailsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/streams/{name}", streamHandler).Methods(http.MethodGet, http.MethodDelete, http.MethodPut)
-	r.HandleFunc("/streams/{name}/schema", streamSchemaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/tables", tablesHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/tabledetails", tableDetailsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/tables/{name}", tableHandler).Methods(http.MethodGet, http.MethodDelete, http.MethodPut)
-	r.HandleFunc("/tables/{name}/schema", tableSchemaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules", rulesHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/rules/{name}", ruleHandler).Methods(http.MethodDelete, http.MethodGet, http.MethodPut)
-	r.HandleFunc("/rules/status/all", getAllRuleStatusHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/{name}/status", getStatusRuleHandler).Methods(http.MethodGet)
-	r.HandleFunc("/v2/rules/{name}/status", getStatusV2RulHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/{name}/start", startRuleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/{name}/stop", stopRuleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/{name}/restart", restartRuleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/{name}/topo", getTopoRuleHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/{id}/schema", ruleSchemaHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/{name}/trace/start", enableRuleTraceHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/{name}/trace/stop", disableRuleTraceHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/usage/cpu", rulesTopCpuUsageHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/validate", validateRuleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/{name}/reset_state", ruleStateHandler).Methods(http.MethodPut)
-	r.HandleFunc("/rules/{name}/explain", explainRuleHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/tags/match", rulesTagsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/rules/{name}/tags", ruleTagHandler).Methods(http.MethodPut, http.MethodPatch, http.MethodDelete)
-	r.HandleFunc("/rules/bulkstart", rulesBulkStartHandler).Methods(http.MethodPost)
-	r.HandleFunc("/rules/bulkstop", rulesBulkStopHandler).Methods(http.MethodPost)
-	r.HandleFunc("/ruleset/export", exportHandler).Methods(http.MethodPost)
-	r.HandleFunc("/ruleset/import", importHandler).Methods(http.MethodPost)
-	r.HandleFunc("/configs", configurationUpdateHandler).Methods(http.MethodPatch)
-	r.HandleFunc("/config/uploads", fileUploadHandler).Methods(http.MethodPost, http.MethodGet)
-	r.HandleFunc("/config/uploads/{name}", fileDeleteHandler).Methods(http.MethodDelete)
-	r.HandleFunc("/data/export", configurationExportHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/data/import", configurationImportHandler).Methods(http.MethodPost)
-	r.HandleFunc("/data/import/status", configurationStatusHandler).Methods(http.MethodGet)
-	r.HandleFunc("/connections", connectionsHandler).Methods(http.MethodGet, http.MethodPost)
-	r.HandleFunc("/connections/{id}", connectionHandler).Methods(http.MethodGet, http.MethodDelete, http.MethodPut)
-	r.HandleFunc("/ruletest", testRuleHandler).Methods(http.MethodPost)
-	r.HandleFunc("/ruletest/{name}/start", testRuleStartHandler).Methods(http.MethodPost)
-	r.HandleFunc("/ruletest/{name}", testRuleStopHandler).Methods(http.MethodDelete)
-	r.HandleFunc("/v2/data/export", yamlConfigurationExportHandler).Methods(http.MethodGet)
-	r.HandleFunc("/v2/data/import", yamlConfImportHandler).Methods(http.MethodPost)
-
-	// r.HandleFunc("/connection/websocket", connectionHandler).Methods(http.MethodGet, http.MethodPost, http.MethodDelete)
-	r.HandleFunc("/async/data/import", registerDataImportTask).Methods(http.MethodPost)
-	r.HandleFunc("/async/task/{id}", queryAsyncTaskStatus).Methods(http.MethodGet)
-	r.HandleFunc("/async/task/{id}/cancel", asyncTaskCancelHandler).Methods(http.MethodPost)
-	r.HandleFunc("/trace/{id}", getTraceByID).Methods(http.MethodGet)
-	r.HandleFunc("/trace/rule/{ruleID}", getTraceIDByRuleID).Methods(http.MethodGet)
-	r.HandleFunc("/tracer", tracerHandler).Methods(http.MethodPost)
-
-	// dump metrics
-	r.HandleFunc("/metrics/dump", dumpMetricsHandler).Methods(http.MethodGet)
-	r.HandleFunc("/metrics/dump/check", dumpMetricsEnabledHandler).Methods(http.MethodGet)
-	r.HandleFunc("/batch/req", batchRequestHandler).Methods(http.MethodPost)
-	if conf.Config.Basic.Pprof && conf.Config.PprofSameAsRest() {
-		r.HandleFunc("/debug/pprof/", pprof.Index)
-		r.HandleFunc("/debug/pprof/cmdline", pprof.Cmdline)
-		r.HandleFunc("/debug/pprof/profile", pprof.Profile)
-		r.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-		r.HandleFunc("/debug/pprof/trace", pprof.Trace)
-		r.Handle("/debug/pprof/goroutine", pprof.Handler("goroutine"))
-		r.Handle("/debug/pprof/heap", pprof.Handler("heap"))
-		r.Handle("/debug/pprof/threadcreate", pprof.Handler("threadcreate"))
-		r.Handle("/debug/pprof/block", pprof.Handler("block"))
-	}
-
-	// Register extended routes
-	for k, v := range components {
-		logger.Infof("register rest endpoint for component %s", k)
-		v.rest(r)
-	}
-
-	if needToken {
-		r.Use(middleware.Auth)
-	}
-	if conf.Config.Basic.EnableRestAuditLog {
-		r.Use(middleware.AuditRestLog)
-	}
-
-	server := &http.Server{
-		Addr: cast.JoinHostPortInt(ip, port),
-		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 60 * 5,
-		ReadTimeout:  time.Second * 60 * 5,
-		IdleTimeout:  time.Second * 60,
-		Handler:      handlers.CORS(handlers.AllowedHeaders([]string{"Accept", "Accept-Language", "Content-Type", "Content-Language", "Origin", "Authorization"}), handlers.AllowedMethods([]string{"POST", "GET", "PUT", "DELETE", "HEAD"}))(r),
-	}
-	server.SetKeepAlivesEnabled(false)
-	return server
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// r.HandleFunc("/connection/websocket", connectionHandler).Methods(http.MethodGet, http.MethodPost, http.MethodDelete)
+
+// dump metrics
+
+// Register extended routes
+
+// Good practice to set timeouts to avoid Slowloris attacks.
 
 type fileContent struct {
 	Name     string `json:"name" yaml:"name"`
@@ -279,211 +97,46 @@ type fileContent struct {
 	FilePath string `json:"file,omitempty" yaml:"filePath,omitempty"`
 }
 
-func (f *fileContent) InstallScript() string {
-	marshal, err := json.Marshal(f)
-	if err != nil {
-		return ""
-	}
-	return string(marshal)
-}
+func (f *fileContent) InstallScript() string { _ = "STUB: not implemented"; return "" }
 
-func (f *fileContent) Validate() error {
-	if f.Content == "" && f.FilePath == "" {
-		return fmt.Errorf("invalid body: content or FilePath is required")
-	}
-	if f.Name == "" {
-		return fmt.Errorf("invalid body: name is required")
-	}
-	return nil
-}
+func (f *fileContent) Validate() error { _ = "STUB: not implemented"; return nil }
 
-func upload(file *fileContent) error {
-	err := getFile(file)
-	if err != nil {
-		_ = uploadsStatusDb.Set(file.Name, err.Error())
-		return err
-	}
-
-	return uploadsDb.Set(file.Name, file.InstallScript())
-}
+func upload(file *fileContent) error { _ = "STUB: not implemented"; return nil }
 
 func saveUploadFile(filename string, src io.Reader) (string, error) {
-	root, err := os.OpenRoot(uploadDir)
-	if err != nil {
-		return "", err
-	}
-	defer root.Close()
-
-	// Create parent dir for the file if needed, recursively within root
-	if dir := filepath.Dir(filename); dir != "." {
-		// Split path and create each level
-		parts := strings.Split(filepath.ToSlash(dir), "/")
-		current := ""
-		for _, part := range parts {
-			if part == "" {
-				continue
-			}
-			if current == "" {
-				current = part
-			} else {
-				current = current + "/" + part
-			}
-			if err := root.Mkdir(current, 0o755); err != nil && !os.IsExist(err) {
-				return "", err
-			}
-		}
-	}
-
-	dst, err := root.Create(filename)
-	if err != nil {
-		return "", err
-	}
-	defer dst.Close()
-
-	if _, err := io.Copy(dst, src); err != nil {
-		// Clean up the file if copy fails
-		// Close the file explicit before remove, otherwise it will fail on windows
-		dst.Close()
-		_ = root.Remove(filename)
-		return "", err
-	}
-	return filepath.Join(uploadDir, filename), nil
+	_ = "STUB: not implemented"
+	return "", nil
 }
 
-func getFile(file *fileContent) error {
-	var src io.Reader
-	if file.FilePath != "" {
-		closer, err := httpx.ReadFile(file.FilePath)
-		if err != nil {
-			return err
-		}
-		defer closer.Close()
-		src = closer
-	} else {
-		src = strings.NewReader(file.Content)
-	}
+// Create parent dir for the file if needed, recursively within root
 
-	_, err := saveUploadFile(file.Name, src)
-	return err
-}
+// Split path and create each level
 
-func explainRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
+// Clean up the file if copy fails
+// Close the file explicit before remove, otherwise it will fail on windows
 
-	// fetch the rule which will be explained
-	rule, err := ruleProcessor.GetRuleById(name)
-	if err != nil {
-		handleError(w, err, "explain rules error", logger)
-		return
-	}
-	if rule == nil {
-		handleError(w, errorx.NewWithCode(errorx.NOT_FOUND, "rule not found"), "", logger)
-		return
-	}
-	if rule.Sql == "" {
-		handleError(w, errors.New("only support explain sql now"), "explain rules error", logger)
-		return
-	}
-	var explainInfo string
-	explainInfo, err = planner.GetExplainInfoFromLogicalPlan(rule)
-	if err != nil {
-		handleError(w, err, "explain rules error", logger)
-		return
-	}
-	// resp := planner.BuildExplainResultFromLp(lp, 0)
-	w.Write([]byte(explainInfo))
-}
+func getFile(file *fileContent) error { _ = "STUB: not implemented"; return nil }
+
+func explainRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
+
+// fetch the rule which will be explained
+
+// resp := planner.BuildExplainResultFromLp(lp, 0)
 
 func fileUploadHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
+	_ = "STUB: not implemented"
+
 	// Upload or overwrite a file
-	case http.MethodPost:
-		switch r.Header.Get("Content-Type") {
-		case "application/json":
-			fc := &fileContent{}
-			defer r.Body.Close()
-			err := json.NewDecoder(r.Body).Decode(fc)
-			if err != nil {
-				handleError(w, err, "Invalid body: Error decoding file json", logger)
-				return
-			}
-			err = fc.Validate()
-			if err != nil {
-				handleError(w, err, "Invalid body: missing necessary field", logger)
-				return
-			}
-			filePath := filepath.Join(uploadDir, fc.Name)
-			err = upload(fc)
-			if err != nil {
-				handleError(w, err, "Upload error: getFile has error", logger)
-				return
-			}
-			w.WriteHeader(http.StatusCreated)
-			escapedContent := template.HTMLEscapeString(filePath)
-			w.Write([]byte(escapedContent))
-		default:
-			// Maximum upload of 1 GB files
-			err := r.ParseMultipartForm(1024 << 20)
-			if err != nil {
-				handleError(w, err, "Error parse the multi part form", logger)
-				return
-			}
-
-			// Get handler for filename, size and headers
-			file, handler, err := r.FormFile("uploadFile")
-			if err != nil {
-				handleError(w, err, "Error Retrieving the File", logger)
-				return
-			}
-			defer file.Close()
-
-			filePath, err := saveUploadFile(handler.Filename, file)
-			if err != nil {
-				handleError(w, err, "Error saving the file", logger)
-				return
-			}
-
-			w.WriteHeader(http.StatusCreated)
-			escapedContent := template.HTMLEscapeString(filePath)
-			w.Write([]byte(escapedContent))
-		}
-
-	case http.MethodGet:
-		// Get the list of files in the upload directory
-		files, err := os.ReadDir(uploadDir)
-		if err != nil {
-			handleError(w, err, "Error reading the file upload dir", logger)
-			return
-		}
-		fileNames := make([]string, len(files))
-		for i, f := range files {
-			fileNames[i] = filepath.Join(uploadDir, f.Name())
-		}
-		jsonResponse(fileNames, w, logger)
-	}
+	return
 }
 
-func fileDeleteHandler(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	name := vars["name"]
-	root, err := os.OpenRoot(uploadDir)
-	if err != nil {
-		handleError(w, err, "Error opening upload directory", logger)
-		return
-	}
-	defer root.Close()
-	e := root.Remove(name)
-	if e != nil {
-		handleError(w, e, "Error deleting the file", logger)
-		return
-	}
-	_ = uploadsDb.Delete(name)
-	_ = uploadsStatusDb.Delete(name)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
-}
+// Maximum upload of 1 GB files
+
+// Get handler for filename, size and headers
+
+// Get the list of files in the upload directory
+
+func fileDeleteHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type information struct {
 	Version       string `json:"version"`
@@ -495,648 +148,144 @@ type information struct {
 	MemoryTotal   string `json:"memoryTotal"`
 }
 
-func stopHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	switch r.Method {
-	case http.MethodGet, http.MethodPost:
-		stopEKuiper()
-		w.Write([]byte("stop success"))
-	}
-}
+func stopHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // The handler for root
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	switch r.Method {
-	case http.MethodGet, http.MethodPost:
-		w.WriteHeader(http.StatusOK)
-		info := new(information)
-		info.Version = version
-		info.UpTimeSeconds = time.Now().Unix() - startTimeStamp
-		info.Os = runtime.GOOS
-		info.Arch = runtime.GOARCH
-		if sysMetrics != nil {
-			info.CpuUsage = sysMetrics.GetCpuUsage()
-			info.MemoryUsed = sysMetrics.GetMemoryUsage()
-		}
-		info.MemoryTotal = fmt.Sprintf("%d", memory.GetMemoryTotal())
-		byteInfo, _ := json.Marshal(info)
-		w.Write(byteInfo)
-	}
-}
+func rootHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func pingHandler(w http.ResponseWriter, _ *http.Request) {
-	w.WriteHeader(http.StatusOK)
-}
+func pingHandler(w http.ResponseWriter, _ *http.Request) { _ = "STUB: not implemented"; return }
 
 func sourceDetailsManageHandler(w http.ResponseWriter, r *http.Request, st ast.StreamType) {
-	defer r.Body.Close()
-	var (
-		content []processor.StreamDetail
-		err     error
-		kind    string
-	)
-	if st == ast.TypeTable {
-		kind = r.URL.Query().Get("kind")
-		switch kind {
-		case "scan":
-			kind = ast.StreamKindScan
-		case "lookup":
-			kind = ast.StreamKindLookup
-		default:
-			kind = ""
-		}
-	}
-	content, err = streamProcessor.ShowStreamOrTableDetails(kind, st)
-	if err != nil {
-		handleError(w, err, fmt.Sprintf("%s command error", cases.Title(language.Und).String(ast.StreamTypeMap[st])), logger)
-		return
-	}
-	jsonResponse(content, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 func sourcesManageHandler(w http.ResponseWriter, r *http.Request, st ast.StreamType) {
-	defer r.Body.Close()
-	switch r.Method {
-	case http.MethodGet:
-		var (
-			content []string
-			err     error
-			kind    string
-		)
-		if st == ast.TypeTable {
-			kind = r.URL.Query().Get("kind")
-			switch kind {
-			case "scan":
-				kind = ast.StreamKindScan
-			case "lookup":
-				kind = ast.StreamKindLookup
-			default:
-				kind = ""
-			}
-		}
-		if kind != "" {
-			content, err = streamProcessor.ShowTable(kind)
-		} else {
-			content, err = streamProcessor.ShowStream(st)
-		}
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("%s command error", cases.Title(language.Und).String(ast.StreamTypeMap[st])), logger)
-			return
-		}
-		jsonResponse(content, w, logger)
-	case http.MethodPost:
-		v, err := decodeStatementDescriptor(r.Body)
-		if err != nil {
-			handleError(w, err, "Invalid body", logger)
-			return
-		}
-		content, err := streamProcessor.ExecStreamSql(v.Sql)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("%s command error", cases.Title(language.Und).String(ast.StreamTypeMap[st])), logger)
-			return
-		}
-		w.WriteHeader(http.StatusCreated)
-		escapedContent := template.HTMLEscapeString(content)
-		w.Write([]byte(escapedContent))
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func checkStreamBeforeDrop(name string) (bool, error) {
-	for _, r := range registry.keys() {
-		rs, ok := registry.load(r)
-		if !ok {
-			continue
-		}
-		streams := rs.GetStreams()
-		for _, s := range streams {
-			if name == s {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
-}
+func checkStreamBeforeDrop(name string) (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
 func sourceManageHandler(w http.ResponseWriter, r *http.Request, st ast.StreamType) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-	if err := validate.ValidateID(name); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-
-	switch r.Method {
-	case http.MethodGet:
-		content, err := streamProcessor.DescStream(name, st)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("describe %s error", ast.StreamTypeMap[st]), logger)
-			return
-		}
-		jsonResponse(content, w, logger)
-	case http.MethodDelete:
-		forceRaw := r.URL.Query().Get("force")
-		force, err := strconv.ParseBool(forceRaw)
-		if err != nil || !force {
-			referenced, err := checkStreamBeforeDrop(name)
-			if err != nil {
-				handleError(w, err, fmt.Sprintf("delete %s error", ast.StreamTypeMap[st]), logger)
-				return
-			}
-			if referenced {
-				handleError(w, fmt.Errorf("stream %v has been referenced by other rules", name), "", logger)
-				return
-			}
-		}
-		content, err := streamProcessor.DropStream(name, st)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("delete %s error", ast.StreamTypeMap[st]), logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(content))
-	case http.MethodPut:
-		v, err := decodeStatementDescriptor(r.Body)
-		if err != nil {
-			handleError(w, err, "Invalid body", logger)
-			return
-		}
-		content, err := streamProcessor.ExecReplaceStream(name, v.Sql, st)
-		if err != nil {
-			handleError(w, err, fmt.Sprintf("%s command error", cases.Title(language.Und).String(ast.StreamTypeMap[st])), logger)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte(content))
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 // list or create streams
 func streamDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	sourceDetailsManageHandler(w, r, ast.TypeStream)
+	_ = "STUB: not implemented"
+	return
 }
 
 // list or create streams
-func streamsHandler(w http.ResponseWriter, r *http.Request) {
-	sourcesManageHandler(w, r, ast.TypeStream)
-}
+func streamsHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // describe or delete a stream
-func streamHandler(w http.ResponseWriter, r *http.Request) {
-	sourceManageHandler(w, r, ast.TypeStream)
-}
+func streamHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list or create streams
-func tableDetailsHandler(w http.ResponseWriter, r *http.Request) {
-	sourceDetailsManageHandler(w, r, ast.TypeTable)
-}
+func tableDetailsHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // list or create tables
-func tablesHandler(w http.ResponseWriter, r *http.Request) {
-	sourcesManageHandler(w, r, ast.TypeTable)
-}
+func tablesHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func tableHandler(w http.ResponseWriter, r *http.Request) {
-	sourceManageHandler(w, r, ast.TypeTable)
-}
+func tableHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func streamSchemaHandler(w http.ResponseWriter, r *http.Request) {
-	sourceSchemaHandler(w, r, ast.TypeStream)
-}
+func streamSchemaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func tableSchemaHandler(w http.ResponseWriter, r *http.Request) {
-	sourceSchemaHandler(w, r, ast.TypeTable)
-}
+func tableSchemaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 func sourceSchemaHandler(w http.ResponseWriter, r *http.Request, st ast.StreamType) {
-	vars := mux.Vars(r)
-	name := vars["name"]
-	content, err := streamProcessor.GetInferredJsonSchema(name, st)
-	if err != nil {
-		handleError(w, err, fmt.Sprintf("get schema of %s error", ast.StreamTypeMap[st]), logger)
-		return
-	}
-	jsonResponse(content, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 // list or create rules
-func rulesHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	switch r.Method {
-	case http.MethodPost:
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			handleError(w, err, "Invalid body", logger)
-			return
-		}
-		id, err := registry.CreateRule("", string(body))
-		if err != nil {
-			handleError(w, err, "", logger)
-			return
-		}
-		conf.Log.Infof("create rule:%v", id)
-		w.WriteHeader(http.StatusCreated)
-		fmt.Fprintf(w, "Rule %s was created successfully.", id)
-	case http.MethodGet:
-		content, err := registry.GetAllRulesWithStatus()
-		if err != nil {
-			handleError(w, err, "Show rules error", logger)
-			return
-		}
-		jsonResponse(content, w, logger)
-	}
-}
+func rulesHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // describe or delete a rule
-func ruleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-	if err := validate.ValidateID(name); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
+func ruleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-	switch r.Method {
-	case http.MethodGet:
-		rule, err := ruleProcessor.GetRuleJson(name)
-		if err != nil {
-			handleError(w, err, "Describe rule error", logger)
-			return
-		}
-		w.Header().Add(ContentType, ContentTypeJSON)
-		w.Write([]byte(rule))
-	case http.MethodDelete:
-		// delete rule will wait until rule close
-		err := registry.DeleteRule(name)
-		if err != nil {
-			handleError(w, err, "Delete rule error", logger)
-			return
-		}
-		conf.Log.Infof("drop rule:%v", name)
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, "Rule %s is dropped.", name)
-	case http.MethodPut:
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			handleError(w, err, "Invalid body", logger)
-			return
-		}
-		err = registry.UpsertRule(name, string(body))
-		if err != nil {
-			handleError(w, err, "Update rule error", logger)
-			return
-		}
-		conf.Log.Infof("update rule:%v", name)
-		w.WriteHeader(http.StatusOK)
-		_, _ = fmt.Fprintf(w, "Rule %s was updated successfully.", name)
-	}
-}
+// delete rule will wait until rule close
 
 func getAllRuleStatusHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	s, err := registry.GetAllRuleStatus()
-	if err != nil {
-		handleError(w, err, "get rules status error", logger)
-		return
-	}
-	w.Header().Set(ContentType, ContentTypeJSON)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(s))
+	_ = "STUB: not implemented"
+	return
 }
 
 // get status of a rule
 func getStatusV2RulHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	content, err := registry.GetRuleStatusV2(name)
-	if err != nil {
-		handleError(w, err, "get rule status error", logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	jsonResponse(content, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
 // get status of a rule
 func getStatusRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	content, err := registry.GetRuleStatus(name)
-	if err != nil {
-		handleError(w, err, "get rule status error", logger)
-		return
-	}
-	w.Header().Set(ContentType, ContentTypeJSON)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(content))
+	_ = "STUB: not implemented"
+	return
 }
 
 // start a rule
-func startRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	err := registry.StartRule(name)
-	if err != nil {
-		handleError(w, err, "start rule error", logger)
-		return
-	}
-	conf.Log.Infof("start rule:%v", name)
-	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "Rule %s was started", name)
-}
+func startRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // stop a rule
-func stopRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	err := registry.StopRule(name)
-	if err != nil {
-		handleError(w, err, "stop rule error", logger)
-		return
-	}
-	conf.Log.Infof("stop rule:%v", name)
-	w.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprintf(w, "Rule %s was stopped.", name)
-}
+func stopRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // restart a rule
-func restartRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	err := registry.RestartRule(name)
-	if err != nil {
-		handleError(w, err, "restart rule error", logger)
-		return
-	}
-	conf.Log.Infof("restart rule:%v", name)
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Rule %s was restarted", name)
-}
+func restartRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type EnableRuleTraceRequest struct {
 	Strategy string `json:"strategy"`
 }
 
 func enableRuleTraceHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-	req := &EnableRuleTraceRequest{}
-	err := json.NewDecoder(r.Body).Decode(req)
-	if err != nil {
-		handleError(w, err, "Invalid body: Error decoding json", logger)
-		return
-	}
-	err = setIsRuleTraceEnabledHandler(name, true, kctx.StringToStrategy(req.Strategy))
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
+	_ = "STUB: not implemented"
+	return
 }
 
 func disableRuleTraceHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
-
-	err := setIsRuleTraceEnabledHandler(name, false, kctx.AlwaysTraceStrategy)
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
+	_ = "STUB: not implemented"
+	return
 }
 
 func setIsRuleTraceEnabledHandler(name string, isEnabled bool, stra kctx.TraceStrategy) error {
-	rs, ok := registry.load(name)
-	if !ok {
-		return fmt.Errorf("rule %s isn't existed", name)
-	}
-	return rs.SetIsTraceEnabled(isEnabled, stra)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // get topo of a rule
-func getTopoRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["name"]
+func getTopoRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-	content, err := registry.GetRuleTopo(name)
-	if err != nil {
-		handleError(w, err, "get rule topo error", logger)
-		return
-	}
-	w.Header().Set(ContentType, ContentTypeJSON)
-	w.Write([]byte(content))
-}
-
-func ruleSchemaHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	name := vars["id"]
-	schema, err := registry.GetRuleSinkSchema(name)
-	if err != nil {
-		handleError(w, err, "get rule schema error", logger)
-		return
-	}
-	jsonResponse(schema, w, logger)
-}
+func ruleSchemaHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 // validate a rule
-func validateRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		handleError(w, err, "Invalid body", logger)
-		return
-	}
-	sources, validate, err := registry.ValidateRule("", string(body))
-	if !validate {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Write([]byte(err.Error()))
-		return
-	}
-	resp := make(map[string]interface{})
-	resp["valid"] = validate
-	resp["sources"] = sources
-	bs, _ := json.Marshal(resp)
-	w.WriteHeader(http.StatusOK)
-	w.Write(bs)
-}
+func validateRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type rulesetInfo struct {
 	Content  string `json:"content"`
 	FilePath string `json:"file"`
 }
 
-func importHandler(w http.ResponseWriter, r *http.Request) {
-	rsi := &rulesetInfo{}
-	err := json.NewDecoder(r.Body).Decode(rsi)
-	if err != nil {
-		handleError(w, err, "Invalid body: Error decoding json", logger)
-		return
-	}
-	if rsi.Content != "" && rsi.FilePath != "" {
-		handleError(w, errors.New("bad request"), "Invalid body: Cannot specify both content and file", logger)
-		return
-	} else if rsi.Content == "" && rsi.FilePath == "" {
-		handleError(w, errors.New("bad request"), "Invalid body: must specify content or file", logger)
-		return
-	}
-	content := []byte(rsi.Content)
-	if rsi.FilePath != "" {
-		reader, err := httpx.ReadFile(rsi.FilePath)
-		if err != nil {
-			handleError(w, err, "Fail to read file", logger)
-			return
-		}
-		defer reader.Close()
-		buf := new(bytes.Buffer)
-		_, err = io.Copy(buf, reader)
-		if err != nil {
-			handleError(w, err, "fail to convert file", logger)
-			return
-		}
-		content = buf.Bytes()
-	}
-	rules, counts, err := rulesetProcessor.Import(content)
-	if err != nil {
-		handleError(w, nil, "Import ruleset error", logger)
-		return
-	}
-	infra.SafeRun(func() error {
-		for _, name := range rules {
-			rul, ee := ruleProcessor.GetRuleById(name)
-			if ee != nil {
-				logger.Error(ee)
-				continue
-			}
-			reply := registry.RecoverRule(rul)
-			if reply != "" {
-				logger.Error(reply)
-			}
-		}
-		return nil
-	})
-	fmt.Fprintf(w, "imported %d streams, %d tables and %d rules", counts[0], counts[1], counts[2])
-}
+func importHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func exportHandler(w http.ResponseWriter, r *http.Request) {
-	const name = "ekuiper_export.json"
-	exported, _, err := rulesetProcessor.Export()
-	if err != nil {
-		handleError(w, err, "export error", logger)
-		return
-	}
-	w.Header().Set("Content-Type", "application/octet-stream")
-	w.Header().Add("Content-Disposition", "Attachment")
-	http.ServeContent(w, r, name, time.Now(), exported)
-}
+func exportHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
-func testRuleHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		handleError(w, err, "Invalid body", logger)
-		return
-	}
-	id, err := trial.TrialManager.CreateRule(string(body))
-	if err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	result := map[string]any{
-		"id":   id,
-		"port": conf.Config.Source.HttpServerPort,
-	}
-	w.WriteHeader(http.StatusOK)
-	jsonResponse(result, w, logger)
-}
+func testRuleHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 func testRuleStartHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	id := vars["name"]
-	err := trial.TrialManager.StartRule(id)
-	if err != nil {
-		handleError(w, err, "start rule error", logger)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Test rule %s was started", id)
+	_ = "STUB: not implemented"
+	return
 }
 
-func testRuleStopHandler(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-	vars := mux.Vars(r)
-	id := vars["name"]
-	trial.TrialManager.StopRule(id)
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Test rule %s was stopped.", id)
-}
+func testRuleStopHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 func rulesTopCpuUsageHandler(w http.ResponseWriter, r *http.Request) {
-	if !conf.Config.Basic.ResourceProfileConfig.Enable {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("cpu usage not enabled"))
-		return
-	}
-	dataMap := cpuProfiler.GetWindowData()
-	if dataMap == nil {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("cpu usage not ready"))
-		return
-	}
-	ruleResult, ok := dataMap["rule"]
-	if !ok {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("cpu usage not ready"))
-		return
-	}
-	result := make(map[string]int)
-	for key, value := range ruleResult.Stats {
-		result[key] = value
-	}
-	jsonResponse(result, w, logger)
+	_ = "STUB: not implemented"
+	return
 }
 
-func batchRequestHandler(w http.ResponseWriter, r *http.Request) {
-	batchRequest := make([]*EachRequest, 0)
-	if err := json.NewDecoder(r.Body).Decode(&batchRequest); err != nil {
-		handleError(w, err, "", logger)
-		return
-	}
-	allResponse := make([]*EachResponse, 0)
-	for _, batchReq := range batchRequest {
-		resp := &EachResponse{}
-		rr := httptest.NewRecorder()
-		req, err := http.NewRequest(batchReq.Method, batchReq.Path, bytes.NewBuffer([]byte(batchReq.Body)))
-		if err != nil {
-			resp.Error = err.Error()
-			allResponse = append(allResponse, resp)
-			continue
-		}
-		req.Header = r.Header
-		router.ServeHTTP(rr, req)
-		resp.Code = rr.Code
-		resp.Response = rr.Body.String()
-		allResponse = append(allResponse, resp)
-	}
-	jsonResponse(allResponse, w, logger)
-}
+func batchRequestHandler(w http.ResponseWriter, r *http.Request) { _ = "STUB: not implemented"; return }
 
 type EachRequest struct {
 	Method string `json:"method"`

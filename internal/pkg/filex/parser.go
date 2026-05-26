@@ -14,47 +14,11 @@
 
 package filex
 
-import (
-	"encoding/json"
-	"fmt"
-	"os"
+func ReadJsonUnmarshal(path string, ret interface{}) error { _ = "STUB: not implemented"; return nil }
 
-	"gopkg.in/yaml.v3"
-)
-
-func ReadJsonUnmarshal(path string, ret interface{}) error {
-	sliByte, err := os.ReadFile(path)
-	if nil != err {
-		return err
-	}
-	err = json.Unmarshal(sliByte, ret)
-	if nil != err {
-		return err
-	}
-	return nil
-}
-
-func WriteYamlMarshal(path string, data interface{}) error {
-	y, err := yaml.Marshal(data)
-	if nil != err {
-		return err
-	}
-	return os.WriteFile(path, y, 0o666)
-}
+func WriteYamlMarshal(path string, data interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func ReadYamlUnmarshal(path string, ret interface{}) (err error) {
-	defer func() {
-		if err != nil {
-			err = fmt.Errorf("read %s unmarshal yaml failed, err:%v", path, err)
-		}
-	}()
-	sliByte, err := os.ReadFile(path)
-	if nil != err {
-		return err
-	}
-	err = yaml.Unmarshal(sliByte, ret)
-	if nil != err {
-		return err
-	}
+	_ = "STUB: not implemented"
 	return nil
 }

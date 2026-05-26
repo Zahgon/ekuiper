@@ -15,9 +15,6 @@
 package function
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/binder"
@@ -39,99 +36,34 @@ func init() {
 }
 
 // Initialize Only call once when server starts
-func Initialize(factories []binder.FactoryEntry) error {
-	for _, f := range factories {
-		applyFactory(f)
-	}
-	return nil
-}
+func Initialize(factories []binder.FactoryEntry) error { _ = "STUB: not implemented"; return nil }
 
-func applyFactory(f binder.FactoryEntry) {
-	if s, ok := f.Factory.(binder.FuncFactory); ok {
-		funcFactories = append(funcFactories, s)
-		funcFactoriesNames = append(funcFactoriesNames, f.Name)
-	}
-}
+func applyFactory(f binder.FactoryEntry) { _ = "STUB: not implemented"; return }
 
 func Function(name string) (api.Function, error) {
-	var errs error
-	for i, sf := range funcFactories {
-		r, err := sf.Function(name)
-		if err != nil {
-			errs = errors.Join(errs, fmt.Errorf("%s:%v", funcFactoriesNames[i], err))
-		}
-		if r != nil {
-			return r, errs
-		}
-	}
-	return nil, errs
+	_ = "STUB: not implemented"
+	return *new(api.Function), nil
 }
 
 func GetFunctionPlugin(name string) (plugin.EXTENSION_TYPE, string, string) {
-	for _, sf := range funcFactories {
-		t, s1, s2 := sf.FunctionPluginInfo(name)
-		if t == plugin.NONE_EXTENSION {
-			continue
-		}
-		return t, s1, s2
-	}
-	return plugin.NONE_EXTENSION, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
-func HasFunctionSet(name string) bool {
-	for _, sf := range funcFactories {
-		r := sf.HasFunctionSet(name)
-		if r {
-			return r
-		}
-	}
-	return false
-}
+func HasFunctionSet(name string) bool { _ = "STUB: not implemented"; return false }
 
-func ConvName(name string) (string, bool) {
-	for _, sf := range funcFactories {
-		r, ok := sf.ConvName(name)
-		if ok {
-			return r, ok
-		}
-	}
-	return name, false
-}
+func ConvName(name string) (string, bool) { _ = "STUB: not implemented"; return "", false }
 
 type multiAggFunc interface {
 	GetFuncType(name string) ast.FuncType
 }
 
-func IsAggFunc(funcName string) bool {
-	f, _ := Function(funcName)
-	if f != nil {
-		if mf, ok := f.(multiAggFunc); ok {
-			return mf.GetFuncType(funcName) == ast.FuncTypeAgg
-		} else {
-			return f.IsAggregate()
-		}
-	}
-	return false
-}
+func IsAggFunc(funcName string) bool { _ = "STUB: not implemented"; return false }
 
 // NoAggFunc returns true if the function CANNOT be used in an aggregate query
-func NoAggFunc(funcName string) bool {
-	if funcName == "last_hit_count" || funcName == "last_hit_time" {
-		return true
-	}
-	return false
-}
+func NoAggFunc(funcName string) bool { _ = "STUB: not implemented"; return false }
 
 func GetFuncType(funcName string) ast.FuncType {
-	f, _ := Function(funcName)
-	if f != nil {
-		if mf, ok := f.(multiAggFunc); ok {
-			return mf.GetFuncType(funcName)
-		}
-		if f.IsAggregate() {
-			return ast.FuncTypeAgg
-		}
-		return ast.FuncTypeScalar
-	}
-	return ast.FuncTypeUnknown
+	_ = "STUB: not implemented"
+	return *new(ast.FuncType)
 }

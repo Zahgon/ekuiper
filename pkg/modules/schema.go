@@ -20,7 +20,8 @@ type SchemaTypeInfo struct {
 var SchemaTypeDefs = map[string]SchemaTypeInfo{}
 
 func RegisterSchemaType(name string, t SchemaTypeDef, ext string) {
-	SchemaTypeDefs[name] = SchemaTypeInfo{t, ext}
+	_ = "STUB: not implemented"
+	return
 }
 
 const (

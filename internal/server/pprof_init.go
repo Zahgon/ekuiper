@@ -19,11 +19,6 @@ package server
 import (
 	"net/http"
 	_ "net/http/pprof"
-
-	"github.com/Rookiecom/cpuprofile"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 func init() {
@@ -34,25 +29,10 @@ type pprofComp struct {
 	s *http.Server
 }
 
-func (p pprofComp) serve() {
-	if conf.Config.Basic.Pprof {
-		if conf.Config.PprofSameAsRest() {
-			return
-		}
-		go func() {
-			addr := cast.JoinHostPortInt(conf.Config.Basic.PprofIp, conf.Config.Basic.PprofPort)
-			if conf.Config.Basic.ResourceProfileConfig.Enable {
-				cpuprofile.WebProfile(addr)
-				return
-			}
-			conf.Log.Infof("Run pprof in %s", addr)
-			if err := http.ListenAndServe(addr, nil); err != nil {
-				conf.Log.Errorf("pprof start error: %s", err)
-			}
-		}()
-	}
-}
+func (p pprofComp) serve() { _ = "STUB: not implemented"; return }
 
 func (p pprofComp) close() {
+	_ = "STUB: not implemented"
 	// do nothing
+	return
 }

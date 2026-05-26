@@ -16,17 +16,8 @@ package mockclock
 
 import (
 	"github.com/benbjohnson/clock"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
-func ResetClock(t int64) {
-	mock := clock.NewMock()
-	mock.Set(cast.TimeFromUnixMilli(t))
-	timex.Clock = mock
-}
+func ResetClock(t int64) { _ = "STUB: not implemented"; return }
 
-func GetMockClock() *clock.Mock {
-	return timex.Clock.(*clock.Mock)
-}
+func GetMockClock() *clock.Mock { _ = "STUB: not implemented"; return nil }

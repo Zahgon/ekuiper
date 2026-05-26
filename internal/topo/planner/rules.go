@@ -24,21 +24,17 @@ type logicalOptRule interface {
 type predicatePushDown struct{}
 
 func (r *predicatePushDown) optimize(lp LogicalPlan, _ *def.RuleOption) (LogicalPlan, error) {
-	_, p := lp.PushDownPredicate(nil)
-	return p, nil
+	_ = "STUB: not implemented"
+	return *new(LogicalPlan), nil
 }
 
-func (r *predicatePushDown) name() string {
-	return "predicatePushDown"
-}
+func (r *predicatePushDown) name() string { _ = "STUB: not implemented"; return "" }
 
 type columnPruner struct{}
 
 func (r *columnPruner) optimize(lp LogicalPlan, _ *def.RuleOption) (LogicalPlan, error) {
-	err := lp.PruneColumns(nil)
-	return lp, err
+	_ = "STUB: not implemented"
+	return *new(LogicalPlan), nil
 }
 
-func (r *columnPruner) name() string {
-	return "columnPruner"
-}
+func (r *columnPruner) name() string { _ = "STUB: not implemented"; return "" }

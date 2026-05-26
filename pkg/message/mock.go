@@ -25,19 +25,20 @@ type MockPartialConverter struct {
 }
 
 func (m *MockPartialConverter) Encode(ctx api.StreamContext, d any) ([]byte, error) {
+	_ = "STUB: not implemented"
 	// TODO implement me
-	panic("implement me")
+	return nil, nil
 }
 
 func (m *MockPartialConverter) Decode(ctx api.StreamContext, b []byte) (any, error) {
+	_ = "STUB: not implemented"
 	// TODO implement me
-	panic("implement me")
+	return *new(any), nil
 }
 
 func (m *MockPartialConverter) DecodeField(ctx api.StreamContext, b []byte, f string) (any, error) {
-	r := m.i % 2
-	m.i++
-	return r, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
 type MockMerger struct {
@@ -46,24 +47,21 @@ type MockMerger struct {
 }
 
 func (m *MockMerger) Split(ctx api.StreamContext, b []byte) [][]byte {
-	return [][]byte{b}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *MockMerger) Merging(ctx api.StreamContext, b []byte) error {
-	if m.frames == nil {
-		m.frames = make([]map[string]any, 2)
-	}
-	m.frames[m.count%2] = map[string]any{"data": b}
-	m.count++
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (m *MockMerger) Trigger(ctx api.StreamContext) ([]any, bool) {
-	result := make([]any, len(m.frames))
-	for i, frame := range m.frames {
-		result[i] = frame
-	}
-	return result, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (m *MockMerger) ResetSchema(schema map[string]*ast.JsonStreamField) {}
+func (m *MockMerger) ResetSchema(schema map[string]*ast.JsonStreamField) {
+	_ = "STUB: not implemented"
+	return
+}

@@ -16,68 +16,17 @@ package meta
 
 import (
 	"bytes"
-	"os"
-	"path/filepath"
 
 	"gopkg.in/ini.v1"
-
-	kconf "github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 var gUimsg map[string]*ini.File
 
-func getMsg(language, section, key string) string {
-	language += ".ini"
-	if conf, ok := gUimsg[language]; ok {
-		s := conf.Section(section)
-		if s != nil {
-			return s.Key(key).String()
-		}
-	}
-	return ""
-}
+func getMsg(language, section, key string) string { _ = "STUB: not implemented"; return "" }
 
-func ReadUiMsgDir() error {
-	gUimsg = make(map[string]*ini.File)
-	confDir, err := kconf.GetConfLoc()
-	if nil != err {
-		return err
-	}
-
-	dir := filepath.Join(confDir, "multilingual")
-	dirEntries, err := os.ReadDir(dir)
-	if nil != err {
-		return err
-	}
-
-	for _, entry := range dirEntries {
-		fName := entry.Name()
-		fPath := filepath.Join(dir, fName)
-		if conf, err := ini.Load(fPath); nil != err {
-			return err
-		} else {
-			gUimsg[fName] = conf
-		}
-	}
-	return nil
-}
+func ReadUiMsgDir() error { _ = "STUB: not implemented"; return nil }
 
 func ConstructJsonArray(jsonByteItems []fileContent) bytes.Buffer {
-	var buf bytes.Buffer
-	length := len(jsonByteItems)
-	if length == 0 {
-		buf.Write([]byte("[]"))
-		return buf
-	}
-
-	buf.Write([]byte("["))
-	buf.Write(jsonByteItems[0])
-
-	for i := 1; i < length; i++ {
-		buf.Write([]byte(","))
-		buf.Write(jsonByteItems[i])
-	}
-
-	buf.Write([]byte("]"))
-	return buf
+	_ = "STUB: not implemented"
+	return *new(bytes.Buffer)
 }

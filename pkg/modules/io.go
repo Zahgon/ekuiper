@@ -30,50 +30,16 @@ var (
 	LookupSources = map[string]NewLookupSourceFunc{}
 )
 
-func RegisterSource(name string, f NewSourceFunc) {
-	Sources[name] = f
-}
+func RegisterSource(name string, f NewSourceFunc) { _ = "STUB: not implemented"; return }
 
-func RegisterSink(name string, f NewSinkFunc) {
-	Sinks[name] = f
-}
+func RegisterSink(name string, f NewSinkFunc) { _ = "STUB: not implemented"; return }
 
-func RegisterLookupSource(name string, f NewLookupSourceFunc) {
-	LookupSources[name] = f
-}
+func RegisterLookupSource(name string, f NewLookupSourceFunc) { _ = "STUB: not implemented"; return }
 
-func IsStreamSource(s api.Source) bool {
-	switch s.(type) {
-	case api.TupleSource, api.BytesSource, api.PullTupleSource, api.PullBytesSource:
-		return true
-	default:
-		return false
-	}
-}
+func IsStreamSource(s api.Source) bool { _ = "STUB: not implemented"; return false }
 
-func IsPushStreamSource(s api.Source) bool {
-	switch s.(type) {
-	case api.TupleSource, api.BytesSource:
-		return true
-	default:
-		return false
-	}
-}
+func IsPushStreamSource(s api.Source) bool { _ = "STUB: not implemented"; return false }
 
-func IsPullStreamSource(s api.Source) bool {
-	switch s.(type) {
-	case api.PullTupleSource, api.PullBytesSource:
-		return true
-	default:
-		return false
-	}
-}
+func IsPullStreamSource(s api.Source) bool { _ = "STUB: not implemented"; return false }
 
-func IsLookupSource(s api.Source) bool {
-	switch s.(type) {
-	case api.LookupSource, api.LookupBytesSource:
-		return true
-	default:
-		return false
-	}
-}
+func IsLookupSource(s api.Source) bool { _ = "STUB: not implemented"; return false }

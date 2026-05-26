@@ -15,7 +15,6 @@
 package keyedstate
 
 import (
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
 	kv2 "github.com/lf-edge/ekuiper/v2/pkg/kv"
 )
 
@@ -25,18 +24,10 @@ type Manager struct {
 	kv kv2.KeyValue
 }
 
-func InitKeyedStateKV() {
-	kv, _ = store.GetExtStateKV("keyed_state")
-}
+func InitKeyedStateKV() { _ = "STUB: not implemented"; return }
 
-func GetKeyedState(key string) (interface{}, error) {
-	return kv.GetKeyedState(key)
-}
+func GetKeyedState(key string) (interface{}, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func SetKeyedState(key string, value interface{}) error {
-	return kv.SetKeyedState(key, value)
-}
+func SetKeyedState(key string, value interface{}) error { _ = "STUB: not implemented"; return nil }
 
-func ClearKeyedState() error {
-	return kv.Drop()
-}
+func ClearKeyedState() error { _ = "STUB: not implemented"; return nil }

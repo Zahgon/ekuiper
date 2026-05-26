@@ -15,65 +15,27 @@
 package encryptor
 
 import (
-	"fmt"
 	"io"
 
-	"github.com/lf-edge/ekuiper/v2/modules/encryptor/aes"
 	"github.com/lf-edge/ekuiper/v2/pkg/message"
 	"github.com/lf-edge/ekuiper/v2/pkg/model"
 )
 
 // GetEncryptor currently, decryptor and encryptor are the same instance
 func GetEncryptor(name string, encryptProps map[string]any, conf *model.KuiperConf) (message.Encryptor, error) {
-	var (
-		key []byte
-		err error
-	)
-	switch name {
-	case "aes":
-		key, err = getAESKey(conf)
-		if err != nil {
-			return nil, err
-		}
-	}
-	enc, err := GetDecryptorWithKey(name, key, encryptProps)
-	if err != nil {
-		return nil, err
-	}
-	return enc.(message.Encryptor), nil
+	_ = "STUB: not implemented"
+	return *new(message.Encryptor), nil
 }
 
 func GetDecryptorWithKey(name string, key []byte, encryptProps map[string]any) (message.Decryptor, error) {
-	switch name {
-	case "aes":
-		return aes.GetDecryptor(key, encryptProps)
-	case "default":
-		d, err := GetDefaultDecryptor()
-		if err != nil {
-			return nil, err
-		} else {
-			return d, nil
-		}
-	default:
-		return nil, fmt.Errorf("encryptor '%s' is not supported", name)
-	}
+	_ = "STUB: not implemented"
+	return *new(message.Decryptor), nil
 }
 
-func getAESKey(conf *model.KuiperConf) ([]byte, error) {
-	if conf != nil && conf.AesKey != nil {
-		return conf.AesKey, nil
-	}
-	return nil, fmt.Errorf("AES Key is not defined")
-}
+func getAESKey(conf *model.KuiperConf) ([]byte, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func GetEncryptWriter(name string, output io.Writer, conf *model.KuiperConf) (io.Writer, error) {
+	_ = "STUB: not implemented"
 	// TODO support encryption props later
-	if name == "aes" {
-		key, err := getAESKey(conf)
-		if err != nil {
-			return nil, err
-		}
-		return aes.GetEncryptWriter(output, key, nil)
-	}
-	return nil, fmt.Errorf("unsupported encryptor: %s", name)
+	return *new(io.Writer), nil
 }

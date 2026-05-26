@@ -16,10 +16,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/zmq"
 )
 
-func Zmq() api.Sink {
-	return zmq.GetSink()
-}
+func Zmq() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }

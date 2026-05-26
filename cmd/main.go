@@ -19,7 +19,6 @@ import (
 	"os"
 
 	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/internal/server"
 )
 
 // The compile time variable
@@ -64,6 +63,4 @@ func init() {
 	}
 }
 
-func Main() {
-	server.StartUp(Version)
-}
+func Main() { _ = "STUB: not implemented"; return }

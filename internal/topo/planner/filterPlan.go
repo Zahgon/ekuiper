@@ -15,7 +15,6 @@
 package planner
 
 import (
-	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -25,87 +24,20 @@ type FilterPlan struct {
 	stateFuncs []*ast.Call
 }
 
-func (p FilterPlan) Init() *FilterPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(FILTER)
-	return &p
-}
+func (p FilterPlan) Init() *FilterPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *FilterPlan) BuildExplainInfo() {
-	info := ""
-	if p.condition != nil {
-		info += "Condition:{ " + p.condition.String() + " }, "
-	}
-	if len(p.stateFuncs) != 0 {
-		info += "StateFuncs:["
-		for i := 0; i < len(p.stateFuncs); i++ {
-			info += p.stateFuncs[i].String()
-			if i != len(p.stateFuncs)-1 {
-				info += ", "
-			}
-		}
-		info += "]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *FilterPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
 func (p *FilterPlan) PushDownPredicate(condition ast.Expr) (ast.Expr, LogicalPlan) {
+	_ = "STUB: not implemented"
 	// if no child, swallow all conditions
-	a := combine(condition, p.condition)
-	if len(p.children) == 0 {
-		p.condition = a
-		return nil, p
-	}
-
-	rest, _ := p.baseLogicalPlan.PushDownPredicate(a)
-
-	if rest != nil {
-		p.condition = rest
-		return nil, p
-	} else if len(p.children) == 1 {
-		// eliminate this filter
-		return nil, p.children[0]
-	} else {
-		return nil, p
-	}
+	return *new(ast.Expr), *new(LogicalPlan)
 }
 
-func (p *FilterPlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.condition)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
-}
+// eliminate this filter
 
-func (p *FilterPlan) ExtractStateFunc() {
-	aliases := make(map[string]ast.Expr)
-	ast.WalkFunc(p.condition, func(n ast.Node) bool {
-		switch f := n.(type) {
-		case *ast.Call:
-			p.transform(f)
-		case *ast.FieldRef:
-			if f.AliasRef != nil {
-				aliases[f.Name] = f.AliasRef.Expression
-			}
-		}
-		return true
-	})
-	for _, ex := range aliases {
-		ast.WalkFunc(ex, func(n ast.Node) bool {
-			switch f := n.(type) {
-			case *ast.Call:
-				p.transform(f)
-			}
-			return true
-		})
-	}
-}
+func (p *FilterPlan) PruneColumns(fields []ast.Expr) error { _ = "STUB: not implemented"; return nil }
 
-func (p *FilterPlan) transform(f *ast.Call) {
-	if _, ok := xsql.ImplicitStateFuncs[f.Name]; ok {
-		f.Cached = true
-		p.stateFuncs = append(p.stateFuncs, &ast.Call{
-			Name:     f.Name,
-			FuncId:   f.FuncId,
-			FuncType: f.FuncType,
-		})
-	}
-}
+func (p *FilterPlan) ExtractStateFunc() { _ = "STUB: not implemented"; return }
+
+func (p *FilterPlan) transform(f *ast.Call) { _ = "STUB: not implemented"; return }

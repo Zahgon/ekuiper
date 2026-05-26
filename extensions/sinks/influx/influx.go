@@ -17,40 +17,41 @@ package main
 import (
 	_ "github.com/influxdata/influxdb1-client/v2"
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/influx"
 )
 
 func Influx() api.Sink {
-	return influx.GetSink()
-}
+	_ = "STUB: not implemented"
+	return *
 
-//// This is for manual test
-//func main() {
-//	i := Influx()
-//	err := i.Configure(map[string]interface{}{
-//		"addr":        "http://127.0.0.1:8086",
-//		"measurement": "test",
-//		"database":    "mydb",
-//		"tags": map[string]interface{}{
-//			"tag": "{{.humidity}}",
-//		},
-//	})
-//	if err != nil {
-//		panic(err)
-//	}
-//	contextLogger := conf.Log.WithField("rule", "ruleInflux")
-//	ctx := context.WithValue(context.Background(), context.LoggerKey, contextLogger)
-//	err = i.Open(ctx)
-//	if err != nil {
-//		panic(err)
-//	}
-//	err = i.Collect(ctx, map[string]interface{}{"temperature": 30, "humidity": 80})
-//	if err != nil {
-//		panic(err)
-//	}
-//	err = i.Close(ctx)
-//	if err != nil {
-//		panic(err)
-//	}
-//}
+	// // This is for manual test
+	//
+	//	func main() {
+	//		i := Influx()
+	//		err := i.Configure(map[string]interface{}{
+	//			"addr":        "http://127.0.0.1:8086",
+	//			"measurement": "test",
+	//			"database":    "mydb",
+	//			"tags": map[string]interface{}{
+	//				"tag": "{{.humidity}}",
+	//			},
+	//		})
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//		contextLogger := conf.Log.WithField("rule", "ruleInflux")
+	//		ctx := context.WithValue(context.Background(), context.LoggerKey, contextLogger)
+	//		err = i.Open(ctx)
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//		err = i.Collect(ctx, map[string]interface{}{"temperature": 30, "humidity": 80})
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//		err = i.Close(ctx)
+	//		if err != nil {
+	//			panic(err)
+	//		}
+	//	}
+	new(api.Sink)
+}

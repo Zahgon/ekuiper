@@ -16,14 +16,10 @@ package sqlite
 
 import (
 	"database/sql"
-	"fmt"
-	"os"
-	"path"
 
 	// introduce sqlite
 	_ "modernc.org/sqlite"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf/logger"
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/store/definition"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -35,47 +31,14 @@ type Database struct {
 }
 
 func NewSqliteDatabase(c definition.Config, name string) (definition.Database, error) {
-	logger.Log.Infof("use cgo disabled sqlite as store %v", name)
-	sqliteConf := c.Sqlite
-	dir := sqliteConf.Path
-	if sqliteConf.Name != "" {
-		name = sqliteConf.Name
-	}
-	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.MkdirAll(dir, os.ModePerm)
-	}
-	dbPath := path.Join(dir, name)
-	return &Database{
-		db:   nil,
-		Path: dbPath,
-		mu:   syncx.Mutex{},
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(definition.Database), nil
 }
 
-func (d *Database) Connect() error {
-	db, err := sql.Open("sqlite", connectionString(d.Path))
-	if err != nil {
-		return err
-	}
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
-	db.SetConnMaxLifetime(-1)
-	d.db = db
-	return nil
-}
+func (d *Database) Connect() error { _ = "STUB: not implemented"; return nil }
 
-func connectionString(dpath string) string {
-	return fmt.Sprintf("file:%s?cache=shared&_journal=WAL&sync=2&_busy_timeout=5000", dpath)
-}
+func connectionString(dpath string) string { _ = "STUB: not implemented"; return "" }
 
-func (d *Database) Disconnect() error {
-	err := d.db.Close()
-	return err
-}
+func (d *Database) Disconnect() error { _ = "STUB: not implemented"; return nil }
 
-func (d *Database) Apply(f func(db *sql.DB) error) error {
-	d.mu.Lock()
-	err := f(d.db)
-	d.mu.Unlock()
-	return err
-}
+func (d *Database) Apply(f func(db *sql.DB) error) error { _ = "STUB: not implemented"; return nil }

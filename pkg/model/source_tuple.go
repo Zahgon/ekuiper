@@ -16,8 +16,6 @@ package model
 
 import (
 	"time"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 type DefaultSourceTuple struct {
@@ -29,59 +27,42 @@ type DefaultSourceTuple struct {
 
 // NewDefaultRawTuple creates a new DefaultSourceTuple with raw data. Use this when extend source connector
 func NewDefaultRawTuple(raw []byte, meta map[string]any, ts time.Time) *DefaultSourceTuple {
-	return &DefaultSourceTuple{
-		meta: meta,
-		time: ts,
-		raw:  raw,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func NewDefaultRawTupleIgnoreTs(raw []byte, meta map[string]any) *DefaultSourceTuple {
-	return &DefaultSourceTuple{
-		meta: meta,
-		raw:  raw,
-		time: timex.Maxtime,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func NewDefaultSourceTuple(message map[string]any, meta map[string]any, timestamp time.Time) *DefaultSourceTuple {
-	return &DefaultSourceTuple{
-		message: message,
-		meta:    meta,
-		time:    timestamp,
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (t *DefaultSourceTuple) Value(key, table string) (any, bool) {
-	v, ok := t.message[key]
-	return v, ok
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (t *DefaultSourceTuple) Range(f func(key string, value any) bool) {
-	for k, v := range t.message {
-		if !f(k, v) {
-			break
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (t *DefaultSourceTuple) ToMap() map[string]any {
-	return t.message
-}
+func (t *DefaultSourceTuple) ToMap() map[string]any { _ = "STUB: not implemented"; return nil }
 
 func (t *DefaultSourceTuple) Meta(key, table string) (any, bool) {
-	v, ok := t.meta[key]
-	return v, ok
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
-func (t *DefaultSourceTuple) AllMeta() map[string]any {
-	return t.meta
-}
+func (t *DefaultSourceTuple) AllMeta() map[string]any { _ = "STUB: not implemented"; return nil }
 
 func (t *DefaultSourceTuple) Timestamp() time.Time {
-	return t.time
+	_ = "STUB: not implemented"
+	return *new(time.Time)
 }
 
-func (t *DefaultSourceTuple) Raw() []byte {
-	return t.raw
-}
+func (t *DefaultSourceTuple) Raw() []byte { _ = "STUB: not implemented"; return nil }

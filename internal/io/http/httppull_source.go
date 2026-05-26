@@ -18,8 +18,6 @@ import (
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 type HttpPullSource struct {
@@ -29,45 +27,29 @@ type HttpPullSource struct {
 }
 
 func (hps *HttpPullSource) GetOffset() (any, error) {
-	return hps.psc.States, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func (hps *HttpPullSource) Rewind(offset any) error {
-	m, ok := offset.(map[string]interface{})
-	if ok {
-		for k, v := range m {
-			hps.psc.States[k] = v
-		}
-	}
-	return nil
-}
+func (hps *HttpPullSource) Rewind(offset any) error { _ = "STUB: not implemented"; return nil }
 
 func (hps *HttpPullSource) ResetOffset(input map[string]any) error {
-	for k, v := range input {
-		hps.psc.States[k] = v
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (hps *HttpPullSource) Pull(ctx api.StreamContext, trigger time.Time, ingest api.TupleIngest, ingestError api.ErrorIngest) {
-	results, err := hps.doPull(ctx)
-	if err != nil {
-		ingestError(ctx, err)
-		return
-	}
-	ingest(ctx, results, nil, trigger)
+	_ = "STUB: not implemented"
+	return
 }
 
 func (hps *HttpPullSource) Close(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (hps *HttpPullSource) Connect(ctx api.StreamContext, sch api.StatusChangeHandler) error {
-	err := hps.Conn(ctx)
-	if err != nil {
-		return err
-	}
-	sch(api.ConnectionConnected, "")
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -77,70 +59,26 @@ type pullSourceConfig struct {
 }
 
 func (hps *HttpPullSource) Provision(ctx api.StreamContext, configs map[string]any) error {
-	pc := &pullSourceConfig{States: map[string]any{}}
-	if err := cast.MapToStruct(configs, pc); err != nil {
-		return err
-	}
-	if hps.ClientConf == nil {
-		hps.ClientConf = &ClientConf{}
-	}
-	hps.psc = pc
-	return hps.InitConf(ctx, pc.Path, configs)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (hps *HttpPullSource) doPull(ctx api.StreamContext) ([]map[string]any, error) {
-	result, latestMD5, err := hps.doPullInternal(ctx, hps.ClientConf, hps.lastMD5)
-	if err != nil {
-		return nil, err
-	}
-	hps.lastMD5 = latestMD5
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (hps *HttpPullSource) doPullInternal(ctx api.StreamContext, c *ClientConf, lastMD5 string) ([]map[string]any, string, error) {
+	_ = "STUB: not implemented"
 	// if auth is set, the auth is handled by the client connect
-	headers := c.config.Headers
-	if c.accessConf != nil {
-		headers = c.parsedHeaders
-	}
-	newBody := c.config.Body
-	if c.accessConf != nil {
-		newBody = c.parsedBody
-	}
-	var err error
-	newUrl := c.config.Url
-	if len(hps.psc.States) > 0 {
-		newUrl, err = ctx.ParseTemplate(c.config.Url, hps.psc.States)
-		if err != nil {
-			return nil, "", err
-		}
-	}
-	resp, err := hps.Send(ctx, c.config.BodyType, c.config.Method, newUrl, headers, nil, "", []byte(newBody))
-	if err != nil {
-		return nil, "", err
-	}
-	defer resp.Body.Close()
-	results, newMD5, err := c.parseResponse(ctx, resp, lastMD5, true, false)
-	if err != nil {
-		return nil, "", err
-	}
-	hps.updateState(results)
-	return results, newMD5, nil
+	return nil, "", nil
 }
 
 func (hps *HttpPullSource) updateState(results []map[string]interface{}) {
-	for _, r := range results {
-		for k, v := range r {
-			_, ok := hps.psc.States[k]
-			if ok {
-				hps.psc.States[k] = v
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func GetSource() api.Source {
-	return &HttpPullSource{}
-}
+func GetSource() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }
 
 var _ api.PullTupleSource = &HttpPullSource{}

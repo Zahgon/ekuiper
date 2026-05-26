@@ -15,15 +15,8 @@
 package lookup
 
 import (
-	"fmt"
-	"sync/atomic"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/binder/io"
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	kctx "github.com/lf-edge/ekuiper/v2/internal/topo/context"
-	nodeConf "github.com/lf-edge/ekuiper/v2/internal/topo/node/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -43,71 +36,24 @@ var (
 
 // Attach called by lookup nodes. Add a count to the info
 func Attach(name string) (api.Source, error) {
-	lock.Lock()
-	defer lock.Unlock()
-	if i, ok := instances[name]; ok {
-		atomic.AddInt32(&i.count, 1)
-		return i.ls, nil
-	}
-	return nil, fmt.Errorf("lookup table %s is not found", name)
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 // Detach called by lookup nodes when it is closed
-func Detach(name string) error {
-	lock.Lock()
-	defer lock.Unlock()
-	if i, ok := instances[name]; ok {
-		atomic.AddInt32(&i.count, -1)
-		return nil
-	}
-	return fmt.Errorf("lookup table %s is not found", name)
-}
+func Detach(name string) error { _ = "STUB: not implemented"; return nil }
 
 // CreateInstance called when create a lookup table
 func CreateInstance(name string, sourceType string, options *ast.Options) error {
-	lock.Lock()
-	defer lock.Unlock()
-	contextLogger := conf.Log.WithField("table", name)
-	ctx := kctx.WithValue(kctx.Background(), kctx.LoggerKey, contextLogger)
-	props := nodeConf.GetSourceConf(sourceType, options)
-	ctx.GetLogger().Infof("open lookup table with props %v", conf.Printable(props))
-	// Create the lookup source according to the source options
-	ns, err := io.LookupSource(sourceType)
-	if err != nil {
-		ctx.GetLogger().Error(err)
-		return err
-	}
-	ctx.GetLogger().Debugf("lookup source %s is created", sourceType)
-	err = ns.Provision(ctx, props)
-	if err != nil {
-		return err
-	}
-	ctx.GetLogger().Debugf("lookup source %s is configured", sourceType)
-	// TODO lookup table connection status support
-	err = ns.Connect(ctx, func(status string, message string) {
-		// do nothing
-	})
-	if err != nil {
-		return err
-	}
-	ctx.GetLogger().Debugf("lookup source %s is opened", sourceType)
-	instances[name] = &info{ls: ns, count: 0}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// Create the lookup source according to the source options
+
+// TODO lookup table connection status support
+
+// do nothing
+
 // DropInstance called when drop a lookup table
-func DropInstance(name string) error {
-	lock.Lock()
-	defer lock.Unlock()
-	if i, ok := instances[name]; ok {
-		if atomic.LoadInt32(&i.count) > 0 {
-			return fmt.Errorf("lookup table %s is still in use, stop all using rules before dropping it", name)
-		}
-		delete(instances, name)
-		contextLogger := conf.Log
-		ctx := kctx.WithValue(kctx.Background(), kctx.LoggerKey, contextLogger)
-		return i.ls.Close(ctx)
-	} else {
-		return nil
-	}
-}
+func DropInstance(name string) error { _ = "STUB: not implemented"; return nil }

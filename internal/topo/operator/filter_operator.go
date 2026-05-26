@@ -15,8 +15,6 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
@@ -34,58 +32,10 @@ type FilterOp struct {
 // For xsql.Collection, apply the condition to each row and return the rows that meet the condition
 // If error happens, return the error
 func (p *FilterOp) Apply(ctx api.StreamContext, data interface{}, fv *xsql.FunctionValuer, _ *xsql.AggregateFunctionValuer) interface{} {
-	log := ctx.GetLogger()
-	log.Debugf("filter plan receive %v", data)
-	switch input := data.(type) {
-	case error:
-		return input
-	case xsql.Row:
-		ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(input, fv)}
-		result := ve.Eval(p.Condition)
-		switch r := result.(type) {
-		case error:
-			return fmt.Errorf("run Where error: %s", r)
-		case bool:
-			if r {
-				for _, f := range p.StateFuncs {
-					_ = ve.Eval(f)
-				}
-				return input
-			}
-		case nil: // nil is false
-			break
-		default:
-			return fmt.Errorf("run Where error: invalid condition that returns non-bool value %[1]T(%[1]v)", r)
-		}
-	case xsql.Collection:
-		var sel []int
-		err := input.Range(func(i int, r xsql.ReadonlyRow) (bool, error) {
-			ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(r, fv)}
-			result := ve.Eval(p.Condition)
-			switch val := result.(type) {
-			case error:
-				return false, fmt.Errorf("run Where error: %s", val)
-			case bool:
-				if val {
-					sel = append(sel, i)
-				}
-			case nil:
-				break
-			default:
-				return false, fmt.Errorf("run Where error: invalid condition that returns non-bool value %[1]T(%[1]v)", val)
-			}
-			return true, nil
-		})
-		if err != nil {
-			return err
-		}
-		r := input.Filter(sel)
-		// Only return if any row meets the condition, otherwise filter all
-		if r.Len() > 0 {
-			return r
-		}
-	default:
-		return fmt.Errorf("run Where error: invalid input %[1]T(%[1]v)", input)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// nil is false
+
+// Only return if any row meets the condition, otherwise filter all

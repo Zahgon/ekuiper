@@ -23,18 +23,6 @@ type WindowFuncPlan struct {
 	windowFuncField *ast.Field
 }
 
-func (p WindowFuncPlan) Init() *WindowFuncPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(WINDOWFUNC)
-	return &p
-}
+func (p WindowFuncPlan) Init() *WindowFuncPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *WindowFuncPlan) BuildExplainInfo() {
-	info := "windowFuncField:"
-	info += "{name:" + p.windowFuncField.GetName()
-	if p.windowFuncField.Expr != nil {
-		info += ", expr:" + p.windowFuncField.Expr.String()
-	}
-	info += "}"
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *WindowFuncPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }

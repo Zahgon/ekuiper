@@ -14,55 +14,30 @@
 
 package errorx
 
-import (
-	"io"
-	"net/url"
-	"strings"
-)
-
 type Error struct {
 	msg  string
 	code ErrorCode
 }
 
-func New(message string) *Error {
-	return &Error{message, GENERAL_ERR}
-}
+func New(message string) *Error { _ = "STUB: not implemented"; return nil }
 
-func NewWithCode(code ErrorCode, message string) *Error {
-	return &Error{message, code}
-}
+func NewWithCode(code ErrorCode, message string) *Error { _ = "STUB: not implemented"; return nil }
 
-func (e *Error) Error() string {
-	return e.msg
-}
+func (e *Error) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *Error) Code() ErrorCode {
-	return e.code
-}
+func (e *Error) Code() ErrorCode { _ = "STUB: not implemented"; return *new(ErrorCode) }
 
 type ErrorWithCode interface {
 	Error() string
 	Code() ErrorCode
 }
 
-func IsRecoverAbleError(err error) bool {
-	if strings.Contains(err.Error(), "connection reset by peer") || strings.Contains(err.Error(), "No connection could be made") {
-		return true
-	}
-	if urlErr, ok := err.(*url.Error); ok {
-		// consider timeout and temporary error as recoverable
-		if urlErr.Timeout() || urlErr.Temporary() || urlErr.Err == io.EOF {
-			return true
-		}
-	}
-	return false
-}
+func IsRecoverAbleError(err error) bool { _ = "STUB: not implemented"; return false }
+
+// consider timeout and temporary error as recoverable
 
 type MockTemporaryError struct{}
 
-func (e *MockTemporaryError) Error() string {
-	return "mockTimeoutError"
-}
+func (e *MockTemporaryError) Error() string { _ = "STUB: not implemented"; return "" }
 
-func (e *MockTemporaryError) Temporary() bool { return true }
+func (e *MockTemporaryError) Temporary() bool { _ = "STUB: not implemented"; return false }

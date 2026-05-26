@@ -15,47 +15,12 @@
 package schema
 
 import (
-	"strings"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
 func InferFromSchemaFile(schemaType string, schemaId string) (ast.StreamFields, error) {
-	if c, ok := modules.SchemaTypeDefs[schemaType]; ok {
-		fileId := ""
-		messageId := ""
-		if schemaId != "" {
-			r := strings.Split(schemaId, ".")
-			fileId = r[0]
-			if len(r) >= 2 {
-				messageId = r[1]
-			}
-		}
-		// mock result for testing
-		if conf.IsTesting {
-			return ast.StreamFields{
-				{
-					Name: "field1",
-					FieldType: &ast.BasicType{
-						Type: ast.BIGINT,
-					},
-				},
-				{
-					Name: "field2",
-					FieldType: &ast.BasicType{
-						Type: ast.STRINGS,
-					},
-				},
-			}, nil
-		}
-		ffs, err := GetSchemaFile(schemaType, fileId)
-		if err != nil {
-			return nil, err
-		}
-		return c.Def.Infer(conf.Log, ffs.SchemaFile, messageId)
-	} else {
-		return nil, nil
-	}
+	_ = "STUB: not implemented"
+	return *new(ast.StreamFields), nil
 }
+
+// mock result for testing

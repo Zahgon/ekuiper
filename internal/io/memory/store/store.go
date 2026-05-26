@@ -15,70 +15,30 @@
 package store
 
 import (
-	"context"
-	"fmt"
 	"regexp"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
-	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
 // Reg registers a topic to save it to memory store
 // Create a new go routine to listen to the topic and save the data to memory
 func Reg(topic string, topicRegex *regexp.Regexp, key string) (*Table, error) {
-	t, isNew := db.addTable(topic, key)
-	if isNew {
-		go runTable(topic, topicRegex, t)
-	}
-	return t, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // runTable should only run in a single instance.
 // This go routine is used to accumulate data in memory
 // If the go routine close, the go routine exits but the data will be kept until table dropped
-func runTable(topic string, topicRegex *regexp.Regexp, t *Table) {
-	conf.Log.Infof("runTable %s", topic)
-	ch := pubsub.CreateSub(topic, topicRegex, fmt.Sprintf("store_%s", topic), 1024)
-	ctx, cancel := context.WithCancel(context.Background())
-	t.setCancel(cancel)
-	for {
-		select {
-		case v := <-ch:
-			switch vv := v.(type) {
-			case pubsub.MemTuple:
-				ingestMemTuple(t, vv)
-			case []pubsub.MemTuple:
-				for _, vvv := range vv {
-					ingestMemTuple(t, vvv)
-				}
-			default:
-				// should never happen
-				conf.Log.Errorf("add wrong data %v for table %s", v, topic)
-			}
-			conf.Log.Debugf("receive data %v for %s", v, topic)
-		case <-ctx.Done():
-			return
-		}
-	}
-}
+func runTable(topic string, topicRegex *regexp.Regexp, t *Table) { _ = "STUB: not implemented"; return }
 
-func ingestMemTuple(t *Table, tuple pubsub.MemTuple) {
-	switch tt := tuple.(type) {
-	case *pubsub.UpdatableTuple:
-		switch tt.Rowkind {
-		case ast.RowkindInsert, ast.RowkindUpdate, ast.RowkindUpsert:
-			t.add(tt.MemTuple)
-		case ast.RowkindDelete:
-			t.delete(tt.Keyval)
-		}
-	default:
-		t.add(tt)
-	}
-}
+// should never happen
+
+func ingestMemTuple(t *Table, tuple pubsub.MemTuple) { _ = "STUB: not implemented"; return }
 
 // Unreg unregisters a topic to remove it from memory store
 func Unreg(topic string, key string) error {
+	_ = "STUB: not implemented"
 	// Must be an atomic operation
-	return db.dropTable(topic, key)
+	return nil
 }

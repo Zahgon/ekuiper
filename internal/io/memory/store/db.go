@@ -16,9 +16,7 @@ package store
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/internal/io/memory/pubsub"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
@@ -29,22 +27,9 @@ type tableCount struct {
 	t     *Table
 }
 
-func (tc *tableCount) Increase() int {
-	tc.Lock()
-	defer tc.Unlock()
-	tc.count++
-	return tc.count
-}
+func (tc *tableCount) Increase() int { _ = "STUB: not implemented"; return 0 }
 
-func (tc *tableCount) Decrease() int {
-	tc.Lock()
-	defer tc.Unlock()
-	tc.count--
-	if tc.count < 0 {
-		conf.Log.Errorf("Table count is less than 0: %d", tc.count)
-	}
-	return tc.count
-}
+func (tc *tableCount) Decrease() int { _ = "STUB: not implemented"; return 0 }
 
 type database struct {
 	syncx.RWMutex
@@ -53,15 +38,8 @@ type database struct {
 
 // getTable return the table of the topic.
 func (db *database) getTable(topic string, key string) (*Table, bool) {
-	db.RLock()
-	defer db.RUnlock()
-	tableId := fmt.Sprintf("%s_%s", topic, key)
-	tc, ok := db.tables[tableId]
-	if ok {
-		return tc.t, true
-	} else {
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // addTable add a table to the database
@@ -69,40 +47,16 @@ func (db *database) getTable(topic string, key string) (*Table, bool) {
 // otherwise, create a new table and return it.
 // The second argument is to indicate if the table is newly created
 func (db *database) addTable(topic string, key string) (*Table, bool) {
-	db.Lock()
-	defer db.Unlock()
-	tableId := fmt.Sprintf("%s_%s", topic, key)
-	tc, ok := db.tables[tableId]
-	if ok {
-		tc.Increase()
-	} else {
-		t := createTable(topic, key)
-		tc = &tableCount{
-			count: 1,
-			t:     t,
-		}
-		db.tables[tableId] = tc
-	}
-	return tc.t, !ok
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // dropTable drop the table of the topic/values
 // stops to accumulate job
 // deletes the cache data
 func (db *database) dropTable(topic string, key string) error {
-	tableId := fmt.Sprintf("%s_%s", topic, key)
-	db.Lock()
-	defer db.Unlock()
-	if tc, ok := db.tables[tableId]; ok {
-		if tc.Decrease() == 0 {
-			if tc.t != nil {
-				tc.t.callCancel()
-			}
-			delete(db.tables, tableId)
-		}
-		return nil
-	}
-	return fmt.Errorf("Table %s not found", tableId)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Table has one writer and multiple reader
@@ -115,79 +69,22 @@ type Table struct {
 	cancel  context.CancelFunc
 }
 
-func createTable(topic string, key string) *Table {
-	t := &Table{topic: topic, key: key, datamap: make(map[any]pubsub.MemTuple)}
-	return t
-}
+func createTable(topic string, key string) *Table { _ = "STUB: not implemented"; return nil }
 
-func (t *Table) add(value pubsub.MemTuple) {
-	t.Lock()
-	defer t.Unlock()
-	keyval, ok := value.Value(t.key, "")
-	if !ok {
-		conf.Log.Errorf("add to table %s omitted, value not found for key %s", t.topic, t.key)
-	}
-	t.datamap[keyval] = value
-}
+func (t *Table) add(value pubsub.MemTuple) { _ = "STUB: not implemented"; return }
 
-func (t *Table) delete(key interface{}) {
-	t.Lock()
-	defer t.Unlock()
-	delete(t.datamap, key)
-}
+func (t *Table) delete(key interface{}) { _ = "STUB: not implemented"; return }
 
-func (t *Table) setCancel(cancel context.CancelFunc) {
-	t.Lock()
-	defer t.Unlock()
-	t.cancel = cancel
-}
+func (t *Table) setCancel(cancel context.CancelFunc) { _ = "STUB: not implemented"; return }
 
-func (t *Table) callCancel() {
-	t.Lock()
-	defer t.Unlock()
-	if t.cancel != nil {
-		t.cancel()
-	}
-}
+func (t *Table) callCancel() { _ = "STUB: not implemented"; return }
 
 func (t *Table) Read(keys []string, values []interface{}) ([]pubsub.MemTuple, error) {
-	t.RLock()
-	defer t.RUnlock()
-	// Find the primary key
-	var matched pubsub.MemTuple
-	for i, k := range keys {
-		if k == t.key {
-			matched = t.datamap[values[i]]
-		}
-	}
-	if matched != nil {
-		match := true
-		for i, k := range keys {
-			if val, ok := matched.Value(k, ""); !ok || val != values[i] {
-				match = false
-				break
-			}
-		}
-		if match {
-			return []pubsub.MemTuple{matched}, nil
-		} else {
-			return nil, nil
-		}
-	}
-	var result []pubsub.MemTuple
-	for _, v := range t.datamap {
-		match := true
-		for i, k := range keys {
-			if val, ok := v.Value(k, ""); !ok || val != values[i] {
-				match = false
-				break
-			}
-		}
-		if match {
-			result = append(result, v)
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil,
+
+		// Find the primary key
+		nil
 }
 
 var db = &database{

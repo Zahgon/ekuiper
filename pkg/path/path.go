@@ -15,14 +15,7 @@
 package path
 
 import (
-	"path/filepath"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 )
 
-func AbsPath(ctx api.StreamContext, path string) string {
-	if filepath.IsAbs(path) {
-		return path
-	}
-	return filepath.Join(ctx.GetRootPath(), path)
-}
+func AbsPath(ctx api.StreamContext, path string) string { _ = "STUB: not implemented"; return "" }

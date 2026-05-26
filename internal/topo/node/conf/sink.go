@@ -14,45 +14,12 @@
 
 package conf
 
-import (
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-)
-
 const (
 	ResourceID         = "resourceId"
 	ConnectionSelector = "connectionSelector"
 )
 
 func GetSinkConf(sinkType string, action map[string]interface{}) map[string]interface{} {
-	resourceId, ok := action[ResourceID].(string)
-	if !ok {
-		return action
-	}
-	delete(action, ResourceID)
-
-	yamlOps, err := conf.NewConfigOperatorFromSinkStorage(sinkType)
-	if err != nil {
-		conf.Log.Warnf("fail to parse yaml for sink %s. Return error %v", sinkType, err)
-		return action
-	}
-	var props map[string]interface{}
-	cfg := yamlOps.CopyConfContent()
-	if len(cfg) == 0 {
-		conf.Log.Warnf("fail to parse yaml for sink %s. Return an empty configuration", sinkType)
-		return action
-	} else {
-		def, ok := cfg[resourceId]
-		if !ok {
-			conf.Log.Warnf("resource id %s is not found", resourceId)
-			return action
-		} else {
-			props = def
-			for k, v := range action {
-				props[k] = v
-			}
-		}
-	}
-
-	conf.Log.Debugf("get conf for %s with resource id %s: %v", sinkType, resourceId, printable(props))
-	return props
+	_ = "STUB: not implemented"
+	return nil
 }

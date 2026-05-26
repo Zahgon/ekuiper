@@ -15,11 +15,8 @@
 package node
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/model"
 )
@@ -47,43 +44,6 @@ type SinkConf struct {
 }
 
 func ParseConf(logger api.Logger, props map[string]any) (*SinkConf, error) {
-	sconf := &SinkConf{
-		Concurrency:  1,
-		Omitempty:    false,
-		SendSingle:   false,
-		DataTemplate: "",
-		SinkConf:     *conf.Config.Sink,
-		BufferLength: 1024,
-	}
-	err := cast.MapToStruct(props, sconf)
-	if err != nil {
-		return nil, fmt.Errorf("read properties %v fail with error: %v", props, err)
-	}
-	if sconf.Concurrency <= 0 {
-		logger.Warnf("invalid type for concurrency property, should be positive integer but found %d", sconf.Concurrency)
-		sconf.Concurrency = 1
-	}
-	if sconf.Format == "" {
-		sconf.Format = "json"
-	}
-	err = cast.MapToStruct(props, &sconf.SinkConf)
-	if err != nil {
-		return nil, fmt.Errorf("read properties %v to cache conf fail with error: %v", props, err)
-	}
-	if sconf.DataField == "" {
-		if v, ok := props["tableDataField"]; ok {
-			sconf.DataField = v.(string)
-		}
-	}
-	if sconf.BatchSize < 0 {
-		return nil, fmt.Errorf("invalid batchSize %d", sconf.BatchSize)
-	}
-	if sconf.LingerInterval < 0 {
-		return nil, fmt.Errorf("invalid lingerInterval %v, must be positive", sconf.LingerInterval)
-	}
-	err = sconf.SinkConf.Validate(logger)
-	if err != nil {
-		return nil, fmt.Errorf("invalid cache properties: %v", err)
-	}
-	return sconf, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }

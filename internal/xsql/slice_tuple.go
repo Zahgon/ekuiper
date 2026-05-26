@@ -36,142 +36,87 @@ type SliceTuple struct {
 	Props     map[string]string
 }
 
-func (s *SliceTuple) GetTimestamp() time.Time {
-	return s.Timestamp
-}
+func (s *SliceTuple) GetTimestamp() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
-func (s *SliceTuple) IsWatermark() bool {
-	return false
-}
+func (s *SliceTuple) IsWatermark() bool { _ = "STUB: not implemented"; return false }
 
 func (s *SliceTuple) DynamicProps(template string) (string, bool) {
-	v, ok := s.Props[template]
-	return v, ok
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func (s *SliceTuple) AllProps() map[string]string {
-	return s.Props
-}
+func (s *SliceTuple) AllProps() map[string]string { _ = "STUB: not implemented"; return nil }
 
 func (s *SliceTuple) ValueByIndex(index, sourceIndex int) (any, bool) {
-	if sourceIndex >= 0 {
-		if len(s.SourceContent) > sourceIndex {
-			return s.SourceContent[sourceIndex], true
-		}
-		return nil, false
-	}
-	if len(s.SinkContent) > index {
-		val := s.SinkContent[index]
-		if val != nil {
-			return val, true
-		}
-	}
-	return nil, false
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 // SetByIndex set sink result
-func (s *SliceTuple) SetByIndex(index int, value any) {
-	if len(s.SinkContent) <= index {
-		s.SinkContent = append(s.SinkContent, make(model.SliceVal, index+1-len(s.SinkContent))...)
-	}
-	s.SinkContent[index] = value
-}
+func (s *SliceTuple) SetByIndex(index int, value any) { _ = "STUB: not implemented"; return }
 
 // SetTempByIndex set analytic result. Separate it from sink to save memory in window
-func (s *SliceTuple) SetTempByIndex(index int, value any) {
-	if len(s.TempCalContent) <= index {
-		s.TempCalContent = append(s.TempCalContent, make(model.SliceVal, index+1-len(s.TempCalContent))...)
-	}
-	s.TempCalContent[index] = value
-}
+func (s *SliceTuple) SetTempByIndex(index int, value any) { _ = "STUB: not implemented"; return }
 
-func (s *SliceTuple) TempByIndex(index int) any {
-	if len(s.TempCalContent) > index {
-		val := s.TempCalContent[index]
-		if val != nil {
-			return val
-		}
-	}
-	return nil
-}
+func (s *SliceTuple) TempByIndex(index int) any { _ = "STUB: not implemented"; return *new(any) }
 
-func (s *SliceTuple) Compact(len int) {
-	s.SourceContent = s.SinkContent[:len]
-	s.SinkContent = nil
-	s.TempCalContent = nil
-}
+func (s *SliceTuple) Compact(len int) { _ = "STUB: not implemented"; return }
 
 func (s *SliceTuple) GetTracerCtx() api.StreamContext {
-	return s.ctx
+	_ = "STUB: not implemented"
+	return *new(api.StreamContext)
 }
 
-func (s *SliceTuple) SetTracerCtx(ctx api.StreamContext) {
-	s.ctx = ctx
-}
+func (s *SliceTuple) SetTracerCtx(ctx api.StreamContext) { _ = "STUB: not implemented"; return }
 
 func (s *SliceTuple) Value(key, _ string) (any, bool) {
-	panic("calling slice tuple value func")
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (s *SliceTuple) Meta(key, table string) (any, bool) {
+	_ = "STUB: not implemented"
 	// TODO implement me
-	panic("implement me")
+	return *new(any), false
 }
 
 func (s *SliceTuple) AliasValue(name string) (any, bool) {
-	panic("calling slice tuple alias value func, alias should be transform to index")
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 func (s *SliceTuple) AppendAlias(key string, value any) bool {
-	panic("calling slice tuple append alias func, alias should be transform to index")
+	_ = "STUB: not implemented"
+	return false
 }
 
 func (s *SliceTuple) All(_ string) (map[string]any, bool) {
-	s.ctx.GetLogger().Warnf("calling slice tuple all func")
-	// do nothing
+	_ = "STUB: not implemented"
 	return nil, false
 }
 
+// do nothing
+
 func (s *SliceTuple) Del(_ string) {
+	_ = "STUB: not implemented"
 	// do nothing
-	s.ctx.GetLogger().Warnf("calling slice tuple del func")
+	return
 }
 
-func (s *SliceTuple) Set(col string, value any) {
-	panic("calling slice tuple set func")
-}
+func (s *SliceTuple) Set(col string, value any) { _ = "STUB: not implemented"; return }
 
-func (s *SliceTuple) ToMap() map[string]any {
-	s.ctx.GetLogger().Warnf("calling slice tuple to map func")
-	if s.schemaMap != nil {
-		result := make(map[string]any, len(s.schemaMap))
-		for k, index := range s.schemaMap {
-			result[k] = s.SourceContent[index]
-		}
-	}
-	return nil
-}
+func (s *SliceTuple) ToMap() map[string]any { _ = "STUB: not implemented"; return nil }
 
 func (s *SliceTuple) Pick(allWildcard bool, cols [][]string, wildcardEmitters map[string]bool, except []string, sendNil bool) {
-	panic("pick should convert to index")
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *SliceTuple) Clone() Row {
-	newS := &SliceTuple{ctx: s.ctx, SourceContent: s.SourceContent, Timestamp: s.Timestamp}
-	newS.SinkContent = make(model.SliceVal, len(s.SinkContent))
-	copy(newS.SinkContent, s.SinkContent)
-	newS.TempCalContent = make(model.SliceVal, len(s.TempCalContent))
-	copy(newS.TempCalContent, s.TempCalContent)
-	return newS
-}
+func (s *SliceTuple) Clone() Row { _ = "STUB: not implemented"; return *new(Row) }
 
 func (s *SliceTuple) FuncValue(key string) (any, bool) {
-	switch key {
-	case "event_time":
-		return s.Timestamp.UnixMilli(), true
-	default:
-		return nil, false
-	}
+	_ = "STUB: not implemented"
+	return *new(any), false
 }
 
 var (

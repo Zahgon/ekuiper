@@ -15,15 +15,9 @@
 package server
 
 import (
-	"context"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 func init() {
@@ -37,56 +31,15 @@ type promeComp struct {
 }
 
 func (p *promeComp) register() {
+	_ = "STUB: not implemented"
 	// Do nothing
+	return
 }
 
-func (p *promeComp) rest(r *mux.Router) {
-	portPrometheus := conf.Config.Basic.PrometheusPort
-	portRest := conf.Config.Basic.RestPort
-	if portPrometheus == portRest {
-		r.Handle("/metrics", promhttp.Handler())
-		msg := fmt.Sprintf("Register prometheus metrics to http://localhost:%d/metrics", portPrometheus)
-		logger.Info(msg)
-		fmt.Println(msg)
-	}
-}
+func (p *promeComp) rest(r *mux.Router) { _ = "STUB: not implemented"; return }
 
-func (p *promeComp) serve() {
-	if conf.Config.Basic.Prometheus {
-		// Start prometheus service
-		portPrometheus := conf.Config.Basic.PrometheusPort
-		if portPrometheus <= 0 {
-			logger.Fatal("Miss configuration prometheusPort")
-		}
-		portRest := conf.Config.Basic.RestPort
-		if portPrometheus != portRest {
-			mux := http.NewServeMux()
-			mux.Handle("/metrics", promhttp.Handler())
-			srvPrometheus := &http.Server{
-				Addr:         fmt.Sprintf("0.0.0.0:%d", portPrometheus),
-				WriteTimeout: time.Second * 15,
-				ReadTimeout:  time.Second * 15,
-				IdleTimeout:  time.Second * 60,
-				Handler:      mux,
-			}
-			go func() {
-				if err := srvPrometheus.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-					logger.Fatal("Listen prometheus error: ", err)
-				}
-			}()
-			p.s = srvPrometheus
-			msg := fmt.Sprintf("Serving prometheus metrics on port http://localhost:%d/metrics", portPrometheus)
-			logger.Info(msg)
-			fmt.Println(msg)
-		}
-	}
-}
+func (p *promeComp) serve() { _ = "STUB: not implemented"; return }
 
-func (p *promeComp) close() {
-	if p.s != nil {
-		if err := p.s.Shutdown(context.TODO()); err != nil {
-			logger.Errorf("prometheus server shutdown error: %v", err)
-		}
-		logger.Info("prometheus server successfully shutdown.")
-	}
-}
+// Start prometheus service
+
+func (p *promeComp) close() { _ = "STUB: not implemented"; return }

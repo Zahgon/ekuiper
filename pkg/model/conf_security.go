@@ -14,8 +14,6 @@
 
 package model
 
-import "encoding/base64"
-
 type SecurityConf struct {
 	Encryption *EncryptionConf          `yaml:"encryption,omitempty"`
 	Tls        *TlsConfigurationOptions `yaml:"tls,omitempty"`
@@ -49,29 +47,6 @@ type TlsKeys struct {
 }
 
 func (opts *TlsConfigurationOptions) GenKeys() (*TlsKeys, error) {
-	var err error
-	result := &TlsKeys{}
-	if !opts.SkipCertVerify && (len(opts.CertFile) < 1 && len(opts.KeyFile) < 1 && len(opts.CaFile) < 1) &&
-		(len(opts.CertificationRaw) < 1 && len(opts.PrivateKeyRaw) < 1 && len(opts.RootCARaw) < 1) {
-		return result, nil
-	}
-	if len(opts.RootCARaw) > 0 {
-		result.RawCABytes, err = base64.StdEncoding.DecodeString(opts.RootCARaw)
-		if err != nil {
-			return result, err
-		}
-	}
-	if len(opts.CertificationRaw) > 0 {
-		result.RawCertBytes, err = base64.StdEncoding.DecodeString(opts.CertificationRaw)
-		if err != nil {
-			return result, err
-		}
-	}
-	if len(opts.PrivateKeyRaw) > 0 {
-		result.RawKeyBytes, err = base64.StdEncoding.DecodeString(opts.PrivateKeyRaw)
-		if err != nil {
-			return result, err
-		}
-	}
-	return result, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

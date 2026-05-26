@@ -21,6 +21,4 @@ type CHook func(c *model.KuiperConf)
 var ConfHook CHook
 
 // RegisterConfHook use this to change default conf. This will be the highest priority, higher than env
-func RegisterConfHook(h CHook) {
-	ConfHook = h
-}
+func RegisterConfHook(h CHook) { _ = "STUB: not implemented"; return }

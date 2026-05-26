@@ -15,8 +15,6 @@
 package planner
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
@@ -32,46 +30,17 @@ type rewriteResult struct {
 // 1. extract and rewrite the window function
 // 2. extract and rewrite the aggregation function
 func rewriteStmt(stmt *ast.SelectStatement, opt *def.RuleOption) rewriteResult {
-	result := rewriteResult{}
-	result.windowFuncFields = extractWindowFuncFields(stmt)
-	result.incAggFields = rewriteIfIncAggStmt(stmt, opt)
-	result.dsColAliasMapping = rewriteIfPushdownAlias(stmt, opt)
-	result.aggFuncsFieldInWhere = rewriteAggFunctionInWhere(stmt, opt)
-	return result
+	_ = "STUB: not implemented"
+	return *new(rewriteResult)
 }
 
 // extract agg function from filter condition and rewrite with bypass fields
 func rewriteAggFunctionInWhere(stmt *ast.SelectStatement, _ *def.RuleOption) []*ast.Field {
-	return RewriteAggFunctionInWhere(stmt)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func RewriteAggFunctionInWhere(stmt *ast.SelectStatement) []*ast.Field {
-	aggFuncsFieldInWhere := make([]*ast.Field, 0)
-	var index int
-	ast.WalkFunc(stmt.Condition, func(node ast.Node) bool {
-		switch aggFunc := node.(type) {
-		case *ast.Call:
-			if aggFunc.FuncType == ast.FuncTypeAgg {
-				newAggFunc := &ast.Call{
-					Name:     aggFunc.Name,
-					FuncType: aggFunc.FuncType,
-					Args:     aggFunc.Args,
-					FuncId:   aggFunc.FuncId,
-				}
-				name := fmt.Sprintf("$$agg_ref_%v", index)
-				newField := &ast.Field{
-					Name: name,
-					Expr: newAggFunc,
-				}
-				aggFuncsFieldInWhere = append(aggFuncsFieldInWhere, newField)
-				newFieldRef := &ast.FieldRef{
-					StreamName: ast.DefaultStream,
-					Name:       name,
-				}
-				rewriteIntoBypass(newFieldRef, aggFunc)
-			}
-		}
-		return true
-	})
-	return aggFuncsFieldInWhere
+	_ = "STUB: not implemented"
+	return nil
 }

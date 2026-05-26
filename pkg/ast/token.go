@@ -14,8 +14,6 @@
 
 package ast
 
-import "strings"
-
 type Token int
 
 const (
@@ -279,48 +277,25 @@ var StreamDataTypes = map[string]DataType{
 }
 
 func IsStreamOptionKeyword(_ Token, lit string) bool {
+	_ = "STUB: not implemented"
 	// token is always IDENT
-	_, ok := StreamTokens[lit]
-	return ok
+	return false
 }
 
 var COLUMN_SEPARATOR = Tokens[COLSEP]
 
-func (tok Token) String() string {
-	if tok >= 0 && tok < Token(len(Tokens)) {
-		return Tokens[tok]
-	}
-	return ""
-}
+func (tok Token) String() string { _ = "STUB: not implemented"; return "" }
 
-func (tok Token) IsOperator() bool {
-	return (tok > operatorBeg && tok < operatorEnd) || tok == ASTERISK || tok == LBRACKET || tok == DOT
-}
+func (tok Token) IsOperator() bool { _ = "STUB: not implemented"; return false }
 
-func (tok Token) IsTimeLiteral() bool { return tok >= DD && tok <= MS }
+func (tok Token) IsTimeLiteral() bool { _ = "STUB: not implemented"; return false }
 
-func (tok Token) AllowedSourceToken() bool {
-	return tok == IDENT || tok == DIV || tok == HASH || tok == ADD
-}
+func (tok Token) AllowedSourceToken() bool { _ = "STUB: not implemented"; return false }
 
 // Allowed special field name token
-func (tok Token) AllowedSFNToken() bool { return tok == DOT }
+func (tok Token) AllowedSFNToken() bool { _ = "STUB: not implemented"; return false }
 
-func (tok Token) Precedence() int {
-	switch tok {
-	case OR:
-		return 1
-	case AND:
-		return 2
-	case EQ, NEQ, LT, LTE, GT, GTE, IN, NOTIN, BETWEEN, NOTBETWEEN, LIKE, NOTLIKE:
-		return 3
-	case ADD, SUB, BITWISE_OR, BITWISE_XOR:
-		return 4
-	case MUL, DIV, MOD, BITWISE_AND, SUBSET, ARROW, DOT:
-		return 5
-	}
-	return 0
-}
+func (tok Token) Precedence() int { _ = "STUB: not implemented"; return 0 }
 
 type DataType int
 
@@ -347,21 +322,8 @@ var dataTypes = []string{
 	STRUCT:   "struct",
 }
 
-func (d DataType) IsSimpleType() bool {
-	return d >= BIGINT && d <= BOOLEAN
-}
+func (d DataType) IsSimpleType() bool { _ = "STUB: not implemented"; return false }
 
-func (d DataType) String() string {
-	if d >= 0 && d < DataType(len(dataTypes)) {
-		return dataTypes[d]
-	}
-	return ""
-}
+func (d DataType) String() string { _ = "STUB: not implemented"; return "" }
 
-func GetDataType(lit string) DataType {
-	lit = strings.ToUpper(lit)
-	if dt, ok := StreamDataTypes[lit]; ok {
-		return dt
-	}
-	return UNKNOWN
-}
+func GetDataType(lit string) DataType { _ = "STUB: not implemented"; return *new(DataType) }

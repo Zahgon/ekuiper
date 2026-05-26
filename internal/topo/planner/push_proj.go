@@ -24,123 +24,34 @@ type pushProjectionPlan struct{}
 // pushProjectionPlan inject Projection Plan between the shared Datasource and its father only if the Plan have windowPlan
 // We use Projection to remove the unused column before windowPlan in order to reduce memory consuming
 func (pp *pushProjectionPlan) optimize(plan LogicalPlan, _ *def.RuleOption) (LogicalPlan, error) {
-	if pp.searchJoinPlan(plan) {
-		return plan, nil
-	}
-	if pp.searchWindowPlan(plan) {
-		ctx := &searchCtx{
-			find: make([]*sharedSource, 0),
-		}
-		searchSharedDataSource(ctx, plan, nil)
-		if len(ctx.find) > 0 {
-			pp.pushProjection(ctx)
-		}
-	}
-	return plan, nil
+	_ = "STUB: not implemented"
+	return *new(LogicalPlan), nil
 }
 
 func (pp *pushProjectionPlan) searchWindowPlan(plan LogicalPlan) bool {
-	switch plan.(type) {
-	case *WindowPlan:
-		return true
-	default:
-	}
-	for _, child := range plan.Children() {
-		search := pp.searchWindowPlan(child)
-		if search {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 func (pp *pushProjectionPlan) searchJoinPlan(plan LogicalPlan) bool {
-	switch plan.(type) {
-	case *JoinPlan:
-		return true
-	default:
-	}
-	for _, child := range plan.Children() {
-		search := pp.searchJoinPlan(child)
-		if search {
-			return true
-		}
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
-func (pp *pushProjectionPlan) pushProjection(ctx *searchCtx) {
-	for _, search := range ctx.find {
-		p := ProjectPlan{
-			fields:      buildFields(search.ds),
-			isAggregate: false,
-			sendMeta:    false,
-			enableLimit: false,
-		}.Init()
-		p.children = []LogicalPlan{search.ds}
-		for index, child := range search.father.Children() {
-			if child.ID() == search.ds.ID() {
-				search.father.Children()[index] = p
-				break
-			}
-		}
-	}
-}
+func (pp *pushProjectionPlan) pushProjection(ctx *searchCtx) { _ = "STUB: not implemented"; return }
 
-func buildFields(ds *DataSourcePlan) []ast.Field {
-	want := make([]ast.Field, 0)
-	if ds.isWildCard {
-		want = append(want, ast.Field{Expr: &ast.Wildcard{}})
-		return want
-	}
-	for k := range ds.streamFields {
-		want = append(want, ast.Field{Name: k, Expr: &ast.FieldRef{Name: k, StreamName: ds.streamStmt.Name}})
-	}
-	return want
-}
+func buildFields(ds *DataSourcePlan) []ast.Field { _ = "STUB: not implemented"; return nil }
 
-func (pp *pushProjectionPlan) name() string {
-	return "push_projection"
-}
+func (pp *pushProjectionPlan) name() string { _ = "STUB: not implemented"; return "" }
 
 type pushAliasDecode struct{}
 
 func (p *pushAliasDecode) optimize(plan LogicalPlan, option *def.RuleOption) (LogicalPlan, error) {
-	if option.PlanOptimizeStrategy == nil {
-		return plan, nil
-	}
-	if !option.PlanOptimizeStrategy.EnableAliasPushdown {
-		return plan, nil
-	}
-	ctx := &searchCtx{
-		find:               make([]*sharedSource, 0),
-		noSharedDatasource: make([]*DataSourcePlan, 0),
-	}
-	searchSharedDataSource(ctx, plan, nil)
-	if len(ctx.find) > 0 {
-		return plan, nil
-	}
-	searchNoSharedDatasource(ctx, plan)
-	if len(ctx.noSharedDatasource) < 1 {
-		return plan, nil
-	}
-	for _, ds := range ctx.noSharedDatasource {
-		if len(ds.streamFields) > 0 {
-			for col, alias := range ds.colAliasMapping {
-				v, ok := ds.streamFields[alias]
-				if ok {
-					ds.streamFields[col] = v
-					delete(ds.streamFields, alias)
-				}
-			}
-		}
-	}
-	return plan, nil
+	_ = "STUB: not implemented"
+	return *new(LogicalPlan), nil
 }
 
-func (p *pushAliasDecode) name() string {
-	return "push_alias"
-}
+func (p *pushAliasDecode) name() string { _ = "STUB: not implemented"; return "" }
 
 type searchCtx struct {
 	find               []*sharedSource
@@ -153,30 +64,8 @@ type sharedSource struct {
 }
 
 func searchSharedDataSource(ctx *searchCtx, plan, father LogicalPlan) {
-	switch ds := plan.(type) {
-	case *DataSourcePlan:
-		if ds.streamStmt.Options.SHARED {
-			ctx.find = append(ctx.find, &sharedSource{
-				ds:     ds,
-				father: father,
-			})
-		}
-	default:
-	}
-	for _, child := range plan.Children() {
-		searchSharedDataSource(ctx, child, plan)
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func searchNoSharedDatasource(ctx *searchCtx, plan LogicalPlan) {
-	switch ds := plan.(type) {
-	case *DataSourcePlan:
-		if !ds.streamStmt.Options.SHARED {
-			ctx.noSharedDatasource = append(ctx.noSharedDatasource, ds)
-		}
-	default:
-	}
-	for _, child := range plan.Children() {
-		searchNoSharedDatasource(ctx, child)
-	}
-}
+func searchNoSharedDatasource(ctx *searchCtx, plan LogicalPlan) { _ = "STUB: not implemented"; return }

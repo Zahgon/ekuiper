@@ -15,8 +15,6 @@
 package planner
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
@@ -25,20 +23,6 @@ type AggFuncPlan struct {
 	aggFields []*ast.Field
 }
 
-func (p AggFuncPlan) Init() *AggFuncPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(AggFunc)
-	return &p
-}
+func (p AggFuncPlan) Init() *AggFuncPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *AggFuncPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.aggFields) > 0 {
-		info += "aggFuncs:["
-		for _, aggField := range p.aggFields {
-			info += fmt.Sprintf("%v:%s", aggField.Name, aggField.Expr.String())
-		}
-		info += "]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *AggFuncPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }

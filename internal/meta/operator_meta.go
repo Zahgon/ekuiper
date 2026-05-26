@@ -16,49 +16,15 @@ package meta
 
 import (
 	"bytes"
-	"os"
-	"path/filepath"
-	"strings"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 type fileContent []byte
 
-func readOpsMetaDir() ([]fileContent, error) {
-	var filesByte []fileContent
-
-	confDir, err := conf.GetConfLoc()
-	if nil != err {
-		return nil, err
-	}
-
-	dir := filepath.Join(confDir, "ops")
-	files, err := os.ReadDir(dir)
-	if nil != err {
-		return nil, err
-	}
-	for _, file := range files {
-		fname := file.Name()
-		if !strings.HasSuffix(fname, ".json") {
-			continue
-		}
-
-		filesByte = append(filesByte, readOpsMetaFile(filepath.Join(dir, fname)))
-
-	}
-
-	return filesByte, nil
-}
+func readOpsMetaDir() ([]fileContent, error) { _ = "STUB: not implemented"; return nil, nil }
 
 func readOpsMetaFile(filePath string) fileContent {
-	fiName := filepath.Base(filePath)
-	sliByte, _ := os.ReadFile(filePath)
-	conf.Log.Infof("operatorMeta file : %s", fiName)
-	return sliByte
+	_ = "STUB: not implemented"
+	return *new(fileContent)
 }
 
-func GetOperators() bytes.Buffer {
-	files, _ := readOpsMetaDir()
-	return ConstructJsonArray(files)
-}
+func GetOperators() bytes.Buffer { _ = "STUB: not implemented"; return *new(bytes.Buffer) }

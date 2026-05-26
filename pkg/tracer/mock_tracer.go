@@ -25,21 +25,17 @@ import (
 var traceErr = fmt.Errorf("trace not enabled")
 
 func GetTraceIDListByRuleID(ruleID string, limit int64) ([]string, error) {
-	return nil, traceErr
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func InitTracer() error {
-	return nil
-}
+func InitTracer() error { _ = "STUB: not implemented"; return nil }
 
-func SetTracer(config *TracerConfig) error {
-	return traceErr
-}
+func SetTracer(config *TracerConfig) error { _ = "STUB: not implemented"; return nil }
 
 func GetSpanByTraceID(traceID string) (root *LocalSpan, err error) {
-	return nil, traceErr
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func GetTracer() trace.Tracer {
-	return nil
-}
+func GetTracer() trace.Tracer { _ = "STUB: not implemented"; return *new(trace.Tracer) }

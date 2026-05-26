@@ -34,37 +34,22 @@ type LinesReader struct {
 }
 
 func (r *LinesReader) Provision(ctx api.StreamContext, props map[string]any) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (r *LinesReader) Bind(ctx api.StreamContext, fileStream io.Reader, maxSize int) error {
-	if maxSize <= 0 {
-		ctx.GetLogger().Errorf("maxSize must be > 0, defaul to 1MB")
-		// default to 1MB
-		maxSize = 1 << 20
-	}
-	scanner := bufio.NewScanner(fileStream)
-	scanner.Buffer(nil, maxSize)
-	scanner.Split(bufio.ScanLines)
-	r.scanner = scanner
+	_ = "STUB: not implemented"
 	return nil
 }
+
+// default to 1MB
 
 func (r *LinesReader) Read(ctx api.StreamContext) (any, error) {
-	succ := r.scanner.Scan()
-	if !succ {
-		return nil, io.EOF
-	}
-	b := r.scanner.Bytes()
-	d := make([]byte, len(b))
-	copy(d, b)
-	return d, nil
+	_ = "STUB: not implemented"
+	return *new(any), nil
 }
 
-func (r *LinesReader) IsBytesReader() bool {
-	return true
-}
+func (r *LinesReader) IsBytesReader() bool { _ = "STUB: not implemented"; return false }
 
-func (r *LinesReader) Close(ctx api.StreamContext) error {
-	return nil
-}
+func (r *LinesReader) Close(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }

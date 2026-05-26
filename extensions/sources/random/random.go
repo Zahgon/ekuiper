@@ -16,10 +16,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/random"
 )
 
-func Random() api.Source {
-	return random.GetSource()
-}
+func Random() api.Source { _ = "STUB: not implemented"; return *new(api.Source) }

@@ -17,13 +17,9 @@
 package planner
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
-	"github.com/lf-edge/ekuiper/v2/internal/topo/graph"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/node"
 	"github.com/lf-edge/ekuiper/v2/internal/topo/operator"
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 )
 
 func init() {
@@ -38,13 +34,6 @@ func init() {
 }
 
 func parseScript(props map[string]interface{}) (*operator.ScriptOp, error) {
-	n := &graph.Script{}
-	err := cast.MapToStruct(props, n)
-	if err != nil {
-		return nil, err
-	}
-	if n.Script == "" {
-		return nil, fmt.Errorf("script node must have script")
-	}
-	return operator.NewScriptOp(n.Script, n.IsAgg)
+	_ = "STUB: not implemented"
+	return nil, nil
 }

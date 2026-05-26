@@ -16,9 +16,6 @@ package js
 
 import (
 	"context"
-	"encoding/json"
-
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
 )
 
 // Exporter is used to export and import the JavaScript functions
@@ -26,73 +23,17 @@ import (
 
 // Import the JavaScript functions from the map. This is usually called after reset to override all settings
 func (m *Manager) Import(ctx context.Context, scripts map[string]string) map[string]string {
-	errMap := map[string]string{}
-	_ = m.importStatusDb.Clean()
-	for k, v := range scripts {
-		select {
-		case <-ctx.Done():
-			return errMap
-		default:
-		}
-		err := m.UpsertByJson(k, v)
-		if err != nil {
-			_ = m.importStatusDb.Set(k, err.Error())
-			errMap[k] = err.Error()
-		}
-	}
-	return errMap
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (m *Manager) PartialImport(ctx context.Context, scripts map[string]string) map[string]string {
-	errMap := map[string]string{}
-	for k, v := range scripts {
-		select {
-		case <-ctx.Done():
-			return errMap
-		default:
-		}
-		err := m.UpsertByJson(k, v)
-		if err != nil {
-			errMap[k] = err.Error()
-		}
-	}
-	return errMap
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (m *Manager) Export() map[string]string {
-	all, err := m.db.Keys()
-	if err != nil {
-		conf.Log.Errorf("Fail to export the JavaScript function manager: %v", err)
-		return nil
-	}
-	result := make(map[string]string, len(all))
-	for _, k := range all {
-		s, err := m.GetScript(k)
-		if err != nil {
-			conf.Log.Errorf("Fail to export the JavaScript function %s: %v", k, err)
-			continue
-		}
-		sj, err := json.Marshal(s)
-		if err != nil {
-			conf.Log.Errorf("Fail to marshal the JavaScript function %s: %v", k, err)
-			continue
-		}
-		result[k] = string(sj)
-	}
-	return result
-}
+func (m *Manager) Export() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) Status() map[string]string {
-	all, err := m.importStatusDb.All()
-	if err != nil {
-		return nil
-	}
-	return all
-}
+func (m *Manager) Status() map[string]string { _ = "STUB: not implemented"; return nil }
 
-func (m *Manager) Reset() {
-	err := m.db.Clean()
-	if err != nil {
-		conf.Log.Errorf("Fail to reset the JavaScript function manager: %v", err)
-	}
-}
+func (m *Manager) Reset() { _ = "STUB: not implemented"; return }

@@ -15,8 +15,6 @@
 package schema
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
@@ -44,177 +42,47 @@ type schemainfo struct {
 	isWildcard bool
 }
 
-func newSharedLayer() *SharedLayer {
-	return &SharedLayer{
-		reg:         make(map[string]schemainfo),
-		streamMap:   make(map[string]string),
-		wildcardMap: make(map[string]struct{}),
-		indexMap:    make(map[string]int),
-	}
-}
+func newSharedLayer() *SharedLayer { _ = "STUB: not implemented"; return nil }
 
 func (s *SharedLayer) RegSchema(ruleID, dataSource string, schema map[string]*ast.JsonStreamField, isWildCard bool) {
-	s.Lock()
-	defer s.Unlock()
-	s.reg[ruleID] = schemainfo{
-		datasource: dataSource,
-		schema:     schema,
-		isWildcard: isWildCard,
-	}
-	for k, f := range schema {
-		if f != nil {
-			if index, ok := s.indexMap[k]; !ok {
-				index = len(s.indexMap)
-				s.indexMap[k] = index
-				f.Index = index
-			} else {
-				f.Index = index
-			}
-		}
-		schema[k] = f
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (s *SharedLayer) updateReg() {
-	for ruleID := range s.reg {
-		AddRuleSchema(ruleID, s.streamMap[ruleID], s.schema, len(s.wildcardMap) > 0)
-	}
-}
+func (s *SharedLayer) updateReg() { _ = "STUB: not implemented"; return }
 
-func (s *SharedLayer) Attach(ctx api.StreamContext) error {
-	s.Lock()
-	defer s.Unlock()
-	ruleID := ctx.GetRuleId()
-	info, ok := s.reg[ruleID]
-	if !ok {
-		return fmt.Errorf("rule schema %s is not registered", ruleID)
-	}
-	s.streamMap[ruleID] = info.datasource
-	if info.isWildcard {
-		s.wildcardMap[ruleID] = struct{}{}
-		s.schema = info.schema
-	}
-	isWildCard := len(s.wildcardMap) > 0
-	if !isWildCard { // If it is wildcard, the schema is already the biggest, no need to recalculate
-		mergedSchema, err := s.merge(s.schema, info.schema)
-		if err != nil {
-			return err
-		}
-		s.schema = mergedSchema
-	}
-	s.updateReg()
-	return nil
-}
+func (s *SharedLayer) Attach(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
+
+// If it is wildcard, the schema is already the biggest, no need to recalculate
 
 func (s *SharedLayer) Detach(ctx api.StreamContext, isClose bool) error {
-	var err error
-	s.Lock()
-	defer s.Unlock()
-	ruleID := ctx.GetRuleId()
-	_, ok := s.reg[ruleID]
-	if ok {
-		RemoveRuleSchema(ruleID)
-		if isClose {
-			delete(s.streamMap, ruleID)
-			delete(s.wildcardMap, ruleID)
-			delete(s.reg, ruleID)
-			// If any remaining rule is still wildcard, keep schema as nil (schemaless).
-			// Merging nil wildcard schemas would produce {} which causes the decoder to
-			// reject every field and emit empty tuples.
-			if len(s.wildcardMap) > 0 {
-				s.schema = nil
-			} else {
-				newSchema := make(map[string]*ast.JsonStreamField)
-				for _, si := range s.reg {
-					newSchema, err = s.merge(newSchema, si.schema)
-					if err != nil {
-						return err
-					}
-				}
-				s.schema = newSchema
-			}
-			s.updateReg()
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// If any remaining rule is still wildcard, keep schema as nil (schemaless).
+// Merging nil wildcard schemas would produce {} which causes the decoder to
+// reject every field and emit empty tuples.
+
 func (s *SharedLayer) GetSchema() map[string]*ast.JsonStreamField {
-	s.RLock()
-	defer s.RUnlock()
+	_ = "STUB: not implemented"
+	return nil
+
 	//if len(s.wildcardMap) > 0 {
 	//	return nil
 	//}
-	return s.schema
 }
 
-func (s *SharedLayer) GetSchemaIndex() map[string]int {
-	s.RLock()
-	defer s.RUnlock()
-	if len(s.wildcardMap) > 0 {
-		return nil
-	}
-	return s.indexMap
-}
+func (s *SharedLayer) GetSchemaIndex() map[string]int { _ = "STUB: not implemented"; return nil }
 
 func (s *SharedLayer) merge(originSchema, newSchema map[string]*ast.JsonStreamField) (map[string]*ast.JsonStreamField, error) {
-	ss, err := mergeSchema(originSchema, newSchema)
-	if err != nil {
-		return nil, err
-	}
-	// update index map
-	for k, f := range ss {
-		if f != nil {
-			if index, ok := s.indexMap[k]; ok {
-				f.Index = index
-				ss[k] = f
-			}
-		}
-	}
-	return ss, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// update index map
+
 func mergeSchema(originSchema, newSchema map[string]*ast.JsonStreamField) (map[string]*ast.JsonStreamField, error) {
-	resultSchema := make(map[string]*ast.JsonStreamField)
-	for ruleID, oldSchemaField := range originSchema {
-		resultSchema[ruleID] = oldSchemaField
-	}
-	for ruleID, newSchemaField := range newSchema {
-		oldSchemaField, ok := originSchema[ruleID]
-		if ok {
-			switch {
-			case oldSchemaField != nil && newSchemaField != nil:
-				if oldSchemaField.Type != newSchemaField.Type {
-					return nil, fmt.Errorf("column field type %v between current[%v] and new[%v] are not equal", ruleID, oldSchemaField.Type, newSchemaField.Type)
-				}
-				switch oldSchemaField.Type {
-				case "struct":
-					subResultSchema, err := mergeSchema(oldSchemaField.Properties, newSchemaField.Properties)
-					if err != nil {
-						return nil, err
-					}
-					resultSchema[ruleID].Properties = subResultSchema
-				case "array":
-					if oldSchemaField.Items.Type != newSchemaField.Items.Type {
-						return nil, fmt.Errorf("array column field type %v between current[%v] and new[%v] are not equal", ruleID, oldSchemaField.Items.Type, newSchemaField.Items.Type)
-					}
-					if oldSchemaField.Items.Type == "struct" {
-						subResultSchema, err := mergeSchema(oldSchemaField.Items.Properties, newSchemaField.Items.Properties)
-						if err != nil {
-							return nil, err
-						}
-						resultSchema[ruleID].Items.Properties = subResultSchema
-					}
-				}
-			case oldSchemaField != nil && newSchemaField == nil:
-				return nil, fmt.Errorf("array column field type %v between current[%v] and new[%v] are not equal", ruleID, oldSchemaField.Items.Type, "any")
-			case oldSchemaField == nil && newSchemaField != nil:
-				return nil, fmt.Errorf("array column field type %v between current[%v] and new[%v] are not equal", ruleID, "any", newSchemaField.Items.Type)
-			case oldSchemaField == nil && newSchemaField == nil:
-			}
-			continue
-		}
-		resultSchema[ruleID] = newSchemaField
-	}
-	return resultSchema, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

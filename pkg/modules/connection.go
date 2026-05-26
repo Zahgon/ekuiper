@@ -49,16 +49,10 @@ func init() {
 	ConnectionRegister = map[string]ConnectionProvider{}
 }
 
-func RegisterConnection(name string, cp ConnectionProvider) {
-	connectionRegisterMu.Lock()
-	defer connectionRegisterMu.Unlock()
-	ConnectionRegister[name] = cp
-}
+func RegisterConnection(name string, cp ConnectionProvider) { _ = "STUB: not implemented"; return }
 
 // GetConnectionProvider returns a connection provider by name in a thread-safe manner
 func GetConnectionProvider(name string) (ConnectionProvider, bool) {
-	connectionRegisterMu.RLock()
-	defer connectionRegisterMu.RUnlock()
-	cp, ok := ConnectionRegister[name]
-	return cp, ok
+	_ = "STUB: not implemented"
+	return *new(ConnectionProvider), false
 }

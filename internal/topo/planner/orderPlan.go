@@ -21,28 +21,8 @@ type OrderPlan struct {
 	SortFields ast.SortFields
 }
 
-func (p OrderPlan) Init() *OrderPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(ORDER)
-	return &p
-}
+func (p OrderPlan) Init() *OrderPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *OrderPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.SortFields) != 0 {
-		info += "SortFields:[ "
-		for i, field := range p.SortFields {
-			info += field.String()
-			if i != len(p.SortFields)-1 {
-				info += ", "
-			}
-		}
-		info += " ]"
-	}
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *OrderPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }
 
-func (p *OrderPlan) PruneColumns(fields []ast.Expr) error {
-	f := getFields(p.SortFields)
-	return p.baseLogicalPlan.PruneColumns(append(fields, f...))
-}
+func (p *OrderPlan) PruneColumns(fields []ast.Expr) error { _ = "STUB: not implemented"; return nil }

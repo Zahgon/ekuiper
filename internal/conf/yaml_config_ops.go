@@ -15,12 +15,6 @@
 package conf
 
 import (
-	"encoding/json"
-	"fmt"
-	"path/filepath"
-	"reflect"
-
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -70,257 +64,71 @@ type ConfigKeys struct {
 }
 
 func (c *ConfigKeys) saveCfgKeysIntoKVStorage(cfgType string) error {
-	for key := range c.saveCfgKey {
-		if err := saveCfgKeyToKV(buildKey(cfgType, c.pluginName, key), c.dataCfg[key]); err != nil {
-			return err
-		}
-		delete(c.saveCfgKey, key)
-	}
-	for key := range c.delCfgKey {
-		if err := delCfgKeyInStorage(buildKey(cfgType, c.pluginName, key)); err != nil {
-			return err
-		}
-		delete(c.delCfgKey, key)
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (c *ConfigKeys) GetPluginName() string {
-	return c.pluginName
-}
+func (c *ConfigKeys) GetPluginName() string { _ = "STUB: not implemented"; return "" }
 
 func (c *ConfigKeys) GetConfContentByte() ([]byte, error) {
-	cf := make(map[string]map[string]interface{})
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-	for key, kvs := range c.etcCfg {
-		aux := make(map[string]interface{})
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	for key, kvs := range c.dataCfg {
-		aux := make(map[string]interface{})
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	return json.Marshal(cf)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (c *ConfigKeys) CopyConfContent() map[string]map[string]interface{} {
-	cf := make(map[string]map[string]interface{})
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	for key, kvs := range c.etcCfg {
-		aux, ok := cf[key]
-		if !ok {
-			aux = make(map[string]interface{}, len(kvs))
-		}
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	// note: config keys in data directory will overwrite those in etc directory with same name
-	for key, kvs := range c.dataCfg {
-		aux, ok := cf[key]
-		if !ok {
-			aux = make(map[string]interface{}, len(kvs))
-		}
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	return cf
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *ConfigKeys) LoadConfContent(cf map[string]map[string]interface{}) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
+// note: config keys in data directory will overwrite those in etc directory with same name
 
-	for key, kvs := range cf {
-		aux := make(map[string]interface{})
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		c.dataCfg[key] = aux
-		c.saveCfgKey[key] = struct{}{}
-	}
+func (c *ConfigKeys) LoadConfContent(cf map[string]map[string]interface{}) {
+	_ = "STUB: not implemented"
+	return
 }
 
 func (c *ConfigKeys) CopyReadOnlyConfContent() map[string]map[string]interface{} {
-	cf := make(map[string]map[string]interface{})
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	for key, kvs := range c.etcCfg {
-		aux := make(map[string]interface{})
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	return cf
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *ConfigKeys) CopyUpdatableConfContent() map[string]map[string]interface{} {
-	cf := make(map[string]map[string]interface{})
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	for key, kvs := range c.dataCfg {
-		aux := make(map[string]interface{})
-		for k, v := range kvs {
-			aux[k] = v
-		}
-		cf[key] = aux
-	}
-
-	return cf
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (c *ConfigKeys) CopyUpdatableConfContentFor(configKeys []string) map[string]map[string]interface{} {
-	cf := make(map[string]map[string]interface{})
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	for _, key := range configKeys {
-		if key == "" {
-			key = "default"
-		}
-		if kvs, ok := c.dataCfg[key]; ok {
-			aux := make(map[string]interface{})
-			for k, v := range kvs {
-				aux[k] = v
-			}
-			cf[key] = aux
-		}
-	}
-	return cf
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (c *ConfigKeys) GetConfKeys() (keys []string) {
-	ro := c.GetReadOnlyConfKeys()
-	keys = append(keys, ro...)
+func (c *ConfigKeys) GetConfKeys() (keys []string) { _ = "STUB: not implemented"; return nil }
 
-	up := c.GetUpdatableConfKeys()
-	keys = append(keys, up...)
+func (c *ConfigKeys) GetReadOnlyConfKeys() (keys []string) { _ = "STUB: not implemented"; return nil }
 
-	return keys
-}
+func (c *ConfigKeys) GetUpdatableConfKeys() (keys []string) { _ = "STUB: not implemented"; return nil }
 
-func (c *ConfigKeys) GetReadOnlyConfKeys() (keys []string) {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
+func (c *ConfigKeys) DeleteConfKey(confKey string) { _ = "STUB: not implemented"; return }
 
-	for k := range c.etcCfg {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
-func (c *ConfigKeys) GetUpdatableConfKeys() (keys []string) {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	for k := range c.dataCfg {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
-func (c *ConfigKeys) DeleteConfKey(confKey string) {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	delete(c.dataCfg, confKey)
-	c.delCfgKey[confKey] = struct{}{}
-}
-
-func (c *ConfigKeys) ClearConfKeys() {
-	keys := c.GetUpdatableConfKeys()
-	for _, key := range keys {
-		c.DeleteConfKey(key)
-	}
-}
+func (c *ConfigKeys) ClearConfKeys() { _ = "STUB: not implemented"; return }
 
 func recursionDelMap(cf, fields map[string]interface{}) error {
-	for k, v := range fields {
-		if nil == v {
-			delete(cf, k)
-			continue
-		}
-
-		if delKey, ok := v.(string); ok {
-			if len(delKey) == 0 {
-				delete(cf, k)
-				continue
-			}
-			var auxCf map[string]interface{}
-			if err := cast.MapToStruct(cf[k], &auxCf); nil != err {
-				return fmt.Errorf(`%s%s.%s`, "type_conversion_fail", k, delKey)
-			}
-			cf[k] = auxCf
-			delete(auxCf, delKey)
-			continue
-		}
-		if reflect.TypeOf(v) != nil && reflect.Map == reflect.TypeOf(v).Kind() {
-			var auxCf, auxFields map[string]interface{}
-			if err := cast.MapToStruct(cf[k], &auxCf); nil != err {
-				return fmt.Errorf(`%s%s.%v`, "type_conversion_fail", k, v)
-			}
-			cf[k] = auxCf
-			if err := cast.MapToStruct(v, &auxFields); nil != err {
-				return fmt.Errorf(`%s%s.%v`, "type_conversion_fail", k, v)
-			}
-			if err := recursionDelMap(auxCf, auxFields); nil != err {
-				return err
-			}
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *ConfigKeys) DeleteConfKeyField(confKey string, reqField map[string]interface{}) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	err := recursionDelMap(c.dataCfg[confKey], reqField)
-	if nil != err {
-		return err
-	}
-
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *ConfigKeys) AddConfKey(confKey string, reqField map[string]interface{}) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	c.dataCfg[confKey] = reqField
-	c.saveCfgKey[confKey] = struct{}{}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (c *ConfigKeys) AddConfKeyField(confKey string, reqField map[string]interface{}) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	if nil == c.dataCfg[confKey] {
-		return fmt.Errorf(`%s`, "not_found_confkey")
-	}
-
-	for k, v := range reqField {
-		c.dataCfg[confKey][k] = v
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -329,194 +137,58 @@ type SourceConfigKeysOps struct {
 	*ConfigKeys
 }
 
-func (c *SourceConfigKeysOps) SaveCfgToStorage() error {
-	switch c.storageType {
-	case cfgStoreKVStorage:
-		return c.ConfigKeys.saveCfgKeysIntoKVStorage("sources")
-	}
-	return fmt.Errorf("unknown source cfg storage type: %v", c.storageType)
-}
+func (c *SourceConfigKeysOps) SaveCfgToStorage() error { _ = "STUB: not implemented"; return nil }
 
 // SinkConfigKeysOps implement ConfOperator interface, load the configs from data/sinks/xx.yaml
 type SinkConfigKeysOps struct {
 	*ConfigKeys
 }
 
-func (c *SinkConfigKeysOps) SaveCfgToStorage() error {
-	switch c.storageType {
-	case cfgStoreKVStorage:
-		return c.ConfigKeys.saveCfgKeysIntoKVStorage("sinks")
-	}
-	return fmt.Errorf("unknown sinks cfg storage type: %v", c.storageType)
-}
+func (c *SinkConfigKeysOps) SaveCfgToStorage() error { _ = "STUB: not implemented"; return nil }
 
 // ConnectionConfigKeysOps implement ConfOperator interface, load the configs from et/connections/connection.yaml
 type ConnectionConfigKeysOps struct {
 	*ConfigKeys
 }
 
-func (p *ConnectionConfigKeysOps) SaveCfgToStorage() error {
-	switch p.storageType {
-	case cfgStoreKVStorage:
-		return p.ConfigKeys.saveCfgKeysIntoKVStorage("connections")
-	}
-	return fmt.Errorf("unknown connection cfg storage type: %v", p.ConfigKeys.storageType)
-}
+func (p *ConnectionConfigKeysOps) SaveCfgToStorage() error { _ = "STUB: not implemented"; return nil }
 
 // NewConfigOperatorForSource construct function
 func NewConfigOperatorForSource(pluginName string) ConfigOperator {
-	c := &SourceConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-	return c
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator)
 }
 
 // NewConfigOperatorFromSourceStorage construct function, Load the configs from etc/sources/xx.yaml
 func NewConfigOperatorFromSourceStorage(pluginName string) (ConfigOperator, error) {
-	c := &SourceConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-
-	confDir, err := GetConfLoc()
-	if nil != err {
-		return nil, err
-	}
-	dir := filepath.Join(confDir, "sources")
-	fileName := pluginName
-	if pluginName == "mqtt" {
-		fileName = "mqtt_source"
-		dir = confDir
-	}
-	filePath := filepath.Join(dir, fileName+`.yaml`)
-	// Just ignore error if yaml not found
-	_ = LoadConfigFromPath(filePath, &c.etcCfg)
-
-	prefix := buildKey("sources", pluginName, "")
-	dataCfg, err := getCfgKeyFromStorageByPrefix(prefix)
-	if err != nil {
-		return nil, err
-	}
-	c.dataCfg = dataCfg
-	return c, nil
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator), nil
 }
+
+// Just ignore error if yaml not found
 
 // NewConfigOperatorForSink construct function
 func NewConfigOperatorForSink(pluginName string) ConfigOperator {
-	c := &SinkConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-	return c
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator)
 }
 
 // NewConfigOperatorFromSinkStorage construct function, Load the configs from etc/sources/xx.yaml
 func NewConfigOperatorFromSinkStorage(pluginName string) (ConfigOperator, error) {
-	c := &SinkConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-	prefix := buildKey("sinks", pluginName, "")
-	dataCfg, err := getCfgKeyFromStorageByPrefix(prefix)
-	if err != nil {
-		return nil, err
-	}
-	c.dataCfg = dataCfg
-	return c, nil
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator), nil
 }
 
 // NewConfigOperatorForConnection construct function
 func NewConfigOperatorForConnection(pluginName string) ConfigOperator {
-	c := &ConnectionConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-	return c
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator)
 }
 
 // NewConfigOperatorFromConnectionStorage construct function, Load the configs from et/connections/connection.yaml
 func NewConfigOperatorFromConnectionStorage(pluginName string) (ConfigOperator, error) {
-	c := &ConnectionConfigKeysOps{
-		&ConfigKeys{
-			storageType: getStorageType(),
-			lock:        syncx.RWMutex{},
-			pluginName:  pluginName,
-			etcCfg:      map[string]map[string]interface{}{},
-			dataCfg:     map[string]map[string]interface{}{},
-			delCfgKey:   map[string]struct{}{},
-			saveCfgKey:  map[string]struct{}{},
-		},
-	}
-
-	confDir, err := GetConfLoc()
-	if nil != err {
-		return nil, err
-	}
-	yamlPath := filepath.Join(confDir, "connections/connection.yaml")
-	yamlData := make(map[string]interface{})
-	err = LoadConfigFromPath(yamlPath, &yamlData)
-	if nil != err {
-		return nil, err
-	}
-	if plgCnfs, ok := yamlData[pluginName]; ok {
-		if cf, ok1 := plgCnfs.(map[string]interface{}); ok1 {
-			for confKey, confVal := range cf {
-				if conf, ok := confVal.(map[string]interface{}); ok {
-					c.etcCfg[confKey] = conf
-				} else {
-					return nil, fmt.Errorf("file content is not right: %s.%v", confKey, confVal)
-				}
-			}
-		} else {
-			return nil, fmt.Errorf("file content is not right: %v", plgCnfs)
-		}
-	}
-
-	prefix := buildKey("connections", pluginName, "")
-	dataCfg, err := getCfgKeyFromStorageByPrefix(prefix)
-	if err != nil {
-		return nil, err
-	}
-	c.dataCfg = dataCfg
-	return c, nil
+	_ = "STUB: not implemented"
+	return *new(ConfigOperator), nil
 }
 
-func getStorageType() string {
-	return cfgStoreKVStorage
-}
+func getStorageType() string { _ = "STUB: not implemented"; return "" }

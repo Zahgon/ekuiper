@@ -15,15 +15,6 @@
 package conf
 
 import (
-	"bytes"
-	"encoding/gob"
-	"errors"
-	"fmt"
-	"strings"
-
-	"github.com/pingcap/failpoint"
-
-	"github.com/lf-edge/ekuiper/v2/internal/pkg/store"
 	"github.com/lf-edge/ekuiper/v2/pkg/kv"
 )
 
@@ -42,23 +33,15 @@ type kvMemory struct {
 }
 
 func (m *kvMemory) Set(key string, v map[string]interface{}) error {
-	m.store[key] = v
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m *kvMemory) Delete(key string) error {
-	delete(m.store, key)
-	return nil
-}
+func (m *kvMemory) Delete(key string) error { _ = "STUB: not implemented"; return nil }
 
 func (m *kvMemory) GetByPrefix(prefix string) (map[string]map[string]interface{}, error) {
-	rm := make(map[string]map[string]interface{})
-	for key, value := range m.store {
-		if strings.HasPrefix(key, prefix) {
-			rm[key] = value
-		}
-	}
-	return rm, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 var (
@@ -68,121 +51,43 @@ var (
 
 // GetYamlConfigAllKeys get all plugin keys about sources/sinks/connections
 func GetYamlConfigAllKeys(typ string) (map[string]struct{}, error) {
-	s, err := getKVStorage()
-	if err != nil {
-		return nil, err
-	}
-	data, err := s.GetByPrefix(typ)
-	failpoint.Inject("getDataErr", func() {
-		err = errors.New("getDataErr")
-	})
-	if err != nil {
-		return nil, err
-	}
-	s1 := make(map[string]struct{})
-	for key := range data {
-		names := strings.Split(key, ".")
-		if len(names) != 3 {
-			continue
-		}
-		s1[names[1]] = struct{}{}
-	}
-	return s1, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func getKVStorage() (s cfgKVStorage, err error) {
-	defer func() {
-		failpoint.Inject("storageErr", func() {
-			err = errors.New("storageErr")
-		})
-	}()
-	if IsTesting {
-		if mockMemoryKVStore == nil {
-			mockMemoryKVStore = &kvMemory{}
-			mockMemoryKVStore.store = make(map[string]map[string]interface{})
-		}
-		return mockMemoryKVStore, nil
-	}
-	if kvStore == nil {
-		sqliteKVStorage, err := NewSqliteKVStore("confKVStorage")
-		if err != nil {
-			return nil, err
-		}
-		kvStore = sqliteKVStorage
-	}
-	return kvStore, nil
+	_ = "STUB: not implemented"
+	return *new(cfgKVStorage), nil
 }
 
 // SaveCfgKeyToKV ...
 func SaveCfgKeyToKV(key string, cfg map[string]interface{}) error {
-	return saveCfgKeyToKV(key, cfg)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func LoadCfgKeyKV(key string) (map[string]interface{}, error) {
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return nil, err
-	}
-	mmap, err := kvStorage.GetByPrefix(key)
-	if err != nil {
-		return nil, err
-	}
-	Log.Infof("load conf key:%v ", key)
-	return mmap[key], nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func saveCfgKeyToKV(key string, cfg map[string]interface{}) error {
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return err
-	}
-	Log.Infof("write conf key:%v ", key)
-	return kvStorage.Set(key, cfg)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func delCfgKeyInStorage(key string) error {
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return err
-	}
-	Log.Infof("del conf key:%v ", key)
-	return kvStorage.Delete(key)
-}
+func delCfgKeyInStorage(key string) error { _ = "STUB: not implemented"; return nil }
 
 func getCfgKeyFromStorageByPrefix(prefix string) (map[string]map[string]interface{}, error) {
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return nil, err
-	}
-	val, err := kvStorage.GetByPrefix(prefix)
-	if err != nil {
-		return nil, err
-	}
-	v := make(map[string]map[string]interface{})
-	for key, value := range val {
-		ss := strings.Split(key, ".")
-		// skip data if not conf
-		if len(ss) != 3 {
-			continue
-		}
-		v[ss[2]] = value
-	}
-	return v, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
+// skip data if not conf
+
 func buildKey(confType string, pluginName string, confKey string) string {
-	bs := bytes.NewBufferString(confType)
-	if len(pluginName) < 1 {
-		return bs.String()
-	}
-	bs.WriteString(".")
-	bs.WriteString(pluginName)
-	if len(confKey) < 1 {
-		return bs.String()
-	}
-	bs.WriteString(".")
-	bs.WriteString(confKey)
-	return bs.String()
+	_ = "STUB: not implemented"
+	return ""
 }
 
 type sqlKVStore struct {
@@ -190,104 +95,50 @@ type sqlKVStore struct {
 }
 
 func NewSqliteKVStore(table string) (*sqlKVStore, error) {
-	s := &sqlKVStore{}
-	kv, err := store.GetKV(table)
-	if err != nil {
-		return nil, err
-	}
-	s.kv = kv
-	return s, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func (s *sqlKVStore) Set(k string, v map[string]interface{}) error {
-	return s.kv.Set(k, v)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (s *sqlKVStore) Delete(k string) error {
-	return s.kv.Delete(k)
-}
+func (s *sqlKVStore) Delete(k string) error { _ = "STUB: not implemented"; return nil }
 
 func (s *sqlKVStore) GetByPrefix(prefix string) (map[string]map[string]interface{}, error) {
-	r := make(map[string]map[string]interface{})
-	v, err := s.kv.GetByPrefix(prefix)
-	if err != nil {
-		return nil, err
-	}
-	for key, valueBytes := range v {
-		props := map[string]interface{}{}
-		dec := gob.NewDecoder(bytes.NewBuffer(valueBytes))
-		if err := dec.Decode(&props); err != nil {
-			return nil, err
-		}
-		r[key] = props
-	}
-	return r, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // WriteCfgIntoKVStorage ...
 func WriteCfgIntoKVStorage(typ string, plugin string, confKey string, confData map[string]interface{}) error {
-	key := buildKey(typ, plugin, confKey)
-	return saveCfgKeyToKV(key, confData)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DropCfgKeyFromStorage ...
 func DropCfgKeyFromStorage(typ string, plugin string, confKey string) error {
-	key := buildKey(typ, plugin, confKey)
-	return delCfgKeyInStorage(key)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetCfgFromKVStorage ...
 func GetCfgFromKVStorage(typ string, plugin string, confKey string) (map[string]map[string]interface{}, error) {
-	key := buildKey(typ, plugin, confKey)
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return nil, err
-	}
-	return kvStorage.GetByPrefix(key)
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // ClearKVStorage only used in unit test
-func ClearKVStorage() error {
-	kvStorage, err := getKVStorage()
-	if err != nil {
-		return err
-	}
-	km, err := kvStorage.GetByPrefix("")
-	if err != nil {
-		return err
-	}
-	for key := range km {
-		kvStorage.Delete(key)
-	}
-	return nil
-}
+func ClearKVStorage() error { _ = "STUB: not implemented"; return nil }
 
 // GetAllConnConfigs return connections' plugin -> confKey -> props
 func GetAllConnConfigs() (map[string]map[string]map[string]any, error) {
-	allConfigs, err := GetCfgFromKVStorage("connections", "", "")
-	if err != nil {
-		return nil, err
-	}
-	got := make(map[string]map[string]map[string]any)
-	for key, props := range allConfigs {
-		_, plugin, confKey, err := splitKey(key)
-		if err != nil {
-			continue
-		}
-		pluginProps, ok := got[plugin]
-		if !ok {
-			pluginProps = make(map[string]map[string]any)
-			got[plugin] = pluginProps
-		}
-		pluginProps[confKey] = props
-	}
-	return got, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func splitKey(key string) (string, string, string, error) {
-	keys := strings.Split(key, ".")
-	if len(keys) != 3 {
-		return "", "", "", fmt.Errorf("invalid key: %s", key)
-	}
-	return keys[0], keys[1], keys[2], nil
+	_ = "STUB: not implemented"
+	return "", "", "", nil
 }

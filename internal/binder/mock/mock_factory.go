@@ -15,118 +15,102 @@
 package mock
 
 import (
-	"strings"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/plugin"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 )
 
 type MockFactory struct{}
 
-func NewMockFactory() *MockFactory {
-	return &MockFactory{}
-}
+func NewMockFactory() *MockFactory { _ = "STUB: not implemented"; return nil }
 
 func (f *MockFactory) Source(name string) (api.Source, error) {
-	if strings.HasPrefix(name, "mock") {
-		return &mockSource{}, nil
-	} else {
-		return nil, errorx.NotFoundErr
-	}
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 func (f *MockFactory) SourcePluginInfo(_ string) (plugin.EXTENSION_TYPE, string, string) {
-	return plugin.INTERNAL, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
 func (f *MockFactory) LookupSource(name string) (api.Source, error) {
-	return nil, nil
+	_ = "STUB: not implemented"
+	return *new(api.Source), nil
 }
 
 func (f *MockFactory) Sink(name string) (api.Sink, error) {
-	if strings.HasPrefix(name, "mock") {
-		return &mockSink{}, nil
-	} else {
-		return nil, errorx.NotFoundErr
-	}
+	_ = "STUB: not implemented"
+	return *new(api.Sink), nil
 }
 
 func (f *MockFactory) SinkPluginInfo(_ string) (plugin.EXTENSION_TYPE, string, string) {
-	return plugin.INTERNAL, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
 func (f *MockFactory) Function(name string) (api.Function, error) {
-	if strings.HasPrefix(name, "mock") {
-		return &mockFunc{}, nil
-	} else {
-		return nil, errorx.NotFoundErr
-	}
+	_ = "STUB: not implemented"
+	return *new(api.Function), nil
 }
 
 func (f *MockFactory) FunctionPluginInfo(funcName string) (plugin.EXTENSION_TYPE, string, string) {
-	return plugin.NONE_EXTENSION, "", ""
+	_ = "STUB: not implemented"
+	return *new(plugin.EXTENSION_TYPE), "", ""
 }
 
 func (f *MockFactory) ConvName(name string) (string, bool) {
-	return name, true
+	_ = "STUB: not implemented"
+	return "", false
 }
 
-func (f *MockFactory) HasFunctionSet(funcName string) bool {
-	if strings.HasPrefix(funcName, "mock") {
-		return true
-	} else {
-		return false
-	}
-}
+func (f *MockFactory) HasFunctionSet(funcName string) bool { _ = "STUB: not implemented"; return false }
 
 type mockFunc struct{}
 
-func (m *mockFunc) Validate(_ []interface{}) error {
-	return nil
-}
+func (m *mockFunc) Validate(_ []interface{}) error { _ = "STUB: not implemented"; return nil }
 
 func (m *mockFunc) Exec(ctx api.FunctionContext, args []any) (interface{}, bool) {
-	return nil, true
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
-func (m *mockFunc) IsAggregate() bool {
-	return false
-}
+func (m *mockFunc) IsAggregate() bool { _ = "STUB: not implemented"; return false }
 
 type mockSource struct{}
 
 func (m *mockSource) Provision(ctx api.StreamContext, configs map[string]any) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (m *mockSource) Connect(ctx api.StreamContext, _ api.StatusChangeHandler) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m *mockSource) Close(_ api.StreamContext) error {
-	return nil
-}
+func (m *mockSource) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (m *mockSource) Subscribe(ctx api.StreamContext, ingest api.TupleIngest, ingestError api.ErrorIngest) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 type mockSink struct{}
 
 func (m *mockSink) Provision(ctx api.StreamContext, configs map[string]any) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (m *mockSink) Connect(ctx api.StreamContext, _ api.StatusChangeHandler) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (m *mockSink) Collect(_ api.StreamContext, _ interface{}) error {
+	_ = "STUB: not implemented"
 	return nil
 }
 
-func (m *mockSink) Close(_ api.StreamContext) error {
-	return nil
-}
+func (m *mockSink) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }

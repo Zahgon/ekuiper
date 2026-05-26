@@ -15,22 +15,14 @@
 package nng
 
 import (
-	"fmt"
-	"net/url"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 	"go.nanomsg.org/mangos/v3"
-	"go.nanomsg.org/mangos/v3/protocol/pair"
-	"go.nanomsg.org/mangos/v3/protocol/push"
-	"go.nanomsg.org/mangos/v3/protocol/req"
 	_ "go.nanomsg.org/mangos/v3/transport/ipc"
 	_ "go.nanomsg.org/mangos/v3/transport/tcp"
 
-	"github.com/lf-edge/ekuiper/v2/pkg/cast"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/modules"
 )
 
@@ -52,149 +44,57 @@ type Sock struct {
 }
 
 func (s *Sock) SetStatusChangeHandler(ctx api.StreamContext, handler api.StatusChangeHandler) {
-	s.scHandler = handler
-	st := s.status.Load().(modules.ConnectionStatus)
-	handler(st.Status, st.ErrMsg)
-	s.scHandler = handler
-	ctx.GetLogger().Infof("trigger status change handler")
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *Sock) Status(_ api.StreamContext) modules.ConnectionStatus {
-	return s.status.Load().(modules.ConnectionStatus)
+	_ = "STUB: not implemented"
+	return *new(modules.ConnectionStatus)
 }
 
-func (s *Sock) GetId(_ api.StreamContext) string {
-	return s.id
-}
+func (s *Sock) GetId(_ api.StreamContext) string { _ = "STUB: not implemented"; return "" }
 
 func (s *Sock) Provision(ctx api.StreamContext, conId string, props map[string]any) error {
-	c, err := ValidateConf(props)
-	if err != nil {
-		return err
-	}
-	var sock mangos.Socket
-	switch c.Protocol {
-	case "pair":
-		sock, err = pair.NewSocket()
-	case "push":
-		sock, err = push.NewSocket()
-	case "req":
-		sock, err = req.NewSocket()
-	default:
-		return fmt.Errorf("unsupported nng protocol %s", c.Protocol)
-	}
-
-	if err != nil {
-		return err
-	}
-	// options consider to export
-	_ = sock.SetOption(mangos.OptionSendDeadline, nngTimeout)
-	_ = sock.SetOption(mangos.OptionRecvDeadline, nngTimeout)
-	s.url = c.Url
-	s.id = conId
-	s.Socket = sock
-	s.ready = make(chan struct{})
-	var once sync.Once
-	sock.SetPipeEventHook(func(ev mangos.PipeEvent, p mangos.Pipe) {
-		switch ev {
-		case mangos.PipeEventAttached:
-			once.Do(func() {
-				ctx.GetLogger().Infof("nng connection is ready")
-				close(s.ready)
-			})
-			s.connected.Store(true)
-			s.status.Store(modules.ConnectionStatus{Status: api.ConnectionConnected})
-			if s.scHandler != nil {
-				s.scHandler(api.ConnectionConnected, "")
-			}
-			ctx.GetLogger().Infof("nng connection attached")
-		case mangos.PipeEventAttaching:
-			s.status.Store(modules.ConnectionStatus{Status: api.ConnectionConnecting})
-			if s.scHandler != nil {
-				s.scHandler(api.ConnectionConnecting, "")
-			}
-			ctx.GetLogger().Debugf("nng connection is attaching")
-		case mangos.PipeEventDetached:
-			s.connected.Store(false)
-			s.status.Store(modules.ConnectionStatus{Status: api.ConnectionDisconnected})
-			if s.scHandler != nil {
-				s.scHandler(api.ConnectionDisconnected, "")
-			}
-			ctx.GetLogger().Warnf("nng connection detached")
-		}
-	})
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// options consider to export
+
 func (s *Sock) Dial(ctx api.StreamContext) error {
+	_ = "STUB: not implemented"
 	// sock.SetOption(mangos.OptionWriteQLen, 100)
 	// sock.SetOption(mangos.OptionReadQLen, 100)
 	// sock.SetOption(mangos.OptionBestEffort, false)
-	if err := s.Socket.DialOptions(s.url, map[string]interface{}{
-		mangos.OptionDialAsynch:       true, // will not report error and keep connecting
-		mangos.OptionMaxReconnectTime: 5 * time.Second,
-		mangos.OptionReconnectTime:    100 * time.Millisecond,
-		mangos.OptionMaxRecvSize:      0,
-	}); err != nil {
-		return fmt.Errorf("please make sure nng server side has started and configured, can't dial: %s", err.Error())
-	}
-	// make it block until first connected
-	<-s.ready
 	return nil
 }
+
+// will not report error and keep connecting
+
+// make it block until first connected
 
 var nngTimeout = 5 * time.Second
 
 func CreateConnection(_ api.StreamContext) modules.Connection {
-	s := &Sock{}
-	s.status.Store(modules.ConnectionStatus{Status: api.ConnectionConnecting})
-	s.connected.Store(false)
-	return s
+	_ = "STUB: not implemented"
+	return *new(modules.Connection)
 }
 
 func ValidateConf(props map[string]any) (*SockConf, error) {
-	c := &SockConf{
-		Protocol: "pair",
-	}
-	err := cast.MapToStruct(props, c)
-	if err != nil {
-		return nil, err
-	}
-	if c.Url == "" {
-		return nil, fmt.Errorf("url is required")
-	} else {
-		// Parse the URL
-		parsedURL, err := url.Parse(c.Url)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing url %s: %s", c.Url, err)
-		}
-		if parsedURL.Scheme != "tcp" && parsedURL.Scheme != "ipc" {
-			return nil, fmt.Errorf("only tcp and ipc scheme are supported")
-		}
-	}
-	if c.Protocol != "pair" && c.Protocol != "push" && c.Protocol != "req" {
-		return nil, fmt.Errorf("unsupported protocol %s", c.Protocol)
-	}
-	return c, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (s *Sock) Ping(_ api.StreamContext) error {
-	if !s.connected.Load() {
-		return fmt.Errorf("not connected")
-	}
-	return nil
-}
+// Parse the URL
 
-func (s *Sock) Close(_ api.StreamContext) error {
-	return s.Socket.Close()
-}
+func (s *Sock) Ping(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
+
+func (s *Sock) Close(_ api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (s *Sock) Send(ctx api.StreamContext, data []byte) error {
-	ctx.GetLogger().Debugf("ngg publish %x", data)
-	if s.Socket != nil && s.connected.Load() {
-		return s.Socket.Send(data)
-	}
-	return errorx.NewIOErr(`nng connection is not established`)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 var _ modules.StatefulDialer = &Sock{}

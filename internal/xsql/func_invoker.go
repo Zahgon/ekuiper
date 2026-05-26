@@ -15,41 +15,16 @@
 package xsql
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
-	"github.com/lf-edge/ekuiper/v2/internal/binder/function"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
 )
 
-func validateFuncs(funcName string, args []ast.Expr) error {
-	f, err := function.Function(funcName)
-	if f != nil {
-		var targs []interface{}
-		for _, arg := range args {
-			targs = append(targs, arg)
-		}
-		if mf, ok := f.(MultiFunc); ok {
-			return mf.ValidateWithName(args, funcName)
-		} else {
-			return f.Validate(targs)
-		}
-	} else {
-		if err != nil {
-			return err
-		} else {
-			return fmt.Errorf("function %s not found", funcName)
-		}
-	}
-}
+func validateFuncs(funcName string, args []ast.Expr) error { _ = "STUB: not implemented"; return nil }
 
 func ExecFunc(funcName string, f api.Function, args []interface{}, fctx api.FunctionContext) (interface{}, bool) {
-	if mf, ok := f.(MultiFunc); ok {
-		return mf.ExecWithName(args, fctx, funcName)
-	} else {
-		return f.Exec(fctx, args)
-	}
+	_ = "STUB: not implemented"
+	return nil, false
 }
 
 // MultiFunc hack for builtin functions that works for multiple functions

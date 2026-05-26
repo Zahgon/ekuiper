@@ -20,8 +20,6 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 
-	"github.com/lf-edge/ekuiper/v2/internal/conf"
-	"github.com/lf-edge/ekuiper/v2/pkg/errorx"
 	"github.com/lf-edge/ekuiper/v2/pkg/syncx"
 )
 
@@ -45,106 +43,27 @@ const (
 )
 
 // InitMQTTControl Should only called once
-func InitMQTTControl() {
-	Ctrl = NewMQTTControl("tcp://127.0.0.1:1883", "ek_ctrl")
-}
+func InitMQTTControl() { _ = "STUB: not implemented"; return }
 
 func NewMQTTControl(server string, cid string) *MqttControl {
+	_ = "STUB: not implemented"
 	// connect to MQTT
-	conf.Log.Infof("connect to local broker for control channel")
-	mc := &MqttControl{
-		sigs:     make(map[string]struct{}),
-		interval: time.Second,
-		lock:     syncx.RWMutex{},
-	}
-	// Connect to MQTT
-	opts := mqtt.NewClientOptions().AddBroker(server).SetProtocolVersion(4).SetClientID(cid).SetAutoReconnect(true).SetConnectRetry(true).SetConnectRetryInterval(100 * time.Millisecond).SetMaxReconnectInterval(1 * time.Second)
-	opts.OnConnect = func(client mqtt.Client) {
-		conf.Log.Infof("mqtt control channel connected")
-		client.Subscribe(CtrlAckTopic, 0, func(client mqtt.Client, msg mqtt.Message) {
-			mc.Rem(string(msg.Payload()))
-		})
-	}
-	opts.OnConnectionLost = func(client mqtt.Client, err error) {
-		conf.Log.Errorf("mqtt control channel disconected for %v", err)
-		// subscribe?
-	}
-	opts.OnReconnecting = func(client mqtt.Client, options *mqtt.ClientOptions) {
-		conf.Log.Infof("mqtt control channel is reconnecting")
-	}
-	cli := mqtt.NewClient(opts)
-	token := cli.Connect()
-	go func() {
-		err := handleToken(token)
-		if err != nil {
-			conf.Log.Warnf("found error when connecting for mqtt control channel: %s", err)
-		}
-	}()
-	mc.cli = cli
-	return mc
-}
-
-func handleToken(token mqtt.Token) error {
-	if !token.WaitTimeout(5 * time.Second) {
-		return errorx.NewIOErr("timeout")
-	} else if token.Error() != nil {
-		return errorx.NewIOErr(token.Error().Error())
-	}
 	return nil
 }
 
-func (c *MqttControl) Add(name string) {
-	conf.Log.Infof("mqtt control add %s", name)
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	if len(c.sigs) == 0 {
-		if c.cancel != nil {
-			c.cancel()
-		}
-		ctx, cancel := context.WithCancel(context.Background())
-		c.cancel = cancel
-		go c.run(ctx)
-	}
-	c.pub(name)
-	c.sigs[name] = struct{}{}
-}
+// Connect to MQTT
 
-func (c *MqttControl) Rem(name string) {
-	conf.Log.Infof("mqtt control remove %s", name)
-	c.lock.Lock()
-	defer c.lock.Unlock()
-	delete(c.sigs, name)
-	if len(c.sigs) == 0 && c.cancel != nil {
-		c.cancel()
-		c.cancel = nil
-	}
-}
+// subscribe?
+
+func handleToken(token mqtt.Token) error { _ = "STUB: not implemented"; return nil }
+
+func (c *MqttControl) Add(name string) { _ = "STUB: not implemented"; return }
+
+func (c *MqttControl) Rem(name string) { _ = "STUB: not implemented"; return }
 
 // start run when there are topics and stop when no topics needed
-func (c *MqttControl) run(ctx context.Context) {
-	ticker := time.NewTicker(c.interval)
-	defer ticker.Stop()
-	conf.Log.Infof("mqtt control channel loop started")
-	for {
-		select {
-		case <-ticker.C:
-			c.scan()
-		case <-ctx.Done():
-			conf.Log.Infof("mqtt control channel loop exit")
-			return
-		}
-	}
-}
+func (c *MqttControl) run(ctx context.Context) { _ = "STUB: not implemented"; return }
 
-func (c *MqttControl) scan() {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-	for k := range c.sigs {
-		c.pub(k)
-	}
-}
+func (c *MqttControl) scan() { _ = "STUB: not implemented"; return }
 
-func (c *MqttControl) pub(message string) {
-	c.cli.Publish(CtrlTopic, 0, false, []byte(message))
-	conf.Log.Debugf("mqtt control chan publish %s", message)
-}
+func (c *MqttControl) pub(message string) { _ = "STUB: not implemented"; return }

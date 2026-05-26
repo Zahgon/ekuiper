@@ -16,7 +16,6 @@ package node
 
 import (
 	"encoding/gob"
-	"fmt"
 	"time"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
@@ -24,8 +23,6 @@ import (
 	"github.com/lf-edge/ekuiper/v2/internal/pkg/def"
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
 	"github.com/lf-edge/ekuiper/v2/pkg/ast"
-	"github.com/lf-edge/ekuiper/v2/pkg/infra"
-	"github.com/lf-edge/ekuiper/v2/pkg/timex"
 )
 
 const (
@@ -50,54 +47,20 @@ type WindowV2Operator struct {
 }
 
 func NewWindowV2Op(name string, w WindowConfig, options *def.RuleOption) (*WindowV2Operator, error) {
-	o := new(WindowV2Operator)
-	o.defaultSinkNode = newDefaultSinkNode(name, options)
-	o.scanner = &WindowScanner{Tuples: make([]*xsql.Tuple, 0)}
-	o.windowConfig = w
-	switch w.Type {
-	case ast.SLIDING_WINDOW:
-		if options.IsEventTime {
-			o.wExec = NewEventSlidingWindowOp(o)
-		} else {
-			o.wExec = NewSlidingWindowOp(o)
-		}
-	case ast.STATE_WINDOW:
-		o.wExec = NewStateWindowOp(o)
-	default:
-		return nil, fmt.Errorf("unsupported window type:%v", w.Type.String())
-	}
-	return o, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (o *WindowV2Operator) Close() {
-	o.defaultNode.Close()
-}
+func (o *WindowV2Operator) Close() { _ = "STUB: not implemented"; return }
 
 func (o *WindowV2Operator) Exec(ctx api.StreamContext, errCh chan<- error) {
-	o.prepareExec(ctx, errCh, "op")
-	go func() {
-		defer o.Close()
-		err := infra.SafeRun(func() error {
-			o.wExec.exec(ctx, errCh)
-			return nil
-		})
-		if err != nil {
-			infra.DrainError(ctx, err, errCh)
-		}
-	}()
+	_ = "STUB: not implemented"
+	return
 }
 
 func (o *WindowV2Operator) emitWindow(ctx api.StreamContext, startTime, endTime time.Time) {
-	tuples := o.scanner.scanWindow(startTime, endTime)
-	results := &xsql.WindowTuples{
-		Content: make([]xsql.Row, 0),
-	}
-	for _, tuple := range tuples {
-		results.Content = append(results.Content, tuple)
-	}
-	results.WindowRange = xsql.NewWindowRange(startTime.UnixMilli(), endTime.UnixMilli(), endTime.UnixMilli())
-	o.Broadcast(results)
-	o.onSend(ctx, results)
+	_ = "STUB: not implemented"
+	return
 }
 
 type WindowV2Exec interface {
@@ -121,130 +84,31 @@ type StateWindowStatus struct {
 	Scanner   *WindowScanner
 }
 
-func NewStateWindowOp(o *WindowV2Operator) *StateWindowOp {
-	return &StateWindowOp{
-		WindowV2Operator: o,
-		BeginCondition:   o.windowConfig.BeginCondition,
-		EmitCondition:    o.windowConfig.EmitCondition,
-		SingleCondition:  o.windowConfig.SingleCondition,
-		stateFuncs:       o.windowConfig.StateFuncs,
-		status:           make(map[string]*StateWindowStatus),
-		PartitionExpr:    o.windowConfig.PartitionExpr,
-	}
-}
+func NewStateWindowOp(o *WindowV2Operator) *StateWindowOp { _ = "STUB: not implemented"; return nil }
 
 func (s *StateWindowOp) emit(ctx api.StreamContext, status *StateWindowStatus) {
-	tuples := status.Scanner.scanWindow(time.Time{}, InfTime)
-	results := &xsql.WindowTuples{
-		Content: make([]xsql.Row, 0),
-	}
-	for _, tuple := range tuples {
-		results.Content = append(results.Content, tuple)
-	}
-	results.WindowRange = xsql.NewWindowRange(status.StartTime.UnixMilli(), status.EndTime.UnixMilli(), status.EndTime.UnixMilli())
-	s.Broadcast(results)
-	s.onSend(ctx, results)
+	_ = "STUB: not implemented"
+	return
 }
 
 func calPartition(fv *xsql.FunctionValuer, partitionExpr *ast.PartitionExpr, row *xsql.Tuple) string {
-	name := "parKey_"
-	if partitionExpr == nil {
-		return name
-	}
-	ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(row, fv, &xsql.WildcardValuer{Data: row})}
-	for _, expr := range partitionExpr.Exprs {
-		r := ve.Eval(expr)
-		if _, ok := r.(error); ok {
-			continue
-		} else {
-			name += fmt.Sprintf("%v,", r)
-		}
-	}
-	return name
+	_ = "STUB: not implemented"
+	return ""
 }
 
 func (s *StateWindowOp) exec(ctx api.StreamContext, errCh chan<- error) {
-	v, err := ctx.GetState(V2WindowInputsKey)
-	if err == nil && v != nil {
-		preStatus, ok := v.(map[string]*StateWindowStatus)
-		if ok {
-			s.status = preStatus
-		}
-	}
-	fv, _ := xsql.NewFunctionValuersForOp(ctx)
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case input := <-s.input:
-			data, processed := s.commonIngest(ctx, input)
-			if processed {
-				continue
-			}
-			s.onProcessStart(ctx, input)
-			switch row := data.(type) {
-			case *xsql.Tuple:
-				name := calPartition(fv, s.PartitionExpr, row)
-				status, ok := s.status[name]
-				if !ok {
-					status = &StateWindowStatus{
-						Scanner: &WindowScanner{Tuples: make([]*xsql.Tuple, 0)},
-					}
-					s.status[name] = status
-				}
-				if s.BeginCondition != nil && s.EmitCondition != nil {
-					s.handleTupleWithBeginEmitCondition(ctx, fv, row, status)
-				} else if s.SingleCondition != nil {
-					s.handleTupleWithSingleCondition(ctx, fv, row, status)
-				}
-			}
-			ctx.PutState(V2WindowInputsKey, s.status)
-			s.onProcessEnd(ctx)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *StateWindowOp) handleTupleWithBeginEmitCondition(ctx api.StreamContext, fv *xsql.FunctionValuer, row *xsql.Tuple, status *StateWindowStatus) {
-	if !status.OnBegin {
-		canBegin := isMatchCondition(ctx, s.BeginCondition, fv, row, s.stateFuncs)
-		if canBegin {
-			status.StartTime = row.Timestamp
-			status.OnBegin = true
-			status.Scanner.addTuple(row)
-		}
-	} else {
-		status.Scanner.addTuple(row)
-		canEmit := isMatchCondition(ctx, s.EmitCondition, fv, row, s.stateFuncs)
-		if canEmit {
-			status.EndTime = row.Timestamp
-			s.emit(ctx, status)
-			status.Scanner.gc(InfTime)
-			status.OnBegin = false
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func (s *StateWindowOp) handleTupleWithSingleCondition(ctx api.StreamContext, fv *xsql.FunctionValuer, row *xsql.Tuple, status *StateWindowStatus) {
-	if !status.OnBegin {
-		canBegin := isMatchCondition(ctx, s.SingleCondition, fv, row, s.stateFuncs)
-		if canBegin {
-			status.StartTime = row.Timestamp
-			status.OnBegin = true
-			status.Scanner.addTuple(row)
-		}
-	} else {
-		canEmit := isMatchCondition(ctx, s.SingleCondition, fv, row, s.stateFuncs)
-		if canEmit {
-			status.EndTime = row.Timestamp
-			s.emit(ctx, status)
-			status.Scanner.gc(InfTime)
-			status.OnBegin = true
-			status.Scanner.addTuple(row)
-			status.StartTime = row.Timestamp
-		} else {
-			status.Scanner.addTuple(row)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 type SlidingWindowOp struct {
@@ -257,126 +121,33 @@ type SlidingWindowOp struct {
 }
 
 func NewSlidingWindowOp(o *WindowV2Operator) *SlidingWindowOp {
-	return &SlidingWindowOp{
-		WindowV2Operator: o,
-		Delay:            o.windowConfig.Delay,
-		Length:           o.windowConfig.Length,
-		stateFuncs:       o.windowConfig.StateFuncs,
-		triggerCondition: o.windowConfig.TriggerCondition,
-		delayNotify:      make(chan time.Time, 1024),
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (s *SlidingWindowOp) exec(ctx api.StreamContext, errCh chan<- error) {
-	fv, _ := xsql.NewFunctionValuersForOp(ctx)
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case delayTs := <-s.delayNotify:
-			windowEnd := delayTs
-			windowStart := delayTs.Add(-s.Delay).Add(-s.Length)
-			s.emitWindow(ctx, windowStart, windowEnd)
-		case input := <-s.input:
-			data, processed := s.commonIngest(ctx, input)
-			if processed {
-				continue
-			}
-			s.onProcessStart(ctx, input)
-			switch row := data.(type) {
-			case *xsql.Tuple:
-				windowEnd := row.Timestamp
-				windowStart := windowEnd.Add(-s.Length)
-				s.scanner.gc(windowStart)
-				s.scanner.addTuple(row)
-				sendWindow := true
-				if s.triggerCondition != nil {
-					sendWindow = isMatchCondition(ctx, s.triggerCondition, fv, row, s.stateFuncs)
-				}
-				if s.Delay > 0 && sendWindow {
-					sendWindow = false
-					go func(ts time.Time) {
-						after := timex.After(s.Delay)
-						select {
-						case <-ctx.Done():
-							return
-						case <-after:
-							s.delayNotify <- ts
-						}
-					}(windowEnd.Add(s.Delay))
-				}
-				if sendWindow {
-					s.emitWindow(ctx, windowStart, windowEnd)
-				}
-			}
-			s.onProcessEnd(ctx)
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
 func isMatchCondition(ctx api.StreamContext, condition ast.Expr, fv *xsql.FunctionValuer, d *xsql.Tuple, stateFuncs []*ast.Call) bool {
-	if condition == nil {
-		return true
-	}
-	log := ctx.GetLogger()
-	ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(d, fv)}
-	result := ve.Eval(condition)
-	// not match trigger condition
-	if result == nil {
-		return false
-	}
-	switch v := result.(type) {
-	case error:
-		log.Errorf("inc sliding window trigger condition meet error: %v", v)
-		return false
-	case bool:
-		if v && len(stateFuncs) > 0 {
-			for _, f := range stateFuncs {
-				_ = ve.Eval(f)
-			}
-		}
-		return v
-	default:
-		return false
-	}
+	_ = "STUB: not implemented"
+	return false
 }
+
+// not match trigger condition
 
 type WindowScanner struct {
 	Tuples []*xsql.Tuple
 }
 
-func (s *WindowScanner) addTuple(tuple *xsql.Tuple) {
-	s.Tuples = append(s.Tuples, tuple)
-}
+func (s *WindowScanner) addTuple(tuple *xsql.Tuple) { _ = "STUB: not implemented"; return }
 
 // scan left-open, right-closed window
 func (s *WindowScanner) scanWindow(windowStart, windowEnd time.Time) []*xsql.Tuple {
-	result := make([]*xsql.Tuple, 0)
-	for _, tuple := range s.Tuples {
-		if tuple.Timestamp.After(windowStart) && (tuple.Timestamp.Before(windowEnd) || tuple.Timestamp.Equal(windowEnd)) {
-			result = append(result, tuple)
-		} else if tuple.Timestamp.After(windowEnd) {
-			break
-		}
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // gc the tuples which earlier than gcTime
-func (s *WindowScanner) gc(gcTime time.Time) {
-	if len(s.Tuples) < 1 {
-		return
-	}
-	index := -1
-	for i, tuple := range s.Tuples {
-		if tuple.Timestamp.After(gcTime) {
-			index = i
-			break
-		}
-	}
-	if index == -1 {
-		s.Tuples = make([]*xsql.Tuple, 0)
-		return
-	}
-	s.Tuples = s.Tuples[index:]
-}
+func (s *WindowScanner) gc(gcTime time.Time) { _ = "STUB: not implemented"; return }

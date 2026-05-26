@@ -14,12 +14,6 @@
 
 package planner
 
-import (
-	"reflect"
-	"strconv"
-	"strings"
-)
-
 type ProjectSetPlan struct {
 	baseLogicalPlan
 	SrfMapping  map[string]struct{}
@@ -27,27 +21,6 @@ type ProjectSetPlan struct {
 	limitCount  int
 }
 
-func (p ProjectSetPlan) Init() *ProjectSetPlan {
-	p.baseLogicalPlan.self = &p
-	p.baseLogicalPlan.setPlanType(PROJECTSET)
-	return &p
-}
+func (p ProjectSetPlan) Init() *ProjectSetPlan { _ = "STUB: not implemented"; return nil }
 
-func (p *ProjectSetPlan) BuildExplainInfo() {
-	info := ""
-	if len(p.SrfMapping) != 0 {
-		info += "SrfMap:{"
-		for str, s := range p.SrfMapping {
-			ty := reflect.TypeOf(s)
-			arr := strings.Split(ty.String(), ".")
-			if len(arr) == 1 {
-				info += "key:" + str
-			} else {
-				info += "key:" + str + ", " + "value:" + arr[1] + ";"
-			}
-		}
-		info += "}"
-	}
-	info += ", EnableLimit:" + strconv.FormatBool(p.enableLimit)
-	p.baseLogicalPlan.ExplainInfo.Info = info
-}
+func (p *ProjectSetPlan) BuildExplainInfo() { _ = "STUB: not implemented"; return }

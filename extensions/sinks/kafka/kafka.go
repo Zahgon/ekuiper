@@ -16,8 +16,6 @@ package main
 
 import (
 	"github.com/lf-edge/ekuiper/contract/v2/api"
-
-	"github.com/lf-edge/ekuiper/v2/extensions/impl/kafka"
 )
 
-func Kafka() api.Sink { return kafka.GetSink() }
+func Kafka() api.Sink { _ = "STUB: not implemented"; return *new(api.Sink) }

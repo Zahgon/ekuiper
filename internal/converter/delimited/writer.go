@@ -16,7 +16,6 @@ package delimited
 
 import (
 	"bytes"
-	"strings"
 
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
@@ -31,42 +30,20 @@ type CsvWriter struct {
 }
 
 func NewCsvWriter(_ api.StreamContext, props map[string]any) (message.ConvertWriter, error) {
-	c, err := NewConverter(props)
-	if err != nil {
-		return nil, err
-	}
-	cc := c.(*Converter)
-	// Header are now creating by batch writer
-	cc.HasHeader = false
-	return &CsvWriter{
-		converter: cc,
-		buffer:    bytes.NewBuffer(nil),
-	}, nil
+	_ = "STUB: not implemented"
+	return *new(message.ConvertWriter), nil
 }
 
-func (w *CsvWriter) New(ctx api.StreamContext) error {
-	ctx.GetLogger().Debugf("new csv writer")
-	w.buffer.Reset()
-	w.header = ""
-	return nil
-}
+// Header are now creating by batch writer
+
+func (w *CsvWriter) New(ctx api.StreamContext) error { _ = "STUB: not implemented"; return nil }
 
 func (w *CsvWriter) Write(ctx api.StreamContext, d any) error {
-	ctx.GetLogger().Debugf("csv writer write")
-	result, err := w.converter.Encode(ctx, d)
-	if err != nil {
-		return err
-	}
-	if w.header == "" {
-		w.header = strings.Join(w.converter.Cols, w.converter.Delimiter)
-		w.buffer.WriteString(w.header)
-	}
-	w.buffer.WriteString("\n")
-	w.buffer.Write(result)
+	_ = "STUB: not implemented"
 	return nil
 }
 
 func (w *CsvWriter) Flush(ctx api.StreamContext) ([]byte, error) {
-	ctx.GetLogger().Debugf("csv writer flush")
-	return w.buffer.Bytes(), nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

@@ -15,8 +15,6 @@
 package operator
 
 import (
-	"fmt"
-
 	"github.com/lf-edge/ekuiper/contract/v2/api"
 
 	"github.com/lf-edge/ekuiper/v2/internal/xsql"
@@ -30,47 +28,6 @@ type FuncOp struct {
 }
 
 func (p *FuncOp) Apply(ctx api.StreamContext, data interface{}, fv *xsql.FunctionValuer, afv *xsql.AggregateFunctionValuer) interface{} {
-	ctx.GetLogger().Debugf("FuncOp receive: %v", data)
-	switch input := data.(type) {
-	case error:
-		return input
-	case xsql.Row:
-		ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(input, fv)}
-		result := ve.Eval(p.CallExpr)
-		if e, ok := result.(error); ok {
-			return e
-		}
-		input.Set(p.Name, result)
-	case xsql.Collection:
-		var err error
-		if p.IsAgg {
-			input.SetIsAgg(true)
-			err = input.GroupRange(func(_ int, aggRow xsql.CollectionRow) (bool, error) {
-				afv.SetData(aggRow)
-				ve := &xsql.ValuerEval{Valuer: xsql.MultiAggregateValuer(aggRow, fv, aggRow, fv, afv, &xsql.WildcardValuer{Data: aggRow})}
-				result := ve.Eval(p.CallExpr)
-				if e, ok := result.(error); ok {
-					return false, e
-				}
-				aggRow.Set(p.Name, result)
-				return true, nil
-			})
-		} else {
-			err = input.RangeSet(func(_ int, row xsql.Row) (bool, error) {
-				ve := &xsql.ValuerEval{Valuer: xsql.MultiValuer(row, &xsql.WindowRangeValuer{WindowRange: input.GetWindowRange()}, fv, &xsql.WildcardValuer{Data: row})}
-				result := ve.Eval(p.CallExpr)
-				if e, ok := result.(error); ok {
-					return false, e
-				}
-				row.Set(p.Name, result)
-				return true, nil
-			})
-		}
-		if err != nil {
-			return err
-		}
-	default:
-		return fmt.Errorf("run func error: invalid input %[1]T(%[1]v)", input)
-	}
-	return data
+	_ = "STUB: not implemented"
+	return nil
 }
